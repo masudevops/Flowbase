@@ -60,7 +60,7 @@ export function ColumnsManager({
 
   return (
     <div className="space-y-6">
-      <ul className="divide-y divide-zinc-200 rounded-md border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+      <ul className="divide-y divide-[#DFE1E6] rounded-md border border-[#DFE1E6] dark:divide-[#2A3547] dark:border-[#2A3547]">
         {columns.map((column, i) => (
           <li key={column.id} className="flex items-center gap-3 px-4 py-3">
             <div className="flex flex-col gap-0.5">
@@ -68,7 +68,7 @@ export function ColumnsManager({
                 type="button"
                 onClick={() => moveColumn(i, -1)}
                 disabled={i === 0}
-                className="text-xs text-zinc-400 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-100"
+                className="text-xs text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
                 aria-label="Move up"
               >
                 ▲
@@ -77,7 +77,7 @@ export function ColumnsManager({
                 type="button"
                 onClick={() => moveColumn(i, 1)}
                 disabled={i === columns.length - 1}
-                className="text-xs text-zinc-400 hover:text-zinc-900 disabled:opacity-30 dark:hover:text-zinc-100"
+                className="text-xs text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
                 aria-label="Move down"
               >
                 ▼
@@ -103,7 +103,7 @@ export function ColumnsManager({
             ) : (
               <button
                 type="button"
-                className="flex-1 text-left text-sm font-medium text-zinc-950 dark:text-zinc-50"
+                className="flex-1 text-left text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]"
                 onClick={() => {
                   setEditingId(column.id);
                   setEditingName(column.name);
@@ -113,7 +113,7 @@ export function ColumnsManager({
               </button>
             )}
 
-            <label className="flex items-center gap-1 text-xs text-zinc-500">
+            <label className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
               <input
                 type="checkbox"
                 checked={column.isBlockedColumn}
@@ -123,7 +123,7 @@ export function ColumnsManager({
               />
               Blocked column
             </label>
-            <label className="flex items-center gap-1 text-xs text-zinc-500">
+            <label className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
               <input
                 type="checkbox"
                 checked={column.isDoneColumn}
@@ -137,14 +137,16 @@ export function ColumnsManager({
             <button
               type="button"
               onClick={() => deleteColumn.mutate({ columnId: column.id })}
-              className="text-xs text-red-600 hover:underline"
+              className="text-xs text-[#DE350B] hover:underline dark:text-[#FF5630]"
             >
               Delete
             </button>
           </li>
         ))}
       </ul>
-      {deleteColumn.error && <p className="text-sm text-red-600">{deleteColumn.error.message}</p>}
+      {deleteColumn.error && (
+        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{deleteColumn.error.message}</p>
+      )}
 
       <form
         className="flex gap-2"

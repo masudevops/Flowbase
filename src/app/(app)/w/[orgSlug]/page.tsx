@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { requireServerCaller, getOrgBySlugOrNotFound } from "@/server/caller";
 
 export default async function WorkspaceHome({
   params,
@@ -6,16 +7,65 @@ export default async function WorkspaceHome({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
+  const caller = await requireServerCaller();
+  const organization = await getOrgBySlugOrNotFound(caller, orgSlug);
+  const stats = await caller.dashboard.stats({ organizationId: organization.id });
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <p className="text-zinc-500">Dashboard counts (open/blocked/overdue) are coming later.</p>
-      <Link
-        href={`/w/${orgSlug}/boards`}
-        className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-950"
-      >
-        View boards
-      </Link>
+    <div className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Dashboard</h1>
+        <Link
+          href={`/w/${orgSlug}/boards`}
+          className="rounded-md bg-[#0B5CFF] px-3 py-2 text-sm font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
+        >
+          View boards
+        </Link>
+      </div>
+
+      {stats.length === 0 ? (
+        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+          No boards yet.{" "}
+          <Link href={`/w/${orgSlug}/boards/new`} className="font-medium underline">
+            Create your first board
+          </Link>
+          .
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {stats.map((board) => (
+            <Link
+              key={board.boardId}
+              href={`/w/${orgSlug}/boards/${board.boardId}`}
+              className="rounded-lg border border-[#DFE1E6] bg-white p-4 transition-shadow hover:shadow-md dark:border-[#2A3547] dark:bg-[#161D2E]"
+            >
+              <h2 className="font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                {board.boardName}
+              </h2>
+              <div className="mt-3 flex gap-4 text-sm">
+                <div>
+                  <span className="block text-lg font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+                    {board.openCount}
+                  </span>
+                  <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">Open</span>
+                </div>
+                <div>
+                  <span className="block text-lg font-semibold text-[#DE350B] dark:text-[#FF5630]">
+                    {board.blockedCount}
+                  </span>
+                  <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">Blocked</span>
+                </div>
+                <div>
+                  <span className="block text-lg font-semibold text-[#FF991F]">
+                    {board.overdueCount}
+                  </span>
+                  <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">Overdue</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

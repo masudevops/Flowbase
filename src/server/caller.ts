@@ -26,6 +26,22 @@ export async function requireServerCaller() {
   return appRouter.createCaller(ctx);
 }
 
+/// Runs any tRPC call from a Server Component and converts a NOT_FOUND
+/// error into Next's notFound() (a clean 404 page) instead of letting it
+/// bubble up as an unhandled 500. Use for every entity lookup driven by a
+/// URL param (org slug, board id, ...) — a bad/foreign id in the URL
+/// should 404, not crash.
+export async function callOrNotFound<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof TRPCError && err.code === "NOT_FOUND") {
+      notFound();
+    }
+    throw err;
+  }
+}
+
 /// Shared resolve-org-by-slug-or-404 pattern, used by the workspace
 /// layout and every board page under /w/[orgSlug]/... — each still
 /// re-resolves per page (no cross-page Server Component caching), but
@@ -34,13 +50,6 @@ export async function getOrgBySlugOrNotFound(
   caller: Awaited<ReturnType<typeof requireServerCaller>>,
   slug: string,
 ) {
-  try {
-    const { organization } = await caller.organization.bySlug({ slug });
-    return organization;
-  } catch (err) {
-    if (err instanceof TRPCError && err.code === "NOT_FOUND") {
-      notFound();
-    }
-    throw err;
-  }
+  const { organization } = await callOrNotFound(() => caller.organization.bySlug({ slug }));
+  return organization;
 }

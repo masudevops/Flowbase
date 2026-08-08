@@ -12,7 +12,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-6 dark:bg-black">
+    <div className="flex flex-1 items-center justify-center bg-[#F7F9FC] px-6 dark:bg-[#0E1624]">
       {children}
     </div>
   );

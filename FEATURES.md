@@ -14,7 +14,7 @@ A running list of what's actually built and verified vs. what's planned. Update 
 ### Security & data isolation
 - Every table scoped by `organizationId`
 - Postgres Row-Level Security enforced at the database level (not just app-level checks) — verified live: a second user cannot see a first user's workspace even with a direct URL, confirmed by Postgres itself rejecting the query, not just the UI hiding it
-- Audit log: board and column creates/updates/deletes/reorders are recorded with who did it and when (`AuditLog` table) — foundation is in place for card-level actions too, once cards exist
+- Audit log: board, column, and card actions (created/updated/moved/blocked/unblocked/deleted) are recorded with who did it and when (`AuditLog` table) — verified live, in the correct order, with correct actor/entity IDs
 
 ### Boards
 - Create a board blank, or from a starter template:
@@ -22,9 +22,21 @@ A running list of what's actually built and verified vs. what's planned. Update 
   - **Construction** — Backlog, Scheduled, In Progress, Blocked/Waiting on Inspection, Punch List, Complete; Task/Punch Item/Inspection card types
 - Board list per workspace
 - Column management: rename, reorder (up/down), add, delete (blocked if the column still has cards, to avoid silently losing them)
-- Board view currently shows columns read-only (no cards yet — see "In progress" below)
 
-### Landing page
+### Kanban board & cards
+- Real drag-and-drop (via `@dnd-kit`) — move cards between columns and reorder within a column
+- Moving a card into a column marked "blocked" auto-flags it blocked; moving it back out auto-clears that (a manual block set while sitting in a non-blocked column is left alone by moves through other columns)
+- Card detail panel (slide-over, Jira/Monday-style — no full page navigation): title, description (markdown text, not yet rendered as rich markdown in view mode), card type, priority, assignee (from workspace members), due date, location/zone field, color-coded labels, blocked flag + reason, checklist, comments
+- Inline "+ Add card" per column
+
+### Backlog & filters
+- Per-board backlog view: every card on the board as a filterable/sortable table (filter by assignee, priority, label, blocked status; sort by priority/due date/title) — click a row to open the same card detail panel
+
+### Dashboard
+- Per-board open/blocked/overdue counts on the workspace home page
+
+### Design
+- Palette and type system inspired by Jira and Monday.com (their actual token colors — Jira's navy `#172B4D`, status reds/greens/purples — not a generic guess), applied consistently across the whole app, not just the landing page
 - Public marketing page at `/` with an interactive demo (live toggle between IT/Dev and Construction board vocabulary), responsive, dark-mode aware
 
 ### Infrastructure
@@ -32,14 +44,18 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Deployed on Vercel (free tier), database on Supabase (free tier)
 - Local dev: seed script for demo data, RLS setup scripts, migration workflow documented in `prisma/rls/README.md` and `ARCHITECTURE.md`
 
-## 🚧 Next up (rest of MVP, in order)
+## 🚧 Next up (rest of MVP)
 
-- **Kanban board with drag-and-drop** — actual cards on the board, moving between columns via `@dnd-kit`
-- **Card detail view** — title, markdown description, assignee, priority, due date, due-date, labels (color-coded), blocked flag + reason (independent of column), card type, optional location/zone field, comments, checklist/sub-tasks
-- **Backlog view** — separate filterable/sortable list of unscheduled cards, drag into a board when ready
-- **Members & invites** — invite teammates by email (Resend is wired for this, not yet used), Admin/Member roles
-- **Filters** — by assignee, priority, label, blocked status
-- **Dashboard** — open/blocked/overdue counts per board
+- **Members & invites** — invite teammates by email (Resend is wired for the account, not yet used for sending), Admin/Member role management UI (membership listing already exists, used for the assignee dropdown — inviting/removing people is what's missing)
+- **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet
+- **Rendered markdown** in the card description (currently plain text in and out — `react-markdown` is already installed, just not wired into the view mode)
+
+## 💡 Ideas borrowed from Jira/Monday, worth considering (not started)
+
+Not a commitment — flagging where a "best of both" idea could genuinely improve the product, since that's what was asked for:
+- **Monday-style automations** ("when moved to Done, notify assignee") — Monday's signature feature; would need a small rules engine, real scope, not a quick add
+- **Jira-style epics** (a card that groups other cards) — useful for the IT template's sprint planning; would need a self-referencing relation on `Card`
+- **Multiple board views** beyond Kanban + the backlog table — a calendar or timeline view (see Phase 2 below) is the natural next one
 
 ## 📋 Planned (Phase 2 — after MVP is solid, not started)
 

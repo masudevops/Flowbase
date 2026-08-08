@@ -11,7 +11,7 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-6 dark:bg-black">
+    <div className="flex flex-1 items-center justify-center bg-[#F7F9FC] px-6 dark:bg-[#0E1624]">
       <CreateOrgForm />
     </div>
   );

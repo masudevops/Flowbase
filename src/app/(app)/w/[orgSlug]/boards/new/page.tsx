@@ -12,7 +12,7 @@ export default async function NewBoardPage({
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
-      <h1 className="mb-6 text-xl font-semibold text-zinc-950 dark:text-zinc-50">New board</h1>
+      <h1 className="mb-6 text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">New board</h1>
       <NewBoardForm organizationId={organization.id} orgSlug={orgSlug} />
     </div>
   );

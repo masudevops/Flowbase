@@ -13,16 +13,16 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">Log in</h1>
-        <p className="text-sm text-zinc-500">Welcome back.</p>
+        <h1 className="text-2xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Log in</h1>
+        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">Welcome back.</p>
       </div>
 
       <GoogleAuthButton />
 
-      <div className="flex items-center gap-3 text-xs text-zinc-400">
-        <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+      <div className="flex items-center gap-3 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+        <div className="h-px flex-1 bg-[#DFE1E6] dark:bg-[#2A3547]" />
         or
-        <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+        <div className="h-px flex-1 bg-[#DFE1E6] dark:bg-[#2A3547]" />
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -34,15 +34,17 @@ export default function LoginPage() {
           required
           autoComplete="current-password"
         />
-        {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+        {state?.error && (
+          <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{state.error}</p>
+        )}
         <Button type="submit" disabled={isPending}>
           {isPending ? "Logging in..." : "Log in"}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
         No account?{" "}
-        <Link href="/signup" className="font-medium text-zinc-900 dark:text-zinc-100">
+        <Link href="/signup" className="font-medium text-[#0B5CFF] dark:text-[#4C9AFF]">
           Sign up
         </Link>
       </p>

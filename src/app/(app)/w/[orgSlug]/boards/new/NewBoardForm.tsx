@@ -55,7 +55,7 @@ export function NewBoardForm({
       className="space-y-6"
     >
       <div>
-        <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label className="mb-1 block text-sm font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
           Board name
         </label>
         <Input
@@ -70,7 +70,7 @@ export function NewBoardForm({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label className="mb-2 block text-sm font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
           Template
         </label>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -82,18 +82,22 @@ export function NewBoardForm({
               className={cn(
                 "rounded-md border p-3 text-left text-sm transition-colors",
                 templateKey === option.key
-                  ? "border-zinc-950 bg-zinc-50 dark:border-zinc-50 dark:bg-zinc-900"
-                  : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
+                  ? "border-[#0B5CFF] bg-[#0B5CFF]/5 dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/10"
+                  : "border-[#DFE1E6] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:hover:border-[#4C9AFF]/50",
               )}
             >
-              <div className="font-medium text-zinc-950 dark:text-zinc-50">{option.label}</div>
-              <div className="mt-1 text-xs text-zinc-500">{option.description}</div>
+              <div className="font-medium text-[#172B4D] dark:text-[#E4E7EC]">{option.label}</div>
+              <div className="mt-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                {option.description}
+              </div>
             </button>
           ))}
         </div>
       </div>
 
-      {createBoard.error && <p className="text-sm text-red-600">{createBoard.error.message}</p>}
+      {createBoard.error && (
+        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{createBoard.error.message}</p>
+      )}
 
       <Button type="submit" disabled={createBoard.isPending || name.trim().length < 2}>
         {createBoard.isPending ? "Creating..." : "Create board"}
