@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { requireServerCaller, getOrgBySlugOrNotFound, callOrNotFound } from "@/server/caller";
+import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { ColumnsManager } from "./ColumnsManager";
+import { DeleteBoardButton } from "@/components/board/DeleteBoardButton";
 
 export default async function BoardSettingsPage({
   params,
@@ -9,7 +10,7 @@ export default async function BoardSettingsPage({
 }) {
   const { orgSlug, boardId } = await params;
   const caller = await requireServerCaller();
-  const organization = await getOrgBySlugOrNotFound(caller, orgSlug);
+  const { organization, role } = await callOrNotFound(() => caller.organization.bySlug({ slug: orgSlug }));
   const board = await callOrNotFound(() => caller.board.byId({ boardId }));
 
   if (board.organizationId !== organization.id) {
@@ -25,6 +26,10 @@ export default async function BoardSettingsPage({
         Rename, reorder, add, or delete columns.
       </p>
       <ColumnsManager boardId={boardId} initialColumns={board.columns} />
+
+      {role === "ADMIN" && (
+        <DeleteBoardButton boardId={boardId} boardName={board.name} orgSlug={orgSlug} />
+      )}
     </div>
   );
 }

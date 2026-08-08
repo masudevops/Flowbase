@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Kanban, Menu, X } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
@@ -23,6 +23,7 @@ export function Sidebar({
   const navItems = [
     { href: `/w/${orgSlug}`, label: "Dashboard", icon: LayoutDashboard, exact: true },
     { href: `/w/${orgSlug}/boards`, label: "Boards", icon: Kanban, exact: false },
+    { href: `/w/${orgSlug}/members`, label: "Team", icon: Users, exact: false },
   ];
 
   const content = (

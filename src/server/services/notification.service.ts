@@ -25,6 +25,27 @@ async function cardLink(db: Prisma.TransactionClient, card: { organizationId: st
   return `${APP_URL}/w/${org?.slug}/boards/${card.boardId}?card=${card.id}`;
 }
 
+/// Invites don't have a User row to look up yet, so this takes the raw
+/// values instead of loading them from the DB like the other notifiers.
+export async function sendInviteEmail(params: {
+  to: string;
+  organizationName: string;
+  inviterName: string;
+  token: string;
+  role: string;
+}) {
+  const url = `${APP_URL}/invite/${params.token}`;
+  await sendEmail({
+    to: params.to,
+    subject: `${params.inviterName} invited you to join ${params.organizationName} on Flowbase`,
+    html: emailShell(
+      `<p>${params.inviterName} invited you to join <strong>${params.organizationName}</strong> on Flowbase as a ${params.role === "ADMIN" ? "project manager" : "team member"}.</p>`,
+      url,
+      "Accept invite",
+    ),
+  });
+}
+
 /// Notifies a user they were assigned a card. Never notifies someone of
 /// their own action (self-assignment).
 export async function notifyCardAssigned(

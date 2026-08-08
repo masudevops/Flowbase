@@ -1,0 +1,222 @@
+"use client";
+
+import { useState } from "react";
+import { Shield, UserPlus, X, LogOut, Trash2, Mail } from "lucide-react";
+import { trpc } from "@/trpc/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+type Member = {
+  id: string;
+  userId: string;
+  role: "ADMIN" | "MEMBER";
+  email: string;
+  fullName: string | null;
+};
+
+type Invite = {
+  id: string;
+  organizationId: string;
+  email: string;
+  role: "ADMIN" | "MEMBER";
+  status: "INVITED" | "ACTIVE" | "SUSPENDED";
+  invitedById: string;
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+};
+
+const selectClass =
+  "rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]";
+
+function initialOf(m: Member) {
+  return (m.fullName ?? m.email).charAt(0).toUpperCase();
+}
+
+export function MembersManager({
+  organizationId,
+  currentUserId,
+  currentUserRole,
+  initialMembers,
+  initialInvites,
+}: {
+  organizationId: string;
+  currentUserId: string;
+  currentUserRole: "ADMIN" | "MEMBER";
+  initialMembers: Member[];
+  initialInvites: Invite[];
+}) {
+  const utils = trpc.useUtils();
+  const isAdmin = currentUserRole === "ADMIN";
+
+  const { data: members } = trpc.membership.list.useQuery(
+    { organizationId },
+    { initialData: initialMembers },
+  );
+  const { data: invites } = trpc.membership.listInvites.useQuery(
+    { organizationId },
+    { initialData: initialInvites, enabled: isAdmin },
+  );
+
+  const [error, setError] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"ADMIN" | "MEMBER">("MEMBER");
+
+  function refresh() {
+    utils.membership.list.invalidate({ organizationId });
+    utils.membership.listInvites.invalidate({ organizationId });
+  }
+
+  const invite = trpc.membership.invite.useMutation({
+    onSuccess: () => {
+      setInviteEmail("");
+      setError(null);
+      refresh();
+    },
+    onError: (err) => setError(err.message),
+  });
+
+  const cancelInvite = trpc.membership.cancelInvite.useMutation({ onSuccess: refresh });
+  const updateRole = trpc.membership.updateRole.useMutation({
+    onSuccess: refresh,
+    onError: (err) => setError(err.message),
+  });
+  const removeMember = trpc.membership.remove.useMutation({
+    onSuccess: refresh,
+    onError: (err) => setError(err.message),
+  });
+
+  return (
+    <div className="space-y-8">
+      {isAdmin && (
+        <div className="rounded-lg border border-[#DFE1E6] bg-white p-4 dark:border-[#2A3547] dark:bg-[#161D2E]">
+          <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+            <UserPlus className="h-4 w-4" />
+            Invite someone
+          </h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              invite.mutate({ organizationId, email: inviteEmail, role: inviteRole });
+            }}
+            className="flex flex-wrap items-center gap-2"
+          >
+            <Input
+              type="email"
+              required
+              placeholder="email@example.com"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              className="max-w-xs"
+            />
+            <select
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as "ADMIN" | "MEMBER")}
+              className={selectClass}
+            >
+              <option value="MEMBER">Team member</option>
+              <option value="ADMIN">Admin / project manager</option>
+            </select>
+            <Button type="submit" className="w-auto" disabled={invite.isPending}>
+              {invite.isPending ? "Sending..." : "Send invite"}
+            </Button>
+          </form>
+          {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
+        </div>
+      )}
+
+      {isAdmin && invites && invites.length > 0 && (
+        <div>
+          <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+            <Mail className="h-4 w-4" />
+            Pending invites
+          </h2>
+          <div className="divide-y divide-[#DFE1E6] rounded-lg border border-[#DFE1E6] bg-white dark:divide-[#2A3547] dark:border-[#2A3547] dark:bg-[#161D2E]">
+            {invites.map((inv) => (
+              <div key={inv.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                <div>
+                  <span className="text-[#172B4D] dark:text-[#E4E7EC]">{inv.email}</span>
+                  <span className="ml-2 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                    {inv.role === "ADMIN" ? "Admin / project manager" : "Team member"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => cancelInvite.mutate({ organizationId, inviteId: inv.id })}
+                  className="rounded p-1 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                  aria-label="Cancel invite"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+          Members ({members?.length ?? 0})
+        </h2>
+        <div className="divide-y divide-[#DFE1E6] rounded-lg border border-[#DFE1E6] bg-white dark:divide-[#2A3547] dark:border-[#2A3547] dark:bg-[#161D2E]">
+          {members?.map((m) => {
+            const isSelf = m.userId === currentUserId;
+            return (
+              <div key={m.id} className="flex items-center justify-between px-4 py-2.5">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0B5CFF] text-xs font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]">
+                    {initialOf(m)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                      {m.fullName ?? m.email}
+                      {isSelf && <span className="ml-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">(you)</span>}
+                    </p>
+                    <p className="truncate text-xs text-[#5E6C84] dark:text-[#8C9BAB]">{m.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  {isAdmin ? (
+                    <select
+                      value={m.role}
+                      onChange={(e) =>
+                        updateRole.mutate({
+                          organizationId,
+                          membershipId: m.id,
+                          role: e.target.value as "ADMIN" | "MEMBER",
+                        })
+                      }
+                      className={selectClass}
+                    >
+                      <option value="MEMBER">Team member</option>
+                      <option value="ADMIN">Admin / PM</option>
+                    </select>
+                  ) : (
+                    <span className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                      {m.role === "ADMIN" && <Shield className="h-3 w-3" />}
+                      {m.role === "ADMIN" ? "Admin / PM" : "Team member"}
+                    </span>
+                  )}
+
+                  {(isAdmin || isSelf) && (
+                    <button
+                      onClick={() => {
+                        if (confirm(isSelf ? "Leave this workspace?" : `Remove ${m.fullName ?? m.email}?`)) {
+                          removeMember.mutate({ organizationId, membershipId: m.id });
+                        }
+                      }}
+                      className="rounded p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                      aria-label={isSelf ? "Leave workspace" : "Remove member"}
+                    >
+                      {isSelf ? <LogOut className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -7,6 +7,7 @@ import {
   archiveBoardSchema,
 } from "@/schemas/board.schema";
 import { createBoard, archiveBoard } from "../services/board.service";
+import { assertAdmin } from "../permissions";
 
 export const boardRouter = router({
   list: protectedProcedure.input(listBoardsSchema).query(({ ctx, input }) =>
@@ -44,6 +45,8 @@ export const boardRouter = router({
     if (!board) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
+
+    await assertAdmin(ctx.db, board.organizationId, ctx.userId);
 
     return archiveBoard(ctx.db, {
       organizationId: board.organizationId,

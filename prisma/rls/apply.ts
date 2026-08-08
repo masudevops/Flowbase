@@ -112,6 +112,7 @@ async function main() {
       "002_policies.sql",
       "003_realtime.sql",
       "004_storage.sql",
+      "005_invite_lookup.sql",
     ]) {
       const sql = fs.readFileSync(path.join(RLS_DIR, file), "utf8");
       await admin.query(sql);

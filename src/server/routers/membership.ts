@@ -1,5 +1,15 @@
-import { router, protectedProcedure } from "../trpc";
-import { listMembersSchema } from "@/schemas/membership.schema";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
+import {
+  listMembersSchema,
+  inviteMemberSchema,
+  listInvitesSchema,
+  cancelInviteSchema,
+  updateMemberRoleSchema,
+  removeMemberSchema,
+  acceptInviteSchema,
+} from "@/schemas/membership.schema";
+import { updateMemberRole, removeMember } from "../services/membership.service";
+import { createInvite, listPendingInvites, cancelInvite, acceptInvite, getInviteByToken } from "../services/invite.service";
 
 export const membershipRouter = router({
   list: protectedProcedure.input(listMembersSchema).query(async ({ ctx, input }) => {
@@ -10,10 +20,68 @@ export const membershipRouter = router({
     });
 
     return memberships.map((m) => ({
+      id: m.id,
       userId: m.userId,
       role: m.role,
       email: m.user.email,
       fullName: m.user.fullName,
     }));
   }),
+
+  invite: protectedProcedure.input(inviteMemberSchema).mutation(({ ctx, input }) =>
+    createInvite(ctx.db, {
+      organizationId: input.organizationId,
+      actorId: ctx.userId,
+      email: input.email,
+      role: input.role,
+    }),
+  ),
+
+  listInvites: protectedProcedure.input(listInvitesSchema).query(({ ctx, input }) =>
+    listPendingInvites(ctx.db, input.organizationId),
+  ),
+
+  cancelInvite: protectedProcedure.input(cancelInviteSchema).mutation(({ ctx, input }) =>
+    cancelInvite(ctx.db, {
+      organizationId: input.organizationId,
+      actorId: ctx.userId,
+      inviteId: input.inviteId,
+    }),
+  ),
+
+  updateRole: protectedProcedure.input(updateMemberRoleSchema).mutation(({ ctx, input }) =>
+    updateMemberRole(ctx.db, {
+      organizationId: input.organizationId,
+      actorId: ctx.userId,
+      membershipId: input.membershipId,
+      role: input.role,
+    }),
+  ),
+
+  remove: protectedProcedure.input(removeMemberSchema).mutation(({ ctx, input }) =>
+    removeMember(ctx.db, {
+      organizationId: input.organizationId,
+      actorId: ctx.userId,
+      membershipId: input.membershipId,
+    }),
+  ),
+
+  /// Unauthenticated-safe preview so /invite/[token] can show "you're
+  /// joining Acme Corp" before asking someone to log in or sign up.
+  previewInvite: publicProcedure.input(acceptInviteSchema).query(async ({ input }) => {
+    const invite = await getInviteByToken(input.token);
+    if (!invite) return null;
+    return { organizationName: invite.organization.name, role: invite.role, email: invite.email };
+  }),
+
+  acceptInvite: protectedProcedure
+    .input(acceptInviteSchema)
+    .mutation(async ({ ctx, input }) => {
+      const supabaseUser = await ctx.db.user.findUniqueOrThrow({ where: { id: ctx.userId } });
+      return acceptInvite(ctx.db, {
+        token: input.token,
+        userId: ctx.userId,
+        userEmail: supabaseUser.email,
+      });
+    }),
 });
