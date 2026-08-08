@@ -33,7 +33,12 @@ export type BoardColumn = {
 };
 
 export type CardTypeOption = { id: string; name: string; color: string };
-export type MemberOption = { userId: string; email: string; fullName: string | null };
+export type MemberOption = {
+  userId: string;
+  email: string;
+  fullName: string | null;
+  role?: "ADMIN" | "MEMBER";
+};
 export type LabelOption = { id: string; name: string; color: string };
 export type ContactOption = { id: string; name: string; email: string | null; phone: string | null };
 

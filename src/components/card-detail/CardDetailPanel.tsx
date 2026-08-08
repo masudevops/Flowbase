@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { trpc } from "@/trpc/client";
+import { Button } from "@/components/ui/button";
 import { PRIORITY_META } from "@/components/board/types";
 import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "@/components/board/types";
 import { AttachmentsSection } from "./AttachmentsSection";
@@ -80,6 +81,7 @@ export function CardDetailPanel({
   const utils = trpc.useUtils();
   const { data: card } = trpc.card.byId.useQuery({ cardId });
   const { data: comments } = trpc.comment.list.useQuery({ cardId });
+  const { data: me } = trpc.user.me.useQuery();
   const { data: boardCards } = trpc.card.listByBoard.useQuery(
     { boardId: card?.boardId ?? "" },
     { enabled: !!card },
@@ -102,6 +104,15 @@ export function CardDetailPanel({
   const createComment = trpc.comment.create.useMutation({
     onSuccess: () => utils.comment.list.invalidate({ cardId }),
   });
+  const updateComment = trpc.comment.update.useMutation({
+    onSuccess: () => {
+      utils.comment.list.invalidate({ cardId });
+      setEditingCommentId(null);
+    },
+  });
+  const deleteComment = trpc.comment.delete.useMutation({
+    onSuccess: () => utils.comment.list.invalidate({ cardId }),
+  });
   const createChecklistItem = trpc.checklist.create.useMutation({ onSuccess: invalidateCard });
   const toggleChecklistItem = trpc.checklist.toggle.useMutation({ onSuccess: invalidateCard });
   const deleteChecklistItem = trpc.checklist.delete.useMutation({ onSuccess: invalidateCard });
@@ -111,6 +122,8 @@ export function CardDetailPanel({
   const [locationDraft, setLocationDraft] = useState("");
   const [blockedReasonDraft, setBlockedReasonDraft] = useState("");
   const [commentDraft, setCommentDraft] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentBody, setEditingCommentBody] = useState("");
   const [checklistDraft, setChecklistDraft] = useState("");
   const [editingDescription, setEditingDescription] = useState(false);
 
@@ -129,6 +142,7 @@ export function CardDetailPanel({
     setLocationDraft(card.location ?? "");
     setBlockedReasonDraft(card.blockedReason ?? "");
     setEditingDescription(false);
+    setEditingCommentId(null);
   }
 
   if (!card) {
@@ -140,6 +154,7 @@ export function CardDetailPanel({
   }
 
   const selectedLabelIds = new Set(card.labels.map((l) => l.label.id));
+  const isAdmin = members.find((m) => m.userId === me?.id)?.role === "ADMIN";
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={onClose}>
@@ -527,21 +542,80 @@ export function CardDetailPanel({
             Comments
           </label>
           <div className="space-y-3">
-            {comments?.map((comment) => (
-              <div key={comment.id} className="rounded-md bg-[#F4F6FA] p-2 dark:bg-[#0E1624]">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#172B4D] dark:text-[#E4E7EC]">
-                    {comment.author.fullName ?? comment.author.email}
-                  </span>
-                  <span className="text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
-                    {new Date(comment.createdAt).toLocaleString()}
-                  </span>
+            {comments?.map((comment) => {
+              const isOwn = comment.authorId === me?.id;
+              const canDelete = isOwn || isAdmin;
+              const isEditing = editingCommentId === comment.id;
+
+              return (
+                <div key={comment.id} className="rounded-md bg-[#F4F6FA] p-2 dark:bg-[#0E1624]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                      {comment.author.fullName ?? comment.author.email}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
+                        {new Date(comment.createdAt).toLocaleString()}
+                        {comment.editedAt && " (edited)"}
+                      </span>
+                      {isOwn && !isEditing && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingCommentId(comment.id);
+                            setEditingCommentBody(comment.body);
+                          }}
+                          className="text-[10px] font-medium text-[#5E6C84] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {canDelete && !isEditing && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm("Delete this comment?")) {
+                              deleteComment.mutate({ commentId: comment.id });
+                            }
+                          }}
+                          className="text-[10px] font-medium text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {isEditing ? (
+                    <form
+                      className="mt-1 flex gap-2"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!editingCommentBody.trim()) return;
+                        updateComment.mutate({ commentId: comment.id, body: editingCommentBody.trim() });
+                      }}
+                    >
+                      <input
+                        value={editingCommentBody}
+                        onChange={(e) => setEditingCommentBody(e.target.value)}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") setEditingCommentId(null);
+                        }}
+                        className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1 text-sm dark:border-[#2A3547] dark:bg-[#161D2E]"
+                      />
+                      <Button type="submit" className="w-auto shrink-0" disabled={updateComment.isPending}>
+                        Save
+                      </Button>
+                    </form>
+                  ) : (
+                    <p className="mt-1 text-sm whitespace-pre-wrap text-[#172B4D] dark:text-[#E4E7EC]">
+                      {comment.body}
+                    </p>
+                  )}
                 </div>
-                <p className="mt-1 text-sm whitespace-pre-wrap text-[#172B4D] dark:text-[#E4E7EC]">
-                  {comment.body}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <form
             className="mt-2 flex gap-2"
