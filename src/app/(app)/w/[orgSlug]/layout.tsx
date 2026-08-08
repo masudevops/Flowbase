@@ -1,6 +1,5 @@
-import { notFound } from "next/navigation";
-import { TRPCError } from "@trpc/server";
-import { requireServerCaller } from "@/server/caller";
+import Link from "next/link";
+import { requireServerCaller, getOrgBySlugOrNotFound } from "@/server/caller";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
 export default async function WorkspaceLayout({
@@ -12,21 +11,25 @@ export default async function WorkspaceLayout({
 }) {
   const { orgSlug } = await params;
   const caller = await requireServerCaller();
-
-  let organization;
-  try {
-    ({ organization } = await caller.organization.bySlug({ slug: orgSlug }));
-  } catch (err) {
-    if (err instanceof TRPCError && err.code === "NOT_FOUND") {
-      notFound();
-    }
-    throw err;
-  }
+  const organization = await getOrgBySlugOrNotFound(caller, orgSlug);
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-zinc-200 px-6 py-3 dark:border-zinc-800">
-        <span className="font-medium text-zinc-950 dark:text-zinc-50">{organization.name}</span>
+        <div className="flex items-center gap-6">
+          <Link
+            href={`/w/${orgSlug}`}
+            className="font-medium text-zinc-950 dark:text-zinc-50"
+          >
+            {organization.name}
+          </Link>
+          <Link
+            href={`/w/${orgSlug}/boards`}
+            className="text-sm text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            Boards
+          </Link>
+        </div>
         <SignOutButton />
       </header>
       <main className="flex flex-1 flex-col">{children}</main>

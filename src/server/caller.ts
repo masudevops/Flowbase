@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import { TRPCError } from "@trpc/server";
 import { appRouter } from "./routers/_app";
 import { createContext } from "./context";
 
@@ -23,4 +24,23 @@ export async function requireServerCaller() {
     redirect("/login");
   }
   return appRouter.createCaller(ctx);
+}
+
+/// Shared resolve-org-by-slug-or-404 pattern, used by the workspace
+/// layout and every board page under /w/[orgSlug]/... — each still
+/// re-resolves per page (no cross-page Server Component caching), but
+/// this at least keeps the try/catch NOT_FOUND boilerplate in one place.
+export async function getOrgBySlugOrNotFound(
+  caller: Awaited<ReturnType<typeof requireServerCaller>>,
+  slug: string,
+) {
+  try {
+    const { organization } = await caller.organization.bySlug({ slug });
+    return organization;
+  } catch (err) {
+    if (err instanceof TRPCError && err.code === "NOT_FOUND") {
+      notFound();
+    }
+    throw err;
+  }
 }
