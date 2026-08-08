@@ -80,9 +80,10 @@ create policy delete_own_org_memberships on memberships for delete
 -- Note: someone redeeming an invite link isn't a member yet, so this
 -- policy correctly blocks them from SELECTing the invite row via the
 -- normal RLS-scoped path. src/server/services/invite.service.ts's
--- getByToken() deliberately bypasses RLS (using the raw, non-RLS-scoped
--- Prisma client) for that one lookup — token possession is the
--- authorization there, the same way a password reset token works.
+-- getInviteByToken() calls app.get_invite_by_token() instead — a
+-- SECURITY DEFINER function (005_invite_lookup.sql) that bypasses this
+-- policy for that one lookup — token possession is the authorization
+-- there, the same way a password reset token works.
 drop policy if exists tenant_isolation on invites;
 create policy tenant_isolation on invites
   using (organization_id = any (select app.current_org_ids()))

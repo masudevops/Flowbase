@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { Prisma as PrismaNS } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { prisma } from "@/lib/prisma";
@@ -156,11 +157,24 @@ export async function acceptInvite(
     });
   }
 
-  await db.$executeRaw`
-    insert into memberships (id, organization_id, user_id, role, status, created_at)
-    values (${randomUUID()}, ${invite.organizationId}, ${params.userId}, ${invite.role}::"MembershipRole", 'ACTIVE', now())
-    on conflict (organization_id, user_id) do nothing
-  `;
+  try {
+    await db.$executeRaw`
+      insert into memberships (id, organization_id, user_id, role, status, created_at)
+      values (${randomUUID()}, ${invite.organizationId}, ${params.userId}, ${invite.role}::"MembershipRole", 'ACTIVE', now())
+    `;
+  } catch (err) {
+    // Double-submit race (e.g. accept clicked twice): the unique
+    // (organization_id, user_id) constraint rejects the second insert.
+    // ON CONFLICT DO NOTHING isn't usable here — Postgres RLS requires
+    // SELECT-policy visibility on the conflict target row even for DO
+    // NOTHING, which this not-yet-a-member user doesn't have, and that
+    // turns into the same "violates row-level security policy" error
+    // instead of a clean no-op.
+    const isUniqueViolation =
+      err instanceof PrismaNS.PrismaClientKnownRequestError &&
+      err.meta?.code === "23505";
+    if (!isUniqueViolation) throw err;
+  }
 
   await writeAuditLog(db, {
     organizationId: invite.organizationId,

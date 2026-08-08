@@ -16,6 +16,12 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Postgres Row-Level Security enforced at the database level (not just app-level checks) — verified live: a second user cannot see a first user's workspace even with a direct URL, confirmed by Postgres itself rejecting the query, not just the UI hiding it
 - Audit log: board, column, and card actions (created/updated/moved/blocked/unblocked/deleted) are recorded with who did it and when (`AuditLog` table) — verified live, in the correct order, with correct actor/entity IDs
 
+### Team & permissions
+- Two roles per workspace: **Admin / project manager** and **Team member**. Admins can invite people, change anyone's role, remove members, and delete boards; members can view the team and leave on their own
+- Invite by email: an admin sends an invite (email + role), the recipient gets an email with a join link, and can accept it either by logging into an existing account or signing up fresh — a public preview page shows which workspace/role the link is for before requiring login. A workspace is always guaranteed at least one admin (role changes/removals that would leave zero admins are blocked)
+- Board deletion is admin-only, behind a confirmation dialog in board settings' "Danger zone"
+- Verified end-to-end live against Supabase: invite → accept (as a second real account) → promote to admin → remove, plus the admin-only board-delete flow, all confirmed with zero console errors. Caught and fixed a real Postgres RLS bug along the way: accepting an invite means inserting your own membership row before you're visible to the tenant-isolation SELECT policy that even `RETURNING` needs — same chicken-and-egg class of bug as the original org-bootstrap fix, solved the same way (raw `INSERT` with no `RETURNING`). Also discovered `ON CONFLICT DO NOTHING` doesn't work under RLS for a not-yet-a-member row (Postgres still requires SELECT-policy visibility on the conflict target), so duplicate-accept protection is a plain try/catch on the unique-constraint violation instead
+
 ### Boards
 - Create a board blank, or from a starter template:
   - **IT / Dev** — Backlog, To Do, In Progress, Blocked, In Review, Done; Task/Bug/Feature card types
@@ -60,9 +66,9 @@ A running list of what's actually built and verified vs. what's planned. Update 
 
 ## 🚧 Next up
 
-The agreed "practical features to attract external users" list is done: ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → ~~search~~. Remaining known gaps:
+The agreed "practical features to attract external users" list is done: ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → ~~search~~. Members & invites (below) is now done too. Remaining known gaps:
 
-- **Members & invites** — schema (`Invite`, `Membership`) and a `Contact` model (for assigning cards to people without a Flowbase account — subcontractors, etc.) exist in the database and RLS is set up for both, but the actual invite-by-email flow, accept-invite page, and Contact CRUD/UI aren't built yet. This was in progress before real-time sync took priority.
+- **Contact CRUD/UI** — the `Contact` model (assigning cards to people without a Flowbase account — subcontractors, etc.) exists in the database and RLS is set up for it, and `Card.assigneeContactId` is wired in the schema, but there's no UI yet to create/manage contacts or assign a card to one
 - **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet
 - **Rendered markdown** in the card description (currently plain text in and out — `react-markdown` is already installed, just not wired into the view mode)
 
@@ -91,3 +97,4 @@ Not a commitment — flagging where a "best of both" idea could genuinely improv
 
 ---
 *Last updated: 2026-08-08. Cross-reference `ARCHITECTURE.md` for how things are built; this file is about what's built.*
+
