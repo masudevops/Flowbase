@@ -12,7 +12,8 @@
     "db:generate": "prisma generate",
     "db:studio": "dotenv -e .env.local -- prisma studio",
     "db:seed": "dotenv -e .env.local -- prisma db seed",
-    "db:rls": "dotenv -e .env.local -- tsx prisma/rls/apply.ts"
+    "db:rls": "dotenv -e .env.local -- tsx prisma/rls/apply.ts",
+    "db:backfill-cardtype-board": "dotenv -e .env.local -- tsx prisma/backfill-card-type-board.ts"
   },
   "prisma": {
     "seed": "dotenv -e .env.local -- tsx prisma/seed.ts"

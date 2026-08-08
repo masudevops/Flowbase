@@ -20,7 +20,7 @@ export default async function BoardSettingsPage({
   }
 
   const [cardTypes, automations] = await Promise.all([
-    caller.cardType.list({ organizationId: organization.id }),
+    caller.cardType.list({ boardId }),
     caller.automation.list({ boardId }),
   ]);
 
@@ -35,7 +35,11 @@ export default async function BoardSettingsPage({
       <ColumnsManager boardId={boardId} initialColumns={board.columns} />
 
       <div className="mt-10">
-        <CardTypesManager organizationId={organization.id} initialCardTypes={cardTypes} />
+        <CardTypesManager
+          organizationId={organization.id}
+          boardId={boardId}
+          initialCardTypes={cardTypes}
+        />
       </div>
 
       <div className="mt-10">

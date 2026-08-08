@@ -221,6 +221,7 @@ model Board {
   columns      Column[]
   cards        Card[]
   automations  Automation[]
+  cardTypes    CardType[]
 
   @@index([organizationId])
   @@map("boards")
@@ -252,11 +253,16 @@ model Column {
   @@map("columns")
 }
 
-/// Per-organization customizable card type (Task/Bug/Feature, or
+/// Per-board customizable card type (Task/Bug/Feature, or
 /// Task/Punch-Item/Inspection, etc). Deliberately a table, not an enum.
+/// Board-scoped (not org-scoped) so an org running more than one kind of
+/// project doesn't leak one board's vocabulary into another's dropdown —
+/// organizationId is kept alongside boardId purely as the usual
+/// denormalized-for-RLS-simplicity field, same pattern as Column/Card.
 model CardType {
   id             String   @id @default(cuid())
   organizationId String   @map("organization_id")
+  boardId        String   @map("board_id")
   name           String
   color          String   @default("#6B7280")
   icon           String?
@@ -264,9 +270,10 @@ model CardType {
   createdAt      DateTime @default(now()) @map("created_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
   cards        Card[]
 
-  @@unique([organizationId, name])
+  @@unique([boardId, name])
   @@index([organizationId])
   @@map("card_types")
 }

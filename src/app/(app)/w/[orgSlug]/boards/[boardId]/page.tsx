@@ -23,7 +23,7 @@ export default async function BoardPage({
 
   const [cards, cardTypes, members, labels, contacts] = await Promise.all([
     caller.card.listByBoard({ boardId }),
-    caller.cardType.list({ organizationId: organization.id }),
+    caller.cardType.list({ boardId }),
     caller.membership.list({ organizationId: organization.id }),
     caller.label.list({ organizationId: organization.id }),
     caller.contact.list({ organizationId: organization.id }),

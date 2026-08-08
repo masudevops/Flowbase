@@ -19,7 +19,7 @@ export default async function CalendarPage({
   }
 
   const [cardTypes, members, labels, contacts] = await Promise.all([
-    caller.cardType.list({ organizationId: organization.id }),
+    caller.cardType.list({ boardId }),
     caller.membership.list({ organizationId: organization.id }),
     caller.label.list({ organizationId: organization.id }),
     caller.contact.list({ organizationId: organization.id }),

@@ -15,7 +15,7 @@ function isUniqueNameViolation(err: unknown) {
 export const cardTypeRouter = router({
   list: protectedProcedure.input(listCardTypesSchema).query(({ ctx, input }) =>
     ctx.db.cardType.findMany({
-      where: { organizationId: input.organizationId },
+      where: { boardId: input.boardId },
       orderBy: { createdAt: "asc" },
     }),
   ),
@@ -23,11 +23,16 @@ export const cardTypeRouter = router({
   create: protectedProcedure.input(createCardTypeSchema).mutation(async ({ ctx, input }) => {
     try {
       return await ctx.db.cardType.create({
-        data: { organizationId: input.organizationId, name: input.name, color: input.color },
+        data: {
+          organizationId: input.organizationId,
+          boardId: input.boardId,
+          name: input.name,
+          color: input.color,
+        },
       });
     } catch (err) {
       if (isUniqueNameViolation(err)) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "A card type with that name already exists." });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "A card type with that name already exists on this board." });
       }
       throw err;
     }
@@ -43,7 +48,7 @@ export const cardTypeRouter = router({
       return await ctx.db.cardType.update({ where: { id: cardTypeId }, data: fields });
     } catch (err) {
       if (isUniqueNameViolation(err)) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "A card type with that name already exists." });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "A card type with that name already exists on this board." });
       }
       throw err;
     }

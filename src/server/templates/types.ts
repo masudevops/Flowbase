@@ -15,8 +15,7 @@ export type BoardTemplate = {
   label: string;
   description: string;
   columns: BoardTemplateColumn[];
-  /// Card types are org-scoped, not board-scoped (see schema.prisma) —
-  /// applying a template upserts these by name rather than creating
-  /// duplicates if another board in the same org already applied them.
+  /// Card types are board-scoped (see schema.prisma) — applying this
+  /// template creates its own set, isolated from every other board's.
   cardTypes: BoardTemplateCardType[];
 };

@@ -2,10 +2,11 @@ import type { Prisma } from "@prisma/client";
 import { generateNKeysBetween } from "fractional-indexing";
 import type { BoardTemplate } from "../templates/types";
 
-/// Applies a template's columns (board-scoped, always freshly created) and
-/// card types (org-scoped — upserted by name so applying the same
-/// template to a second board in the same org doesn't create duplicates,
-/// see schema.prisma's CardType model).
+/// Applies a template's columns and card types, both board-scoped —
+/// every card type this template defines is created fresh, scoped only
+/// to this board, so applying the same template to a second board in the
+/// same org never leaks vocabulary between them (see the CardType model
+/// comment in schema.prisma).
 export async function applyTemplate(
   db: Prisma.TransactionClient,
   params: { organizationId: string; boardId: string; template: BoardTemplate },
@@ -26,10 +27,11 @@ export async function applyTemplate(
 
   for (const cardType of template.cardTypes) {
     await db.cardType.upsert({
-      where: { organizationId_name: { organizationId, name: cardType.name } },
+      where: { boardId_name: { boardId, name: cardType.name } },
       update: {},
       create: {
         organizationId,
+        boardId,
         name: cardType.name,
         color: cardType.color,
         isDefault: cardType.isDefault ?? false,

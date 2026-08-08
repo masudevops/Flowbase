@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 type CardType = {
   id: string;
   organizationId: string;
+  boardId: string;
   name: string;
   color: string;
   icon: string | null;
@@ -18,19 +19,21 @@ type CardType = {
 
 export function CardTypesManager({
   organizationId,
+  boardId,
   initialCardTypes,
 }: {
   organizationId: string;
+  boardId: string;
   initialCardTypes: CardType[];
 }) {
   const utils = trpc.useUtils();
   const { data: cardTypes } = trpc.cardType.list.useQuery(
-    { organizationId },
+    { boardId },
     { initialData: initialCardTypes },
   );
 
   function refresh() {
-    utils.cardType.list.invalidate({ organizationId });
+    utils.cardType.list.invalidate({ boardId });
   }
 
   const createCardType = trpc.cardType.create.useMutation({
@@ -54,7 +57,7 @@ export function CardTypesManager({
         Card types
       </h2>
       <p className="mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
-        Shared across every board in this workspace, not just this one.
+        Only used on this board — other boards in this workspace have their own.
       </p>
 
       <ul className="divide-y divide-[#DFE1E6] rounded-md border border-[#DFE1E6] dark:divide-[#2A3547] dark:border-[#2A3547]">
@@ -130,7 +133,7 @@ export function CardTypesManager({
         onSubmit={(e) => {
           e.preventDefault();
           if (!newName.trim()) return;
-          createCardType.mutate({ organizationId, name: newName.trim(), color: newColor });
+          createCardType.mutate({ organizationId, boardId, name: newName.trim(), color: newColor });
         }}
       >
         <input

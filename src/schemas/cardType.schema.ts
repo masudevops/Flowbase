@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const listCardTypesSchema = z.object({
-  organizationId: z.string(),
+  boardId: z.string(),
 });
 
 const hexColor = z
@@ -11,6 +11,7 @@ const hexColor = z
 
 export const createCardTypeSchema = z.object({
   organizationId: z.string(),
+  boardId: z.string(),
   name: z.string().trim().min(1, "Name is required").max(40),
   color: hexColor,
 });

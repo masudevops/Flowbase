@@ -32,24 +32,6 @@ async function main() {
     create: { organizationId: org.id, userId: user.id, role: "ADMIN", status: "ACTIVE" },
   });
 
-  const [taskType, bugType, featureType] = await Promise.all([
-    prisma.cardType.upsert({
-      where: { organizationId_name: { organizationId: org.id, name: "Task" } },
-      update: {},
-      create: { organizationId: org.id, name: "Task", color: "#6B7280", isDefault: true },
-    }),
-    prisma.cardType.upsert({
-      where: { organizationId_name: { organizationId: org.id, name: "Bug" } },
-      update: {},
-      create: { organizationId: org.id, name: "Bug", color: "#EF4444" },
-    }),
-    prisma.cardType.upsert({
-      where: { organizationId_name: { organizationId: org.id, name: "Feature" } },
-      update: {},
-      create: { organizationId: org.id, name: "Feature", color: "#3B82F6" },
-    }),
-  ]);
-
   const label = await prisma.label.upsert({
     where: { organizationId_name: { organizationId: org.id, name: "urgent" } },
     update: {},
@@ -66,6 +48,24 @@ async function main() {
       templateKey: "IT_DEV",
     },
   });
+
+  const [taskType, bugType, featureType] = await Promise.all([
+    prisma.cardType.upsert({
+      where: { boardId_name: { boardId: board.id, name: "Task" } },
+      update: {},
+      create: { organizationId: org.id, boardId: board.id, name: "Task", color: "#6B7280", isDefault: true },
+    }),
+    prisma.cardType.upsert({
+      where: { boardId_name: { boardId: board.id, name: "Bug" } },
+      update: {},
+      create: { organizationId: org.id, boardId: board.id, name: "Bug", color: "#EF4444" },
+    }),
+    prisma.cardType.upsert({
+      where: { boardId_name: { boardId: board.id, name: "Feature" } },
+      update: {},
+      create: { organizationId: org.id, boardId: board.id, name: "Feature", color: "#3B82F6" },
+    }),
+  ]);
 
   const columnNames = ["Backlog", "To Do", "In Progress", "Blocked", "In Review", "Done"];
   const columnPositions = generateNKeysBetween(null, null, columnNames.length);
