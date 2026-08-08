@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -12,6 +13,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { trpc } from "@/trpc/client";
+import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
 import { CardPreview } from "./CardPreview";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
@@ -30,9 +32,12 @@ export function Board({
   members: MemberOption[];
   labels: LabelOption[];
 }) {
+  const searchParams = useSearchParams();
   const [columns, setColumns] = useState(initialColumns);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const [openCardId, setOpenCardId] = useState<string | null>(null);
+  // Deep-link support: a notification email links to
+  // /boards/[boardId]?card=[cardId], opening straight to that card.
+  const [openCardId, setOpenCardId] = useState<string | null>(() => searchParams.get("card"));
 
   const utils = trpc.useUtils();
   const moveCard = trpc.card.move.useMutation();
@@ -45,6 +50,25 @@ export function Board({
   const activeCard = activeCardId
     ? columns.flatMap((c) => c.cards).find((c) => c.id === activeCardId)
     : undefined;
+
+  async function refreshBoard() {
+    // Refetches both columns and cards (not just cards) so a column
+    // added/renamed/reordered/deleted by another session — not just a
+    // card change — is reflected too; both tables feed this same view
+    // and both are realtime-subscribed below.
+    const [board, cards] = await Promise.all([
+      utils.board.byId.fetch({ boardId }),
+      utils.card.listByBoard.fetch({ boardId }),
+    ]);
+    setColumns(
+      board.columns.map((col) => ({
+        ...col,
+        cards: cards.filter((c) => c.columnId === col.id),
+      })),
+    );
+  }
+
+  useRealtimeBoard(boardId, refreshBoard);
 
   function handleDragStart(event: DragStartEvent) {
     setActiveCardId(String(event.active.id));
@@ -99,22 +123,15 @@ export function Board({
       { cardId: activeId, columnId: targetColumn.id, beforePosition: before, afterPosition: after },
       {
         onError: () => setColumns(initialColumns),
-        onSuccess: () => refreshCards(),
+        onSuccess: () => refreshBoard(),
       },
-    );
-  }
-
-  async function refreshCards() {
-    const cards = await utils.card.listByBoard.fetch({ boardId });
-    setColumns((prev) =>
-      prev.map((col) => ({ ...col, cards: cards.filter((c) => c.columnId === col.id) })),
     );
   }
 
   function handleAddCard(columnId: string, title: string) {
     createCard.mutate(
       { boardId, columnId, title },
-      { onSuccess: () => refreshCards() },
+      { onSuccess: () => refreshBoard() },
     );
   }
 
@@ -150,7 +167,7 @@ export function Board({
           members={members}
           labels={labels}
           onClose={() => setOpenCardId(null)}
-          onChanged={refreshCards}
+          onChanged={refreshBoard}
         />
       )}
     </>

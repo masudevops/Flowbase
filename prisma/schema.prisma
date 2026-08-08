@@ -78,6 +78,7 @@ model Organization {
   auditLogs      AuditLog[]
   moduleSettings WorkspaceModuleSetting[]
   invites        Invite[]
+  contacts       Contact[]
 
   @@map("organizations")
 }
@@ -137,6 +138,26 @@ model Invite {
   @@unique([organizationId, email])
   @@index([organizationId])
   @@map("invites")
+}
+
+/// A workspace-scoped person who can be assigned cards without ever
+/// having a Flowbase account — e.g. a subcontractor who just gets a
+/// phone call, not a login. Deliberately separate from User/Membership:
+/// User.id must equal a real Supabase auth UUID, so there's no way to
+/// represent an unregistered person as a User. See Card.assigneeContactId.
+model Contact {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  name           String
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedCards Card[]       @relation("CardExternalAssignee")
+
+  @@index([organizationId])
+  @@map("contacts")
 }
 
 // ------------------------------------------------------------
@@ -255,11 +276,15 @@ model Card {
   priority    Priority  @default(MEDIUM)
   dueDate     DateTime? @map("due_date")
 
-  assigneeId    String? @map("assignee_id")
+  assigneeId        String? @map("assignee_id")
+  /// A card is assigned to EITHER a registered member (assigneeId) OR an
+  /// unregistered Contact (assigneeContactId), never both — enforced at
+  /// the service layer, not a DB constraint. See Contact model.
+  assigneeContactId String? @map("assignee_contact_id")
   /// Independent of column: a card in ANY column can be flagged blocked.
   /// Single source of truth for dashboard/filter queries.
-  isBlocked     Boolean @default(false) @map("is_blocked")
-  blockedReason String? @map("blocked_reason")
+  isBlocked         Boolean @default(false) @map("is_blocked")
+  blockedReason     String? @map("blocked_reason")
 
   /// Construction vertical: free-text site/floor/zone tag.
   location String?
@@ -277,11 +302,12 @@ model Card {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   createdById String    @map("created_by_id")
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  column       Column       @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  cardType     CardType?    @relation(fields: [cardTypeId], references: [id], onDelete: SetNull)
-  assignee     User?        @relation("CardAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  board           Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  column          Column       @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  cardType        CardType?    @relation(fields: [cardTypeId], references: [id], onDelete: SetNull)
+  assignee        User?        @relation("CardAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  assigneeContact Contact?     @relation("CardExternalAssignee", fields: [assigneeContactId], references: [id], onDelete: SetNull)
 
   labels         CardLabel[]
   comments       Comment[]
@@ -292,6 +318,7 @@ model Card {
   @@index([boardId])
   @@index([columnId])
   @@index([assigneeId])
+  @@index([assigneeContactId])
   @@index([organizationId, isBlocked])
   @@index([organizationId, dueDate])
   @@map("cards")

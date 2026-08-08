@@ -25,6 +25,7 @@ alter table card_labels enable row level security;
 alter table comments enable row level security;
 alter table checklist_items enable row level security;
 alter table audit_logs enable row level security;
+alter table contacts enable row level security;
 
 -- organizations and memberships are split into per-command policies
 -- instead of one blanket USING+WITH CHECK. Creating a brand-new org (and
@@ -75,6 +76,12 @@ drop policy if exists delete_own_org_memberships on memberships;
 create policy delete_own_org_memberships on memberships for delete
   using (organization_id = any (select app.current_org_ids()));
 
+-- Note: someone redeeming an invite link isn't a member yet, so this
+-- policy correctly blocks them from SELECTing the invite row via the
+-- normal RLS-scoped path. src/server/services/invite.service.ts's
+-- getByToken() deliberately bypasses RLS (using the raw, non-RLS-scoped
+-- Prisma client) for that one lookup — token possession is the
+-- authorization there, the same way a password reset token works.
 drop policy if exists tenant_isolation on invites;
 create policy tenant_isolation on invites
   using (organization_id = any (select app.current_org_ids()))
@@ -144,6 +151,11 @@ create policy tenant_isolation on checklist_items
 -- to pass the WITH CHECK below).
 drop policy if exists tenant_isolation on audit_logs;
 create policy tenant_isolation on audit_logs
+  using (organization_id = any (select app.current_org_ids()))
+  with check (organization_id = any (select app.current_org_ids()));
+
+drop policy if exists tenant_isolation on contacts;
+create policy tenant_isolation on contacts
   using (organization_id = any (select app.current_org_ids()))
   with check (organization_id = any (select app.current_org_ids()));
 

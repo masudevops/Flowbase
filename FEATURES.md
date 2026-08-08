@@ -35,6 +35,11 @@ A running list of what's actually built and verified vs. what's planned. Update 
 ### Dashboard
 - Per-board open/blocked/overdue counts on the workspace home page
 
+### Live collaboration
+- **Real-time sync** (Supabase Realtime): card and column changes made by one person appear for everyone else viewing the same board within seconds, no manual refresh — verified with two simultaneous sessions, both card creation and drag-and-drop moves. Required fixing a real RLS gap: Realtime authenticates via Supabase's native `auth.uid()`, which our custom Postgres-direct RLS bridge didn't recognize until now (`app.current_user_id()` was extended to check both paths, and needed `SECURITY DEFINER` to actually call `auth.uid()`, since `postgres` itself can't delegate schema access it doesn't own on Supabase's platform — see `prisma/rls/001_helper_functions.sql`)
+- **Email notifications** (via Resend): assigned a card → email; someone comments on a card you're assigned to → email. Never notifies you of your own actions. Verified end-to-end (mutations succeed, Resend API is called correctly) — actual delivery to arbitrary recipients needs a verified domain in Resend (currently sandboxed to the account owner's own address, a Resend platform restriction, not a bug)
+- **Deep links**: a notification email links straight to the specific card (`/boards/[id]?card=[cardId]`), opening its detail panel automatically — not just the board
+
 ### Design
 - Palette and type system inspired by Jira and Monday.com (their actual token colors — Jira's navy `#172B4D`, status reds/greens/purples — not a generic guess), applied consistently across the whole app, not just the landing page
 - Public marketing page at `/` with an interactive demo (live toggle between IT/Dev and Construction board vocabulary), responsive, dark-mode aware
@@ -44,9 +49,13 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Deployed on Vercel (free tier), database on Supabase (free tier)
 - Local dev: seed script for demo data, RLS setup scripts, migration workflow documented in `prisma/rls/README.md` and `ARCHITECTURE.md`
 
-## 🚧 Next up (rest of MVP)
+## 🚧 Next up
 
-- **Members & invites** — invite teammates by email (Resend is wired for the account, not yet used for sending), Admin/Member role management UI (membership listing already exists, used for the assignee dropdown — inviting/removing people is what's missing)
+Agreed order for "practical features to attract external users": ~~real-time sync~~ → ~~notifications~~ → **file attachments** → **search**.
+
+- **File/photo attachments on cards** — needs Supabase Storage (free tier, not yet configured)
+- **Basic search** across cards/boards
+- **Members & invites** — schema (`Invite`, `Membership`) and a `Contact` model (for assigning cards to people without a Flowbase account — subcontractors, etc.) exist in the database and RLS is set up for both, but the actual invite-by-email flow, accept-invite page, and Contact CRUD/UI aren't built yet. This was in progress before real-time sync took priority.
 - **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet
 - **Rendered markdown** in the card description (currently plain text in and out — `react-markdown` is already installed, just not wired into the view mode)
 

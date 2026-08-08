@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
 import { listCommentsSchema, createCommentSchema } from "@/schemas/comment.schema";
 import { createComment } from "../services/comment.service";
+import { notifyNewComment } from "../services/notification.service";
 
 export const commentRouter = router({
   list: protectedProcedure.input(listCommentsSchema).query(({ ctx, input }) =>
@@ -18,11 +19,19 @@ export const commentRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
 
-    return createComment(ctx.db, {
+    const comment = await createComment(ctx.db, {
       organizationId: card.organizationId,
       authorId: ctx.userId,
       cardId: input.cardId,
       body: input.body,
     });
+
+    await notifyNewComment(ctx.db, {
+      cardId: input.cardId,
+      authorId: ctx.userId,
+      body: input.body,
+    });
+
+    return comment;
   }),
 });

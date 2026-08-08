@@ -18,6 +18,7 @@ import {
   deleteCard,
   setCardLabels,
 } from "../services/card.service";
+import { notifyCardAssigned } from "../services/notification.service";
 
 const cardInclude = {
   cardType: true,
@@ -71,12 +72,22 @@ export const cardRouter = router({
     }
 
     const { cardId, ...fields } = input;
-    return updateCard(ctx.db, {
+    const updated = await updateCard(ctx.db, {
       organizationId: card.organizationId,
       actorId: ctx.userId,
       cardId,
       ...fields,
     });
+
+    if (fields.assigneeId && fields.assigneeId !== card.assigneeId) {
+      await notifyCardAssigned(ctx.db, {
+        cardId,
+        assigneeId: fields.assigneeId,
+        actorId: ctx.userId,
+      });
+    }
+
+    return updated;
   }),
 
   move: protectedProcedure.input(moveCardSchema).mutation(async ({ ctx, input }) => {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { trpc } from "@/trpc/client";
+import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
 import { PRIORITY_META } from "./types";
 import type { CardTypeOption, MemberOption, LabelOption } from "./types";
@@ -21,8 +22,11 @@ export function BacklogView({
   members: MemberOption[];
   labels: LabelOption[];
 }) {
+  const utils = trpc.useUtils();
   const { data: cards } = trpc.card.listByBoard.useQuery({ boardId });
   const [openCardId, setOpenCardId] = useState<string | null>(null);
+
+  useRealtimeBoard(boardId, () => utils.card.listByBoard.invalidate({ boardId }));
 
   const [assigneeFilter, setAssigneeFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");

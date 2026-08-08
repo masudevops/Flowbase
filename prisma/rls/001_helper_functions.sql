@@ -1,23 +1,51 @@
 -- ------------------------------------------------------------
 -- RLS helper functions
 --
--- Prisma connects directly to Postgres (not through PostgREST), so
--- Supabase's auth.uid() is NOT automatically populated. The app bridges
--- this by setting a transaction-local session variable before every
--- query (see src/server/rls.ts -> withRlsContext), and these functions
--- read that variable instead of auth.uid().
+-- Two different connection paths need to resolve "who is the current
+-- user" for RLS:
+--
+-- 1. Prisma (app_user role, via DATABASE_URL) connects directly to
+--    Postgres — Supabase's auth.uid() is NOT automatically populated
+--    there. The app bridges this by setting a transaction-local session
+--    variable before every query (see src/server/rls.ts ->
+--    withRlsContext).
+-- 2. The Supabase client used directly from the browser (Realtime
+--    subscriptions today; Storage later) connects as Supabase's own
+--    `authenticated` role with a real JWT, where auth.uid() IS populated
+--    natively — but request.jwt.claim.sub never gets set for that path.
+--
+-- app.current_user_id() checks both, so every RLS policy in
+-- 002_policies.sql works correctly regardless of which path a given
+-- query came through, with no per-policy duplication.
+--
+-- Calling auth.uid() requires USAGE on schema `auth`. On Supabase, the
+-- `postgres` role has that USAGE itself (granted by supabase_admin) but
+-- NOT the grant option, so `grant usage on schema auth to app_user` from
+-- postgres silently doesn't take effect (Supabase swallows the error
+-- rather than surfacing it — confirmed by testing has_schema_privilege()
+-- directly, not assumed). The fix: mark this function SECURITY DEFINER,
+-- so it runs with its owner's (postgres's) privileges regardless of who
+-- calls it — the same pattern already used below for
+-- app.current_org_ids(), and the standard way to delegate access to a
+-- restricted schema without granting broad access to the schema itself.
 -- ------------------------------------------------------------
 
 create schema if not exists app;
 
--- Reads the current user id set by the app for this transaction.
--- Returns null if unset (e.g. unauthenticated context, migrations, seed).
+-- Reads the current user id set by the app (Prisma path), falling back
+-- to Supabase's native auth.uid() (direct-client path, e.g. Realtime).
+-- Returns null if neither is set (e.g. migrations, seed scripts).
 create or replace function app.current_user_id()
 returns text
 language sql
 stable
+security definer
+set search_path = public
 as $$
-  select nullif(current_setting('request.jwt.claim.sub', true), '')
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    auth.uid()::text
+  )
 $$;
 
 -- Returns the set of organization ids the current user has an ACTIVE
@@ -39,8 +67,8 @@ $$;
 
 revoke execute on function app.current_user_id() from public;
 revoke execute on function app.current_org_ids() from public;
-grant execute on function app.current_user_id() to app_user;
-grant execute on function app.current_org_ids() to app_user;
+grant execute on function app.current_user_id() to app_user, authenticated;
+grant execute on function app.current_org_ids() to app_user, authenticated;
 
 -- ------------------------------------------------------------
 -- Dedicated non-BYPASSRLS role for the app's Prisma connection.
