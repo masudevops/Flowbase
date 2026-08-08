@@ -12,9 +12,16 @@ import { AttachmentsSection } from "./AttachmentsSection";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
-function formatDateInput(iso: string | null): string {
-  if (!iso) return "";
-  return iso.slice(0, 10);
+// card.dueDate is a real Date instance (superjson-hydrated), not a string
+// — Date.toString() gives a human-readable format like "Wed Aug 12 2026
+// ...", not ISO, so slicing that never produced a valid "YYYY-MM-DD" for
+// <input type="date"> to display. The browser silently rejects an
+// invalid value and shows the field blank, which is what made it look
+// like picking a date "didn't work": the write succeeded, the redisplay
+// just never showed it.
+function formatDateInput(date: Date | null): string {
+  if (!date) return "";
+  return date.toISOString().slice(0, 10);
 }
 
 function memberLabel(m: { fullName: string | null; email: string }): string {
@@ -250,7 +257,7 @@ export function CardDetailPanel({
             </label>
             <input
               type="date"
-              value={formatDateInput(card.dueDate ? card.dueDate.toString() : null)}
+              value={formatDateInput(card.dueDate)}
               onChange={(e) =>
                 updateCard.mutate({
                   cardId,
