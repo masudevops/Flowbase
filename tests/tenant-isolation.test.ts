@@ -49,6 +49,10 @@ describe("tenant isolation", () => {
       color: "#EF4444",
     });
     cardTypeBId = cardType.id;
+
+    const column = await callerB.column.create({ boardId: boardBId, name: "To Do" });
+    const card = await callerB.card.create({ boardId: boardBId, columnId: column.id, title: "Org B's own card" });
+    await callerB.card.update({ cardId: card.id, assigneeId: userB.id });
   });
 
   afterAll(async () => {
@@ -85,6 +89,11 @@ describe("tenant isolation", () => {
   it("cannot list another org's card types via its real board id", async () => {
     const types = await callerAs(userA.id).cardType.list({ boardId: boardBId });
     expect(types).toEqual([]);
+  });
+
+  it("cannot see another org's assigned work via My Work, even by supplying its real organizationId", async () => {
+    const myWork = await callerAs(userA.id).card.listAssignedToMe({ organizationId: orgB.id });
+    expect(myWork).toEqual([]);
   });
 
   it("cannot update another org's card type by its real id", async () => {

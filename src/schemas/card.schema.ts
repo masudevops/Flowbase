@@ -52,3 +52,7 @@ export const deleteCardSchema = z.object({
 export const listCardsByBoardSchema = z.object({
   boardId: z.string(),
 });
+
+export const listAssignedToMeSchema = z.object({
+  organizationId: z.string(),
+});

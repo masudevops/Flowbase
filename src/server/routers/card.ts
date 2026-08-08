@@ -9,6 +9,7 @@ import {
   cardByIdSchema,
   deleteCardSchema,
   listCardsByBoardSchema,
+  listAssignedToMeSchema,
 } from "@/schemas/card.schema";
 import {
   createCard,
@@ -40,6 +41,22 @@ export const cardRouter = router({
       where: { boardId: input.boardId, archivedAt: null },
       include: cardInclude,
       orderBy: { position: "asc" },
+    }),
+  ),
+
+  /// Cross-board: everything assigned to the caller in this workspace,
+  /// for the "My Work" view. RLS still scopes this to orgs the caller
+  /// actually belongs to regardless of what organizationId is passed —
+  /// assigneeId = ctx.userId narrows it to "mine" on top of that.
+  listAssignedToMe: protectedProcedure.input(listAssignedToMeSchema).query(({ ctx, input }) =>
+    ctx.db.card.findMany({
+      where: { organizationId: input.organizationId, assigneeId: ctx.userId, archivedAt: null },
+      include: {
+        board: { select: { id: true, name: true } },
+        column: { select: { name: true, isDoneColumn: true } },
+        cardType: { select: { name: true, color: true } },
+      },
+      orderBy: { dueDate: "asc" },
     }),
   ),
 
