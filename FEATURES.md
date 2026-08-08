@@ -45,6 +45,10 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Private bucket, not public URLs: access is enforced by Postgres RLS on `storage.objects` (same tenant-isolation model as every table), files viewed via short-lived (1 hour) signed URLs generated on demand — verified directly: an authenticated user who isn't a member of the org gets "Object not found" trying to sign a URL for another org's file, not just a UI-level block
 - 20MB per-file ceiling (Supabase free tier gives 1GB total storage)
 
+### Search
+- Command-palette search (⌘K / Ctrl+K, or the Search button in the header) across cards and boards in the current workspace — search-as-you-type (debounced), grouped results, click to jump straight to the card (opens its detail panel) or board
+- Caught and fixed a real bug while building this: the card-detail deep-link (`?card=id`) only worked from a fresh page load, not when navigating client-side to a card on a board you're already viewing — a `useState` lazy initializer doesn't re-run on that kind of navigation. Fixed to properly react to the URL changing.
+
 ### Design
 - Palette and type system inspired by Jira and Monday.com (their actual token colors — Jira's navy `#172B4D`, status reds/greens/purples — not a generic guess), applied consistently across the whole app, not just the landing page
 - Public marketing page at `/` with an interactive demo (live toggle between IT/Dev and Construction board vocabulary), responsive, dark-mode aware
@@ -56,9 +60,8 @@ A running list of what's actually built and verified vs. what's planned. Update 
 
 ## 🚧 Next up
 
-Agreed order for "practical features to attract external users": ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → **search**.
+The agreed "practical features to attract external users" list is done: ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → ~~search~~. Remaining known gaps:
 
-- **Basic search** across cards/boards
 - **Members & invites** — schema (`Invite`, `Membership`) and a `Contact` model (for assigning cards to people without a Flowbase account — subcontractors, etc.) exist in the database and RLS is set up for both, but the actual invite-by-email flow, accept-invite page, and Contact CRUD/UI aren't built yet. This was in progress before real-time sync took priority.
 - **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet
 - **Rendered markdown** in the card description (currently plain text in and out — `react-markdown` is already installed, just not wired into the view mode)
@@ -72,8 +75,7 @@ Not a commitment — flagging where a "best of both" idea could genuinely improv
 
 ## 📋 Planned (Phase 2 — after MVP is solid, not started)
 
-- Activity feed / in-app notifications
-- File attachments on cards (needs Supabase Storage — free tier, not yet configured)
+- In-app activity feed / notification center (email notifications for assignment and comments are already built — this would be the in-app equivalent, plus due-date reminders, which need a scheduled job, not just an event trigger)
 - Time tracking (estimated vs. actual)
 - Calendar view of due dates
 - Swimlanes (group board rows by assignee, priority, or location)

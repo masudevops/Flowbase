@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireServerCaller, getOrgBySlugOrNotFound } from "@/server/caller";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { SearchTrigger } from "@/components/search/SearchTrigger";
 
 export default async function WorkspaceLayout({
   children,
@@ -27,7 +28,10 @@ export default async function WorkspaceLayout({
             Boards
           </Link>
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-4">
+          <SearchTrigger organizationId={organization.id} orgSlug={orgSlug} />
+          <SignOutButton />
+        </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
     </div>

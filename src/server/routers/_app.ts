@@ -10,6 +10,7 @@ import { labelRouter } from "./label";
 import { membershipRouter } from "./membership";
 import { dashboardRouter } from "./dashboard";
 import { attachmentRouter } from "./attachment";
+import { searchRouter } from "./search";
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({
@@ -27,6 +28,7 @@ export const appRouter = router({
   membership: membershipRouter,
   dashboard: dashboardRouter,
   attachment: attachmentRouter,
+  search: searchRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -35,9 +35,24 @@ export function Board({
   const searchParams = useSearchParams();
   const [columns, setColumns] = useState(initialColumns);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  // Deep-link support: a notification email links to
-  // /boards/[boardId]?card=[cardId], opening straight to that card.
-  const [openCardId, setOpenCardId] = useState<string | null>(() => searchParams.get("card"));
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
+
+  // Deep-link support: a notification email (or the search palette) links
+  // to /boards/[boardId]?card=[cardId], opening straight to that card. A
+  // lazy useState initializer only runs on first mount, which misses
+  // client-side navigations that land on this same already-mounted Board
+  // instance (e.g. searching from within a board to another card on the
+  // same board) — so this reacts to searchParams changing instead, via
+  // "adjusting state during render" rather than an effect (a setState
+  // called synchronously inside useEffect here would cause an extra,
+  // avoidable render pass; this pattern lets React fold it into the same
+  // render that noticed the change).
+  const [syncedCardParam, setSyncedCardParam] = useState<string | null>(null);
+  const cardParam = searchParams.get("card");
+  if (cardParam && cardParam !== syncedCardParam) {
+    setSyncedCardParam(cardParam);
+    setOpenCardId(cardParam);
+  }
 
   const utils = trpc.useUtils();
   const moveCard = trpc.card.move.useMutation();
