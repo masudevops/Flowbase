@@ -8,6 +8,8 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
+    "test": "dotenv -e .env.local -- vitest run",
+    "test:watch": "dotenv -e .env.local -- vitest",
     "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "dotenv -e .env.local -- prisma studio",
@@ -57,6 +59,7 @@
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }
