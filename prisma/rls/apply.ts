@@ -107,7 +107,12 @@ async function main() {
       }
     }
 
-    for (const file of ["001_helper_functions.sql", "002_policies.sql", "003_realtime.sql"]) {
+    for (const file of [
+      "001_helper_functions.sql",
+      "002_policies.sql",
+      "003_realtime.sql",
+      "004_storage.sql",
+    ]) {
       const sql = fs.readFileSync(path.join(RLS_DIR, file), "utf8");
       await admin.query(sql);
       console.log(`Applied ${file}`);

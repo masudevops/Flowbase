@@ -26,6 +26,7 @@ alter table comments enable row level security;
 alter table checklist_items enable row level security;
 alter table audit_logs enable row level security;
 alter table contacts enable row level security;
+alter table attachments enable row level security;
 
 -- organizations and memberships are split into per-command policies
 -- instead of one blanket USING+WITH CHECK. Creating a brand-new org (and
@@ -156,6 +157,11 @@ create policy tenant_isolation on audit_logs
 
 drop policy if exists tenant_isolation on contacts;
 create policy tenant_isolation on contacts
+  using (organization_id = any (select app.current_org_ids()))
+  with check (organization_id = any (select app.current_org_ids()));
+
+drop policy if exists tenant_isolation on attachments;
+create policy tenant_isolation on attachments
   using (organization_id = any (select app.current_org_ids()))
   with check (organization_id = any (select app.current_org_ids()));
 

@@ -40,6 +40,11 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - **Email notifications** (via Resend): assigned a card → email; someone comments on a card you're assigned to → email. Never notifies you of your own actions. Verified end-to-end (mutations succeed, Resend API is called correctly) — actual delivery to arbitrary recipients needs a verified domain in Resend (currently sandboxed to the account owner's own address, a Resend platform restriction, not a bug)
 - **Deep links**: a notification email links straight to the specific card (`/boards/[id]?card=[cardId]`), opening its detail panel automatically — not just the board
 
+### Attachments
+- Photo/file attachments on cards (Supabase Storage, free tier) — image thumbnails inline, other files as a download link, size shown, uploader shown
+- Private bucket, not public URLs: access is enforced by Postgres RLS on `storage.objects` (same tenant-isolation model as every table), files viewed via short-lived (1 hour) signed URLs generated on demand — verified directly: an authenticated user who isn't a member of the org gets "Object not found" trying to sign a URL for another org's file, not just a UI-level block
+- 20MB per-file ceiling (Supabase free tier gives 1GB total storage)
+
 ### Design
 - Palette and type system inspired by Jira and Monday.com (their actual token colors — Jira's navy `#172B4D`, status reds/greens/purples — not a generic guess), applied consistently across the whole app, not just the landing page
 - Public marketing page at `/` with an interactive demo (live toggle between IT/Dev and Construction board vocabulary), responsive, dark-mode aware
@@ -51,9 +56,8 @@ A running list of what's actually built and verified vs. what's planned. Update 
 
 ## 🚧 Next up
 
-Agreed order for "practical features to attract external users": ~~real-time sync~~ → ~~notifications~~ → **file attachments** → **search**.
+Agreed order for "practical features to attract external users": ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → **search**.
 
-- **File/photo attachments on cards** — needs Supabase Storage (free tier, not yet configured)
 - **Basic search** across cards/boards
 - **Members & invites** — schema (`Invite`, `Membership`) and a `Contact` model (for assigning cards to people without a Flowbase account — subcontractors, etc.) exist in the database and RLS is set up for both, but the actual invite-by-email flow, accept-invite page, and Contact CRUD/UI aren't built yet. This was in progress before real-time sync took priority.
 - **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet

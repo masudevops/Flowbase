@@ -4,6 +4,7 @@ import { useState } from "react";
 import { trpc } from "@/trpc/client";
 import { PRIORITY_META } from "@/components/board/types";
 import type { CardTypeOption, MemberOption, LabelOption } from "@/components/board/types";
+import { AttachmentsSection } from "./AttachmentsSection";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
@@ -304,6 +305,8 @@ export function CardDetailPanel({
             className="w-full resize-none rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
           />
         </div>
+
+        <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />
 
         {/* Checklist */}
         <div className="mt-4">

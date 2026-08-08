@@ -79,6 +79,7 @@ model Organization {
   moduleSettings WorkspaceModuleSetting[]
   invites        Invite[]
   contacts       Contact[]
+  attachments    Attachment[]
 
   @@map("organizations")
 }
@@ -98,6 +99,7 @@ model User {
   comments       Comment[]
   auditLogs      AuditLog[]      @relation("AuditActor")
   checklistItems ChecklistItem[] @relation("ChecklistCompletedBy")
+  attachments    Attachment[]
 
   @@map("users")
 }
@@ -313,6 +315,7 @@ model Card {
   comments       Comment[]
   checklistItems ChecklistItem[]
   auditLogs      AuditLog[]
+  attachments    Attachment[]
 
   @@index([organizationId])
   @@index([boardId])
@@ -373,6 +376,33 @@ model ChecklistItem {
   @@index([organizationId])
   @@index([cardId])
   @@map("checklist_items")
+}
+
+/// Metadata for a file in Supabase Storage's private `attachments`
+/// bucket. The actual bytes never pass through our server — the browser
+/// uploads directly to Storage (governed by storage.objects RLS, see
+/// prisma/rls/004_storage.sql), then calls attachment.create with the
+/// resulting path. storagePath follows `{organizationId}/{cardId}/{cuid}-{fileName}`
+/// — the leading organizationId segment is what the storage policies key
+/// tenant isolation off of.
+model Attachment {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  cardId         String   @map("card_id")
+  uploadedById   String   @map("uploaded_by_id")
+  fileName       String   @map("file_name")
+  storagePath    String   @map("storage_path")
+  mimeType       String   @map("mime_type")
+  sizeBytes      Int      @map("size_bytes")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  card         Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([cardId])
+  @@map("attachments")
 }
 
 // ------------------------------------------------------------
