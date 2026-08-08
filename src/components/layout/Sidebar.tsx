@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Kanban, Users, Menu, X } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, Settings, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
@@ -12,10 +12,12 @@ export function Sidebar({
   organizationId,
   organizationName,
   orgSlug,
+  currentUser,
 }: {
   organizationId: string;
   organizationName: string;
   orgSlug: string;
+  currentUser: { email: string; fullName: string | null };
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -73,8 +75,23 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-[#DFE1E6] px-4 py-3 dark:border-[#2A3547]">
-        <SignOutButton />
+      <div className="border-t border-[#DFE1E6] px-3 py-3 dark:border-[#2A3547]">
+        <Link
+          href="/settings"
+          onClick={() => setMobileOpen(false)}
+          className="mb-2 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#E4E7EC]"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0B5CFF] text-[11px] font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]">
+            {(currentUser.fullName ?? currentUser.email).charAt(0).toUpperCase()}
+          </span>
+          <span className="min-w-0 flex-1 truncate font-medium">
+            {currentUser.fullName ?? currentUser.email}
+          </span>
+          <Settings className="h-3.5 w-3.5 shrink-0" />
+        </Link>
+        <div className="px-1">
+          <SignOutButton />
+        </div>
       </div>
     </div>
   );

@@ -14,7 +14,14 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user) {
-      await ensureUserRecord({ id: data.user.id, email: data.user.email! });
+      // Google (and the password-signup path, which sets the same key)
+      // populates full_name in user_metadata — no separate name prompt
+      // needed for OAuth sign-ins.
+      const fullName =
+        (data.user.user_metadata?.full_name as string | undefined) ??
+        (data.user.user_metadata?.name as string | undefined) ??
+        null;
+      await ensureUserRecord({ id: data.user.id, email: data.user.email!, fullName });
       return NextResponse.redirect(`${origin}/onboarding`);
     }
   }

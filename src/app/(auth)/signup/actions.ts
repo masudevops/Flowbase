@@ -9,12 +9,16 @@ export type SignupState = { error?: string; message?: string } | undefined;
 export async function signup(_prevState: SignupState, formData: FormData): Promise<SignupState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const fullName = String(formData.get("fullName") ?? "").trim();
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/callback` },
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/callback`,
+      data: { full_name: fullName },
+    },
   });
 
   if (error) {
@@ -31,6 +35,6 @@ export async function signup(_prevState: SignupState, formData: FormData): Promi
     return { message: "Check your email to confirm your account, then log in." };
   }
 
-  await ensureUserRecord({ id: data.user.id, email: data.user.email! });
+  await ensureUserRecord({ id: data.user.id, email: data.user.email!, fullName });
   redirect("/onboarding");
 }

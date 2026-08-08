@@ -16,6 +16,10 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Postgres Row-Level Security enforced at the database level (not just app-level checks) — verified live: a second user cannot see a first user's workspace even with a direct URL, confirmed by Postgres itself rejecting the query, not just the UI hiding it
 - Audit log: board, column, and card actions (created/updated/moved/blocked/unblocked/deleted) are recorded with who did it and when (`AuditLog` table) — verified live, in the correct order, with correct actor/entity IDs
 
+### Profile
+- Signup now collects a full name (Google OAuth pulls it from the Google profile automatically); it's shown everywhere a person was previously only shown by email — sidebar identity, team list, assignee pickers, comments
+- `/settings` lets anyone edit their own name later, including accounts created before this existed
+
 ### Team & permissions
 - Two roles per workspace: **Admin / project manager** and **Team member**. Admins can invite people, change anyone's role, remove members, and delete boards; members can view the team and leave on their own
 - Invite by email: an admin sends an invite (email + role), the recipient gets an email with a join link, and can accept it either by logging into an existing account or signing up fresh — a public preview page shows which workspace/role the link is for before requiring login. A workspace is always guaranteed at least one admin (role changes/removals that would leave zero admins are blocked)

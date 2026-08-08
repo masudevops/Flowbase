@@ -1,4 +1,5 @@
 import { router, publicProcedure } from "../trpc";
+import { userRouter } from "./user";
 import { organizationRouter } from "./organization";
 import { boardRouter } from "./board";
 import { columnRouter } from "./column";
@@ -17,6 +18,7 @@ export const appRouter = router({
     ok: true,
     timestamp: new Date().toISOString(),
   })),
+  user: userRouter,
   organization: organizationRouter,
   board: boardRouter,
   column: columnRouter,

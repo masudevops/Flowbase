@@ -26,6 +26,7 @@ export default function SignupPage() {
       </div>
 
       <form action={formAction} className="space-y-4">
+        <Input name="fullName" type="text" placeholder="Full name" required autoComplete="name" />
         <Input name="email" type="email" placeholder="Email" required autoComplete="email" />
         <Input
           name="password"
