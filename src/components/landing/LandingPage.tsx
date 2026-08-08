@@ -40,23 +40,23 @@ const BOARD_FEATURES = [
 export function LandingPage() {
   return (
     <div
-      className={`${plexMono.variable} ${plexSans.variable} flex flex-1 flex-col bg-[#F7F5F0] font-[family-name:var(--font-plex-sans)] text-[#14181F] dark:bg-[#0F1216] dark:text-[#F2F0EA]`}
+      className={`${plexMono.variable} ${plexSans.variable} flex flex-1 flex-col bg-[#F7F9FC] font-[family-name:var(--font-plex-sans)] text-[#172B4D] dark:bg-[#0E1624] dark:text-[#E4E7EC]`}
     >
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-[#D8D3C7] px-6 py-4 dark:border-[#2A2F38]">
+      <header className="flex items-center justify-between border-b border-[#DFE1E6] px-6 py-4 dark:border-[#2A3547]">
         <span className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] uppercase">
           Flowbase
         </span>
         <nav className="flex items-center gap-4">
           <Link
             href="/login"
-            className="rounded px-2 py-1 text-sm text-[#14181F]/70 transition-colors hover:text-[#14181F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2B5FE0] dark:text-[#F2F0EA]/70 dark:hover:text-[#F2F0EA]"
+            className="rounded px-2 py-1 text-sm text-[#172B4D]/70 transition-colors hover:text-[#172B4D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] dark:text-[#E4E7EC]/70 dark:hover:text-[#E4E7EC]"
           >
             Log in
           </Link>
           <Link
             href="/signup"
-            className="rounded-md bg-[#14181F] px-3 py-1.5 text-sm font-medium text-[#F7F5F0] transition-colors hover:bg-[#2B5FE0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2B5FE0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F5F0] dark:bg-[#F2F0EA] dark:text-[#0F1216] dark:hover:bg-[#5C8AFF] dark:focus-visible:ring-offset-[#0F1216]"
+            className="rounded-md bg-[#0B5CFF] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#0747A6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F9FC] dark:bg-[#4C9AFF] dark:text-[#0E1624] dark:hover:bg-[#79B1FF] dark:focus-visible:ring-offset-[#0E1624]"
           >
             Sign up
           </Link>
@@ -66,7 +66,7 @@ export function LandingPage() {
       {/* Hero */}
       <section className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:py-24">
         <div>
-          <p className="font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-[0.12em] text-[#2B5FE0] uppercase">
+          <p className="font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-[0.12em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
             For small IT teams &amp; construction crews
           </p>
           <h1 className="mt-4 font-[family-name:var(--font-plex-mono)] text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl">
@@ -74,7 +74,7 @@ export function LandingPage() {
             <br />
             Different job.
           </h1>
-          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#14181F]/75 dark:text-[#F2F0EA]/75">
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#172B4D]/75 dark:text-[#E4E7EC]/75">
             Flowbase is a kanban tracker that relabels itself for your trade — sprints and bugs
             for dev shops, punch lists and inspections for the crew. Customize columns, card
             types, and workflows from day one.
@@ -82,13 +82,13 @@ export function LandingPage() {
           <div className="mt-7 flex items-center gap-5">
             <Link
               href="/signup"
-              className="rounded-md bg-[#14181F] px-5 py-2.5 text-sm font-medium text-[#F7F5F0] transition-colors hover:bg-[#2B5FE0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2B5FE0] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F5F0] dark:bg-[#F2F0EA] dark:text-[#0F1216] dark:hover:bg-[#5C8AFF] dark:focus-visible:ring-offset-[#0F1216]"
+              className="rounded-md bg-[#0B5CFF] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0747A6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F7F9FC] dark:bg-[#4C9AFF] dark:text-[#0E1624] dark:hover:bg-[#79B1FF] dark:focus-visible:ring-offset-[#0E1624]"
             >
               Start free
             </Link>
             <a
               href="#how-it-works"
-              className="text-sm font-medium text-[#14181F]/70 underline decoration-[#D8D3C7] underline-offset-4 transition-colors hover:text-[#14181F] hover:decoration-[#2B5FE0] dark:text-[#F2F0EA]/70 dark:hover:text-[#F2F0EA]"
+              className="text-sm font-medium text-[#172B4D]/70 underline decoration-[#DFE1E6] underline-offset-4 transition-colors hover:text-[#172B4D] hover:decoration-[#0B5CFF] dark:text-[#E4E7EC]/70 dark:hover:text-[#E4E7EC]"
             >
               See how it works
             </a>
@@ -99,9 +99,9 @@ export function LandingPage() {
       </section>
 
       {/* Features, presented as a backlog column */}
-      <section id="how-it-works" className="border-t border-[#D8D3C7] px-6 py-16 dark:border-[#2A2F38]">
+      <section id="how-it-works" className="border-t border-[#DFE1E6] px-6 py-16 dark:border-[#2A3547]">
         <div className="mx-auto w-full max-w-6xl">
-          <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#6B7280] uppercase">
+          <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
             Backlog
           </span>
           <h2 className="mt-2 font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight">
@@ -113,12 +113,12 @@ export function LandingPage() {
               {BOARD_FEATURES.map((feature) => (
                 <div
                   key={feature.title}
-                  className="w-64 shrink-0 rounded-lg border border-[#D8D3C7] bg-white p-4 dark:border-[#2A2F38] dark:bg-[#171B21]"
+                  className="w-64 shrink-0 rounded-lg border border-[#DFE1E6] bg-white p-4 dark:border-[#2A3547] dark:bg-[#161D2E]"
                 >
-                  <h3 className="text-sm font-semibold text-[#14181F] dark:text-[#F2F0EA]">
+                  <h3 className="text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-[13px] leading-relaxed text-[#14181F]/70 dark:text-[#F2F0EA]/70">
+                  <p className="mt-2 text-[13px] leading-relaxed text-[#172B4D]/70 dark:text-[#E4E7EC]/70">
                     {feature.body}
                   </p>
                 </div>
@@ -126,16 +126,16 @@ export function LandingPage() {
             </div>
             <div
               aria-hidden
-              className="pointer-events-none absolute top-0 right-0 bottom-2 w-16 bg-gradient-to-l from-[#F7F5F0] to-transparent dark:from-[#0F1216]"
+              className="pointer-events-none absolute top-0 right-0 bottom-2 w-16 bg-gradient-to-l from-[#F7F9FC] to-transparent dark:from-[#0E1624]"
             />
           </div>
         </div>
       </section>
 
       {/* Two trades comparison */}
-      <section className="border-t border-[#D8D3C7] px-6 py-16 dark:border-[#2A2F38]">
+      <section className="border-t border-[#DFE1E6] px-6 py-16 dark:border-[#2A3547]">
         <div className="mx-auto w-full max-w-6xl">
-          <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#6B7280] uppercase">
+          <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
             Same engine
           </span>
           <h2 className="mt-2 font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight">
@@ -143,45 +143,45 @@ export function LandingPage() {
           </h2>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <div className="rounded-lg border border-[#D8D3C7] bg-white p-5 dark:border-[#2A2F38] dark:bg-[#171B21]">
-              <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#2B5FE0] uppercase">
+            <div className="rounded-lg border border-[#DFE1E6] bg-white p-5 dark:border-[#2A3547] dark:bg-[#161D2E]">
+              <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
                 IT / Dev
               </span>
               <div className="mt-3 flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#D64545]" />
-                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#6B7280] uppercase">
+                <span className="h-2 w-2 rounded-full bg-[#DE350B]" />
+                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
                   Bug · High priority
                 </span>
               </div>
               <p className="mt-2 text-[15px] font-medium">Fix Safari session bug</p>
-              <p className="mt-1 text-[13px] text-[#14181F]/60 dark:text-[#F2F0EA]/60">
+              <p className="mt-1 text-[13px] text-[#172B4D]/60 dark:text-[#E4E7EC]/60">
                 Assignee: Unassigned
               </p>
-              <div className="mt-3 flex items-center gap-1.5 rounded bg-[#F26B1D]/10 px-2 py-1.5 w-fit">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#F26B1D]" />
-                <span className="text-xs text-[#B24F12] dark:text-[#F26B1D]">
+              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#DE350B]/10 px-2 py-1.5 dark:bg-[#FF5630]/15">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#DE350B] dark:bg-[#FF5630]" />
+                <span className="text-xs text-[#DE350B] dark:text-[#FF5630]">
                   Blocked — waiting on design review
                 </span>
               </div>
             </div>
 
-            <div className="rounded-lg border border-[#D8D3C7] bg-white p-5 dark:border-[#2A2F38] dark:bg-[#171B21]">
-              <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#2B5FE0] uppercase">
+            <div className="rounded-lg border border-[#DFE1E6] bg-white p-5 dark:border-[#2A3547] dark:bg-[#161D2E]">
+              <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
                 Construction
               </span>
               <div className="mt-3 flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#8B5CF6]" />
-                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#6B7280] uppercase">
+                <span className="h-2 w-2 rounded-full bg-[#6554C0]" />
+                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
                   Inspection · Bldg 2, Unit 4
                 </span>
               </div>
               <p className="mt-2 text-[15px] font-medium">Electrical rough-in</p>
-              <p className="mt-1 text-[13px] text-[#14181F]/60 dark:text-[#F2F0EA]/60">
+              <p className="mt-1 text-[13px] text-[#172B4D]/60 dark:text-[#E4E7EC]/60">
                 Assignee: Unassigned
               </p>
-              <div className="mt-3 flex items-center gap-1.5 rounded bg-[#F26B1D]/10 px-2 py-1.5 w-fit">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#F26B1D]" />
-                <span className="text-xs text-[#B24F12] dark:text-[#F26B1D]">
+              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#DE350B]/10 px-2 py-1.5 dark:bg-[#FF5630]/15">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#DE350B] dark:bg-[#FF5630]" />
+                <span className="text-xs text-[#DE350B] dark:text-[#FF5630]">
                   Blocked — waiting on inspector
                 </span>
               </div>
@@ -191,19 +191,19 @@ export function LandingPage() {
       </section>
 
       {/* Final CTA band */}
-      <section className="bg-[#14181F] px-6 py-16 dark:bg-[#0A0C0F]">
+      <section className="bg-[#0747A6] px-6 py-16 dark:bg-[#04294D]">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight text-[#F7F5F0]">
+            <h2 className="font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight text-white">
               Free to run. No credit card.
             </h2>
-            <p className="mt-2 text-[15px] text-[#F7F5F0]/70">
+            <p className="mt-2 text-[15px] text-white/75">
               Sign up, create a workspace, and start moving cards in under a minute.
             </p>
           </div>
           <Link
             href="/signup"
-            className="shrink-0 rounded-md bg-[#F7F5F0] px-5 py-2.5 text-sm font-medium text-[#14181F] transition-colors hover:bg-[#5C8AFF] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C8AFF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#14181F]"
+            className="shrink-0 rounded-md bg-white px-5 py-2.5 text-sm font-medium text-[#0747A6] transition-colors hover:bg-[#F7F9FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0747A6]"
           >
             Start free
           </Link>
@@ -211,11 +211,11 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="flex items-center justify-between border-t border-[#D8D3C7] px-6 py-6 dark:border-[#2A2F38]">
-        <span className="font-[family-name:var(--font-plex-mono)] text-xs tracking-[0.15em] text-[#6B7280] uppercase">
+      <footer className="flex items-center justify-between border-t border-[#DFE1E6] px-6 py-6 dark:border-[#2A3547]">
+        <span className="font-[family-name:var(--font-plex-mono)] text-xs tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
           Flowbase
         </span>
-        <span className="rotate-[-2deg] rounded border border-[#D8D3C7] px-2 py-0.5 font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#6B7280] uppercase dark:border-[#2A2F38]">
+        <span className="rotate-[-2deg] rounded border border-[#DFE1E6] px-2 py-0.5 font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#5E6C84] uppercase dark:border-[#2A3547] dark:text-[#8C9BAB]">
           Rev. 01 · {new Date().getFullYear()}
         </span>
       </footer>
