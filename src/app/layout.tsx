@@ -17,7 +17,8 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Kelbara",
-  description: "Kanban-based project management for small IT and construction teams.",
+  description:
+    "Flexible work management for projects, tasks, and workflows — built to adapt to how your team works.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -52,7 +52,7 @@ export function LandingPage() {
       <section className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 py-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:py-24">
         <div>
           <p className="font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-[0.12em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
-            For small IT teams &amp; construction crews
+            Flexible work management for every team
           </p>
           <h1 className="mt-4 font-[family-name:var(--font-plex-mono)] text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl">
             Same board.
@@ -60,9 +60,9 @@ export function LandingPage() {
             Different job.
           </h1>
           <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#172B4D]/75 dark:text-[#E4E7EC]/75">
-            Kelbara is a kanban tracker that relabels itself for your trade — sprints and bugs
-            for dev shops, punch lists and inspections for the crew. Customize columns, card
-            types, and workflows from day one.
+            Kelbara is a flexible work management platform that adapts to how your team works.
+            Plan projects, organize tasks, customize workflows, and keep everyone aligned — all
+            in one place.
           </p>
           <div className="mt-7 flex items-center gap-5">
             <Link
@@ -124,7 +124,7 @@ export function LandingPage() {
             Same engine
           </span>
           <h2 className="mt-2 font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight">
-            Two trades. One engine.
+            Different teams. One flexible platform.
           </h2>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
