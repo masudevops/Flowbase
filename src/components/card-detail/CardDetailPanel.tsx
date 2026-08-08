@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 import { trpc } from "@/trpc/client";
 import { PRIORITY_META } from "@/components/board/types";
-import type { CardTypeOption, MemberOption, LabelOption } from "@/components/board/types";
+import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "@/components/board/types";
 import { AttachmentsSection } from "./AttachmentsSection";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
@@ -18,11 +21,38 @@ function memberLabel(m: { fullName: string | null; email: string }): string {
   return m.fullName ?? m.email;
 }
 
+const markdownComponents: Components = {
+  h1: (props) => <h1 className="mt-1 mb-1 text-base font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  h2: (props) => <h2 className="mt-1 mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  h3: (props) => <h3 className="mt-1 mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  p: (props) => <p className="mb-2 text-sm text-[#172B4D] last:mb-0 dark:text-[#E4E7EC]" {...props} />,
+  ul: (props) => <ul className="mb-2 ml-4 list-disc text-sm text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  ol: (props) => <ol className="mb-2 ml-4 list-decimal text-sm text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  li: (props) => <li className="mb-0.5" {...props} />,
+  a: (props) => (
+    <a className="text-[#0B5CFF] underline dark:text-[#4C9AFF]" target="_blank" rel="noreferrer" {...props} />
+  ),
+  code: (props) => (
+    <code className="rounded bg-[#F4F6FA] px-1 py-0.5 text-xs dark:bg-[#0E1624]" {...props} />
+  ),
+  pre: (props) => (
+    <pre className="mb-2 overflow-x-auto rounded-md bg-[#F4F6FA] p-2 text-xs dark:bg-[#0E1624]" {...props} />
+  ),
+  strong: (props) => <strong className="font-semibold" {...props} />,
+  blockquote: (props) => (
+    <blockquote
+      className="border-l-2 border-[#DFE1E6] pl-2 text-[#5E6C84] dark:border-[#2A3547] dark:text-[#8C9BAB]"
+      {...props}
+    />
+  ),
+};
+
 export function CardDetailPanel({
   cardId,
   cardTypes,
   members,
   labels,
+  contacts,
   onClose,
   onChanged,
 }: {
@@ -30,6 +60,7 @@ export function CardDetailPanel({
   cardTypes: CardTypeOption[];
   members: MemberOption[];
   labels: LabelOption[];
+  contacts: ContactOption[];
   onClose: () => void;
   onChanged: () => void;
 }) {
@@ -64,6 +95,7 @@ export function CardDetailPanel({
   const [blockedReasonDraft, setBlockedReasonDraft] = useState("");
   const [commentDraft, setCommentDraft] = useState("");
   const [checklistDraft, setChecklistDraft] = useState("");
+  const [editingDescription, setEditingDescription] = useState(false);
 
   // Re-sync drafts from server data only when we start looking at a
   // genuinely different card, not on every refetch of the same one —
@@ -79,6 +111,7 @@ export function CardDetailPanel({
     setDescDraft(card.description ?? "");
     setLocationDraft(card.location ?? "");
     setBlockedReasonDraft(card.blockedReason ?? "");
+    setEditingDescription(false);
   }
 
   if (!card) {
@@ -171,18 +204,42 @@ export function CardDetailPanel({
               Assignee
             </label>
             <select
-              value={card.assigneeId ?? ""}
-              onChange={(e) =>
-                updateCard.mutate({ cardId, assigneeId: e.target.value || null })
+              value={
+                card.assigneeId
+                  ? `user:${card.assigneeId}`
+                  : card.assigneeContactId
+                    ? `contact:${card.assigneeContactId}`
+                    : ""
               }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value) {
+                  updateCard.mutate({ cardId, assigneeId: null });
+                } else if (value.startsWith("user:")) {
+                  updateCard.mutate({ cardId, assigneeId: value.slice(5) });
+                } else {
+                  updateCard.mutate({ cardId, assigneeContactId: value.slice(8) });
+                }
+              }}
               className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
             >
               <option value="">Unassigned</option>
-              {members.map((m) => (
-                <option key={m.userId} value={m.userId}>
-                  {memberLabel(m)}
-                </option>
-              ))}
+              <optgroup label="Team">
+                {members.map((m) => (
+                  <option key={m.userId} value={`user:${m.userId}`}>
+                    {memberLabel(m)}
+                  </option>
+                ))}
+              </optgroup>
+              {contacts.length > 0 && (
+                <optgroup label="Contacts">
+                  {contacts.map((c) => (
+                    <option key={c.id} value={`contact:${c.id}`}>
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
 
@@ -300,18 +357,37 @@ export function CardDetailPanel({
           <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
             Description
           </label>
-          <textarea
-            value={descDraft}
-            onChange={(e) => setDescDraft(e.target.value)}
-            onBlur={() => {
-              if (descDraft !== (card.description ?? "")) {
-                updateCard.mutate({ cardId, description: descDraft || null });
-              }
-            }}
-            placeholder="Markdown supported"
-            rows={4}
-            className="w-full resize-none rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-          />
+          {editingDescription ? (
+            <textarea
+              value={descDraft}
+              onChange={(e) => setDescDraft(e.target.value)}
+              onBlur={() => {
+                if (descDraft !== (card.description ?? "")) {
+                  updateCard.mutate({ cardId, description: descDraft || null });
+                }
+                setEditingDescription(false);
+              }}
+              placeholder="Markdown supported"
+              rows={4}
+              autoFocus
+              className="w-full resize-none rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            />
+          ) : (
+            <div
+              onClick={() => setEditingDescription(true)}
+              className="min-h-[2.5rem] cursor-text rounded-md border border-transparent px-2 py-1.5 hover:border-[#DFE1E6] dark:hover:border-[#2A3547]"
+            >
+              {card.description ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {card.description}
+                </ReactMarkdown>
+              ) : (
+                <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+                  Click to add a description (markdown supported)
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />

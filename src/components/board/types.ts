@@ -15,6 +15,7 @@ export type BoardCard = {
   description: string | null;
   cardType: { id: string; name: string; color: string } | null;
   assignee: { id: string; email: string; fullName: string | null } | null;
+  assigneeContact: { id: string; name: string } | null;
   labels: { label: { id: string; name: string; color: string } }[];
   checklistItems: { id: string; text: string; isDone: boolean }[];
   _count: { comments: number };
@@ -32,6 +33,7 @@ export type BoardColumn = {
 export type CardTypeOption = { id: string; name: string; color: string };
 export type MemberOption = { userId: string; email: string; fullName: string | null };
 export type LabelOption = { id: string; name: string; color: string };
+export type ContactOption = { id: string; name: string; email: string | null; phone: string | null };
 
 export const PRIORITY_META: Record<
   BoardCard["priority"],

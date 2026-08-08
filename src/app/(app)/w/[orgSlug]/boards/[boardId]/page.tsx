@@ -21,11 +21,12 @@ export default async function BoardPage({
     notFound();
   }
 
-  const [cards, cardTypes, members, labels] = await Promise.all([
+  const [cards, cardTypes, members, labels, contacts] = await Promise.all([
     caller.card.listByBoard({ boardId }),
     caller.cardType.list({ organizationId: organization.id }),
     caller.membership.list({ organizationId: organization.id }),
     caller.label.list({ organizationId: organization.id }),
+    caller.contact.list({ organizationId: organization.id }),
   ]);
 
   const columns = board.columns.map((column) => ({
@@ -80,6 +81,7 @@ export default async function BoardPage({
           cardTypes={cardTypes}
           members={members}
           labels={labels}
+          contacts={contacts}
         />
       )}
     </div>

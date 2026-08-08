@@ -18,10 +18,11 @@ export default async function BacklogPage({
     notFound();
   }
 
-  const [cardTypes, members, labels] = await Promise.all([
+  const [cardTypes, members, labels, contacts] = await Promise.all([
     caller.cardType.list({ organizationId: organization.id }),
     caller.membership.list({ organizationId: organization.id }),
     caller.label.list({ organizationId: organization.id }),
+    caller.contact.list({ organizationId: organization.id }),
   ]);
 
   return (
@@ -44,7 +45,13 @@ export default async function BacklogPage({
         </Link>
       </div>
 
-      <BacklogView boardId={boardId} cardTypes={cardTypes} members={members} labels={labels} />
+      <BacklogView
+        boardId={boardId}
+        cardTypes={cardTypes}
+        members={members}
+        labels={labels}
+        contacts={contacts}
+      />
     </div>
   );
 }

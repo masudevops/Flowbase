@@ -56,11 +56,22 @@ export async function updateCard(
     priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
     dueDate?: string | null;
     assigneeId?: string | null;
+    assigneeContactId?: string | null;
     cardTypeId?: string | null;
     location?: string | null;
   },
 ) {
   const { cardId, organizationId, actorId, ...fields } = params;
+
+  // A card is assigned to a registered member OR an external contact,
+  // never both — setting one clears the other rather than requiring the
+  // caller to remember to do so itself.
+  const assigneeFields =
+    fields.assigneeId !== undefined
+      ? { assigneeId: fields.assigneeId, assigneeContactId: fields.assigneeId ? null : undefined }
+      : fields.assigneeContactId !== undefined
+        ? { assigneeContactId: fields.assigneeContactId, assigneeId: fields.assigneeContactId ? null : undefined }
+        : {};
 
   const card = await db.card.update({
     where: { id: cardId },
@@ -69,9 +80,9 @@ export async function updateCard(
       description: fields.description,
       priority: fields.priority,
       dueDate: fields.dueDate === undefined ? undefined : fields.dueDate ? new Date(fields.dueDate) : null,
-      assigneeId: fields.assigneeId,
       cardTypeId: fields.cardTypeId,
       location: fields.location,
+      ...assigneeFields,
     },
   });
 

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { createContext } from "@/server/context";
 import { MembersManager } from "@/components/members/MembersManager";
+import { ContactsManager } from "@/components/members/ContactsManager";
 
 export default async function MembersPage({
   params,
@@ -17,9 +18,10 @@ export default async function MembersPage({
     notFound();
   }
 
-  const [members, invites] = await Promise.all([
+  const [members, invites, contacts] = await Promise.all([
     caller.membership.list({ organizationId: organization.id }),
     role === "ADMIN" ? caller.membership.listInvites({ organizationId: organization.id }) : Promise.resolve([]),
+    caller.contact.list({ organizationId: organization.id }),
   ]);
 
   return (
@@ -35,6 +37,10 @@ export default async function MembersPage({
         initialMembers={members}
         initialInvites={invites}
       />
+
+      <div className="mt-10">
+        <ContactsManager organizationId={organization.id} initialContacts={contacts} />
+      </div>
     </div>
   );
 }

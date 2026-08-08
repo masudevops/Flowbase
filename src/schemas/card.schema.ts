@@ -17,6 +17,7 @@ export const updateCardSchema = z.object({
   priority: priority.optional(),
   dueDate: z.string().datetime().nullable().optional(),
   assigneeId: z.string().nullable().optional(),
+  assigneeContactId: z.string().nullable().optional(),
   cardTypeId: z.string().nullable().optional(),
   location: z.string().max(200).nullable().optional(),
 });

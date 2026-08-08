@@ -6,7 +6,7 @@ import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
 import { PRIORITY_META } from "./types";
-import type { CardTypeOption, MemberOption, LabelOption } from "./types";
+import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
 type SortKey = "priority" | "dueDate" | "title";
 
@@ -17,11 +17,13 @@ export function BacklogView({
   cardTypes,
   members,
   labels,
+  contacts,
 }: {
   boardId: string;
   cardTypes: CardTypeOption[];
   members: MemberOption[];
   labels: LabelOption[];
+  contacts: ContactOption[];
 }) {
   const utils = trpc.useUtils();
   const { data: cards } = trpc.card.listByBoard.useQuery({ boardId });
@@ -163,7 +165,11 @@ export function BacklogView({
                   {PRIORITY_META[card.priority].label}
                 </td>
                 <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
-                  {card.assignee ? (card.assignee.fullName ?? card.assignee.email) : "Unassigned"}
+                  {card.assignee
+                    ? (card.assignee.fullName ?? card.assignee.email)
+                    : card.assigneeContact
+                      ? `${card.assigneeContact.name} (contact)`
+                      : "Unassigned"}
                 </td>
                 <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
                   {card.dueDate ? new Date(card.dueDate).toLocaleDateString() : "—"}
@@ -195,6 +201,7 @@ export function BacklogView({
           cardTypes={cardTypes}
           members={members}
           labels={labels}
+          contacts={contacts}
           onClose={() => setOpenCardId(null)}
           onChanged={() => {}}
         />

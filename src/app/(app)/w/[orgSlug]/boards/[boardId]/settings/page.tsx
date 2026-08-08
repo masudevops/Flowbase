@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { ColumnsManager } from "./ColumnsManager";
+import { CardTypesManager } from "@/components/board/CardTypesManager";
 import { DeleteBoardButton } from "@/components/board/DeleteBoardButton";
 
 export default async function BoardSettingsPage({
@@ -17,6 +18,8 @@ export default async function BoardSettingsPage({
     notFound();
   }
 
+  const cardTypes = await caller.cardType.list({ organizationId: organization.id });
+
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <h1 className="mb-1 text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
@@ -26,6 +29,10 @@ export default async function BoardSettingsPage({
         Rename, reorder, add, or delete columns.
       </p>
       <ColumnsManager boardId={boardId} initialColumns={board.columns} />
+
+      <div className="mt-10">
+        <CardTypesManager organizationId={organization.id} initialCardTypes={cardTypes} />
+      </div>
 
       {role === "ADMIN" && (
         <DeleteBoardButton boardId={boardId} boardName={board.name} orgSlug={orgSlug} />

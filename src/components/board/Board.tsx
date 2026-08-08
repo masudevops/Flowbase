@@ -17,7 +17,7 @@ import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
 import { CardPreview } from "./CardPreview";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
-import type { BoardColumn, CardTypeOption, MemberOption, LabelOption } from "./types";
+import type { BoardColumn, CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
 export function Board({
   boardId,
@@ -25,12 +25,14 @@ export function Board({
   cardTypes,
   members,
   labels,
+  contacts,
 }: {
   boardId: string;
   initialColumns: BoardColumn[];
   cardTypes: CardTypeOption[];
   members: MemberOption[];
   labels: LabelOption[];
+  contacts: ContactOption[];
 }) {
   const searchParams = useSearchParams();
   const [columns, setColumns] = useState(initialColumns);
@@ -181,6 +183,7 @@ export function Board({
           cardTypes={cardTypes}
           members={members}
           labels={labels}
+          contacts={contacts}
           onClose={() => setOpenCardId(null)}
           onChanged={refreshBoard}
         />

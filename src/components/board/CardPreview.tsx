@@ -104,6 +104,14 @@ export function CardPreview({
             {(card.assignee.fullName ?? card.assignee.email).charAt(0).toUpperCase()}
           </span>
         )}
+        {!card.assignee && card.assigneeContact && (
+          <span
+            title={`${card.assigneeContact.name} (contact)`}
+            className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-[#5E6C84] text-[10px] font-medium text-[#5E6C84] dark:border-[#8C9BAB] dark:text-[#8C9BAB]"
+          >
+            {card.assigneeContact.name.charAt(0).toUpperCase()}
+          </span>
+        )}
       </div>
     </div>
   );

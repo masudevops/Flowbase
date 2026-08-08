@@ -20,6 +20,12 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Signup now collects a full name (Google OAuth pulls it from the Google profile automatically); it's shown everywhere a person was previously only shown by email — sidebar identity, team list, assignee pickers, comments
 - `/settings` lets anyone edit their own name later, including accounts created before this existed
 
+### External contacts & card types
+- **Contacts**: workspace-scoped people who can be assigned cards without ever having a Flowbase account — subcontractors, clients, vendors. Managed from the Team page (add/rename/delete, inline editing); a card's assignee dropdown lists team members and contacts in separate groups, and a card is assigned to one or the other, never both (selecting one clears the other server-side)
+- **Card types**: previously template-only (Task/Bug/Feature, etc.), now fully manageable in-app from a board's settings page — add, rename, recolor, delete. Shared across every board in the workspace, not per-board, since that's how the underlying data is scoped. Deleting a type in use just clears it off those cards rather than blocking the delete
+- **Rendered markdown**: a card's description now renders as real markdown (headings, bold/italic, lists, links, code, GFM tables/strikethrough via `remark-gfm`) instead of plain text; click into it to get the raw markdown back in an editable textarea, blur to re-render
+- Verified end-to-end live: created and renamed a contact, assigned a card to it, confirmed it shows correctly on the card preview (dashed avatar), card detail, and backlog table (`(contact)` suffix); created and renamed a card type; wrote markdown with a heading/bold/list and confirmed it renders correctly and round-trips back to raw text in edit mode — zero console errors throughout
+
 ### Team & permissions
 - Two roles per workspace: **Admin / project manager** and **Team member**. Admins can invite people, change anyone's role, remove members, and delete boards; members can view the team and leave on their own
 - Invite by email: an admin sends an invite (email + role), the recipient gets an email with a join link, and can accept it either by logging into an existing account or signing up fresh — a public preview page shows which workspace/role the link is for before requiring login. A workspace is always guaranteed at least one admin (role changes/removals that would leave zero admins are blocked)
@@ -70,11 +76,7 @@ A running list of what's actually built and verified vs. what's planned. Update 
 
 ## 🚧 Next up
 
-The agreed "practical features to attract external users" list is done: ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → ~~search~~. Members & invites (below) is now done too. Remaining known gaps:
-
-- **Contact CRUD/UI** — the `Contact` model (assigning cards to people without a Flowbase account — subcontractors, etc.) exists in the database and RLS is set up for it, and `Card.assigneeContactId` is wired in the schema, but there's no UI yet to create/manage contacts or assign a card to one
-- **Card type management UI** — types currently come from templates only; no in-app way to add/edit/delete a workspace's card types yet
-- **Rendered markdown** in the card description (currently plain text in and out — `react-markdown` is already installed, just not wired into the view mode)
+The agreed "practical features to attract external users" list is done: ~~real-time sync~~ → ~~notifications~~ → ~~file attachments~~ → ~~search~~. Members & invites, contacts, card type management, and rendered markdown are all done too. Nothing left in this tier — remaining work is the borrowed-ideas list and Phase 2/3 below, not started.
 
 ## 💡 Ideas borrowed from Jira/Monday, worth considering (not started)
 

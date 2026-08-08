@@ -23,6 +23,7 @@ import { notifyCardAssigned } from "../services/notification.service";
 const cardInclude = {
   cardType: true,
   assignee: true,
+  assigneeContact: true,
   labels: { include: { label: true } },
   checklistItems: { orderBy: { position: "asc" as const } },
   _count: { select: { comments: true } },
