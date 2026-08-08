@@ -1,0 +1,377 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Supabase: pooled (pgbouncer) vs direct connection
+}
+
+// ------------------------------------------------------------
+// ENUMS
+// ------------------------------------------------------------
+
+enum MembershipRole {
+  ADMIN
+  MEMBER
+}
+
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ModuleKey {
+  WIKI
+  TIME_TRACKING
+  CALENDAR
+}
+
+enum AuditAction {
+  CARD_CREATED
+  CARD_UPDATED
+  CARD_DELETED
+  CARD_MOVED
+  CARD_ASSIGNED
+  CARD_BLOCKED
+  CARD_UNBLOCKED
+  COLUMN_CREATED
+  COLUMN_UPDATED
+  COLUMN_DELETED
+  COLUMN_REORDERED
+  BOARD_CREATED
+  BOARD_DELETED
+  MEMBER_INVITED
+  MEMBER_ROLE_CHANGED
+  MEMBER_REMOVED
+}
+
+// ------------------------------------------------------------
+// TENANT / IDENTITY
+// ------------------------------------------------------------
+
+/// The tenant boundary AND the user-facing "workspace" — one model, not two.
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // used in URL: /w/[slug]/...
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships    Membership[]
+  boards         Board[]
+  columns        Column[]
+  cards          Card[]
+  cardTypes      CardType[]
+  labels         Label[]
+  comments       Comment[]
+  checklistItems ChecklistItem[]
+  auditLogs      AuditLog[]
+  moduleSettings WorkspaceModuleSetting[]
+  invites        Invite[]
+
+  @@map("organizations")
+}
+
+/// Mirrors Supabase auth.users (id == auth.uid()). Not the source of truth
+/// for credentials — created via upsert on first login.
+model User {
+  id        String   @id // uuid, matches supabase auth.users.id
+  email     String   @unique
+  fullName  String?  @map("full_name")
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships    Membership[]
+  assignedCards  Card[]          @relation("CardAssignee")
+  comments       Comment[]
+  auditLogs      AuditLog[]      @relation("AuditActor")
+  checklistItems ChecklistItem[] @relation("ChecklistCompletedBy")
+
+  @@map("users")
+}
+
+/// Many-to-many User <-> Organization, with role. This is the mechanism
+/// for "a user can belong to multiple workspaces."
+model Membership {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  userId         String           @map("user_id")
+  role           MembershipRole   @default(MEMBER)
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+/// Pending email invites (user may not have a User row yet). Delivered via
+/// Resend; token is emailed as an accept-invite link.
+model Invite {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  email          String
+  role           MembershipRole   @default(MEMBER)
+  status         MembershipStatus @default(INVITED)
+  invitedById    String           @map("invited_by_id")
+  token          String           @unique @default(cuid())
+  expiresAt      DateTime         @map("expires_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("invites")
+}
+
+// ------------------------------------------------------------
+// MODULE ENABLEMENT (Phase 2 anticipation, intentionally minimal)
+// ------------------------------------------------------------
+
+/// Which optional modules are turned on for a workspace. Kanban is
+/// always-on and not represented here.
+model WorkspaceModuleSetting {
+  id             String    @id @default(cuid())
+  organizationId String    @map("organization_id")
+  module         ModuleKey
+  enabled        Boolean   @default(false)
+  enabledAt      DateTime? @map("enabled_at")
+  settings       Json? // module-specific config, e.g. time-tracking rounding rules
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, module])
+  @@map("workspace_module_settings")
+}
+
+// ------------------------------------------------------------
+// BOARD STRUCTURE
+// ------------------------------------------------------------
+
+model Board {
+  id             String    @id @default(cuid())
+  organizationId String    @map("organization_id")
+  name           String
+  description    String?
+  /// Informational only — which starter template was used (IT_DEV |
+  /// CONSTRUCTION | BLANK). Not a FK; templates are code, not rows.
+  templateKey    String?   @map("template_key")
+  archivedAt     DateTime? @map("archived_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  columns      Column[]
+  cards        Card[]
+
+  @@index([organizationId])
+  @@map("boards")
+}
+
+model Column {
+  id               String   @id @default(cuid())
+  organizationId   String   @map("organization_id") // denormalized for RLS simplicity
+  boardId          String   @map("board_id")
+  name             String
+  /// Fractional-index string for column ordering (e.g. "a0", "a1", "a1V").
+  position         String
+  isDoneColumn     Boolean  @default(false) @map("is_done_column") // for dashboard "open tasks" counts
+  /// Moving a card into a column with this set auto-flags Card.isBlocked
+  /// (user can still manually override/clear).
+  isBlockedColumn  Boolean  @default(false) @map("is_blocked_column")
+  /// Nullable, unused until inspection/sign-off workflow (Phase 3) ships.
+  requiresApproval Boolean  @default(false) @map("requires_approval")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards        Card[]
+
+  @@index([organizationId])
+  @@index([boardId])
+  @@map("columns")
+}
+
+/// Per-organization customizable card type (Task/Bug/Feature, or
+/// Task/Punch-Item/Inspection, etc). Deliberately a table, not an enum.
+model CardType {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  name           String
+  color          String   @default("#6B7280")
+  icon           String?
+  isDefault      Boolean  @default(false) @map("is_default")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  cards        Card[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("card_types")
+}
+
+/// Per-organization label palette (free-form, color-coded tags).
+model Label {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  name           String
+  color          String   @default("#6B7280")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  cardLabels   CardLabel[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("labels")
+}
+
+model Card {
+  id             String  @id @default(cuid())
+  organizationId String  @map("organization_id")
+  boardId        String  @map("board_id")
+  columnId       String  @map("column_id")
+  cardTypeId     String? @map("card_type_id")
+
+  title       String
+  description String? // markdown
+  priority    Priority  @default(MEDIUM)
+  dueDate     DateTime? @map("due_date")
+
+  assigneeId    String? @map("assignee_id")
+  /// Independent of column: a card in ANY column can be flagged blocked.
+  /// Single source of truth for dashboard/filter queries.
+  isBlocked     Boolean @default(false) @map("is_blocked")
+  blockedReason String? @map("blocked_reason")
+
+  /// Construction vertical: free-text site/floor/zone tag.
+  location String?
+
+  /// Fractional-index string for ordering within a column.
+  position String
+
+  /// Inspection/sign-off (Phase 3): nullable now, unused until that
+  /// feature ships — avoids a backfill migration later.
+  approverId String?   @map("approver_id")
+  approvedAt DateTime? @map("approved_at")
+
+  archivedAt  DateTime? @map("archived_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdById String    @map("created_by_id")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  column       Column       @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  cardType     CardType?    @relation(fields: [cardTypeId], references: [id], onDelete: SetNull)
+  assignee     User?        @relation("CardAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  labels         CardLabel[]
+  comments       Comment[]
+  checklistItems ChecklistItem[]
+  auditLogs      AuditLog[]
+
+  @@index([organizationId])
+  @@index([boardId])
+  @@index([columnId])
+  @@index([assigneeId])
+  @@index([organizationId, isBlocked])
+  @@index([organizationId, dueDate])
+  @@map("cards")
+}
+
+model CardLabel {
+  cardId  String @map("card_id")
+  labelId String @map("label_id")
+
+  card  Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, labelId])
+  @@index([labelId])
+  @@map("card_labels")
+}
+
+model Comment {
+  id             String    @id @default(cuid())
+  organizationId String    @map("organization_id")
+  cardId         String    @map("card_id")
+  authorId       String    @map("author_id")
+  body           String // markdown
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  editedAt       DateTime? @map("edited_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  card         Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([cardId])
+  @@map("comments")
+}
+
+model ChecklistItem {
+  id             String    @id @default(cuid())
+  organizationId String    @map("organization_id")
+  cardId         String    @map("card_id")
+  text           String
+  isDone         Boolean   @default(false) @map("is_done")
+  position       String // fractional index within the card's checklist
+  completedById  String?   @map("completed_by_id")
+  completedAt    DateTime? @map("completed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  card         Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  completedBy  User?        @relation("ChecklistCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([cardId])
+  @@map("checklist_items")
+}
+
+// ------------------------------------------------------------
+// AUDIT LOG
+// ------------------------------------------------------------
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  organizationId String      @map("organization_id")
+  actorId        String?     @map("actor_id") // null if system-generated
+  action         AuditAction
+  entityType     String      @map("entity_type") // "card" | "column" | "board" | "membership"
+  entityId       String      @map("entity_id")
+  cardId         String?     @map("card_id") // convenience FK for fast per-card history queries
+  metadata       Json? // structured diff, e.g. { field, from, to }
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor        User?        @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  card         Card?        @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([cardId])
+  @@map("audit_logs")
+}
+
+// Future module content models (WikiPage, TimeEntry, Attachment, Sprint)
+// are NOT modeled yet — adding them later is a purely additive migration,
+// nothing above needs to change to support them.
