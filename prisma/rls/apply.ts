@@ -60,6 +60,13 @@ async function main() {
       await admin.query(sql);
       console.log(`Applied ${file}`);
     }
+
+    // Must run after 001 (which creates the app schema). EXECUTE on a
+    // function isn't enough on its own — Postgres also requires USAGE on
+    // the schema the function lives in, granted separately. Idempotent,
+    // so safe to re-run unconditionally regardless of the branch above.
+    await admin.query("grant usage on schema app to app_user");
+    console.log("Granted USAGE on schema app to app_user.");
   } finally {
     await admin.end();
   }

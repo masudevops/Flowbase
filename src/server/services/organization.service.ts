@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 
 function slugify(name: string): string {
@@ -20,6 +21,15 @@ function randomSuffix(): string {
 /// server/rls.ts) — org creation is allowed by the `insert_org` /
 /// `insert_own_membership` RLS policies regardless of the caller's
 /// existing org memberships (see prisma/rls/002_policies.sql for why).
+///
+/// Deliberately avoids Prisma's `.create()` sugar for both inserts: it
+/// always issues `INSERT ... RETURNING`, and Postgres additionally
+/// enforces the table's SELECT policy against the RETURNING row (since
+/// RETURNING is effectively a read) — which fails here, because neither
+/// row is visible under the normal membership-based SELECT policy until
+/// *both* rows exist. Raw inserts with no RETURNING sidestep that; the
+/// final findUniqueOrThrow is a fresh SELECT issued once both rows are
+/// already in place, so it passes normally.
 export async function createOrganization(
   db: Prisma.TransactionClient,
   params: { name: string; userId: string },
@@ -33,13 +43,17 @@ export async function createOrganization(
     slug = `${baseSlug}-${randomSuffix()}`;
   }
 
-  return db.organization.create({
-    data: {
-      name: params.name,
-      slug,
-      memberships: {
-        create: { userId: params.userId, role: "ADMIN", status: "ACTIVE" },
-      },
-    },
-  });
+  const organizationId = randomUUID();
+
+  await db.$executeRaw`
+    insert into organizations (id, name, slug, created_at, updated_at)
+    values (${organizationId}, ${params.name}, ${slug}, now(), now())
+  `;
+
+  await db.$executeRaw`
+    insert into memberships (id, organization_id, user_id, role, status, created_at)
+    values (${randomUUID()}, ${organizationId}, ${params.userId}, 'ADMIN', 'ACTIVE', now())
+  `;
+
+  return db.organization.findUniqueOrThrow({ where: { id: organizationId } });
 }
