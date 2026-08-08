@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { requireServerCaller, getOrgBySlugOrNotFound, callOrNotFound } from "@/server/caller";
 import { BacklogView } from "@/components/board/BacklogView";
 
@@ -36,8 +37,9 @@ export default async function BacklogPage({
         </div>
         <Link
           href={`/w/${orgSlug}/boards/${boardId}`}
-          className="rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+          className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
         >
+          <ArrowLeft className="h-4 w-4" />
           Back to board
         </Link>
       </div>

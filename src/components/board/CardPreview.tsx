@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Flag, ListChecks, MessageSquare, Ban } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BoardCard } from "./types";
 import { PRIORITY_META } from "./types";
@@ -65,7 +66,7 @@ export function CardPreview({
 
       {card.isBlocked && (
         <div className="mt-1.5 flex items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-1 dark:bg-[#FF5630]/15">
-          <span className="h-1 w-1 shrink-0 rounded-full bg-[#DE350B] dark:bg-[#FF5630]" />
+          <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />
           <span className="truncate text-[9px] leading-tight text-[#DE350B] dark:text-[#FF5630]">
             {card.blockedReason || "Blocked"}
           </span>
@@ -78,14 +79,21 @@ export function CardPreview({
             className="flex items-center gap-1 font-medium"
             style={{ color: priority.color }}
           >
+            <Flag className="h-3 w-3" />
             {priority.label}
           </span>
           {checklistTotal > 0 && (
-            <span>
+            <span className="flex items-center gap-1">
+              <ListChecks className="h-3 w-3" />
               {checklistDone}/{checklistTotal}
             </span>
           )}
-          {card._count.comments > 0 && <span>{card._count.comments} comments</span>}
+          {card._count.comments > 0 && (
+            <span className="flex items-center gap-1">
+              <MessageSquare className="h-3 w-3" />
+              {card._count.comments}
+            </span>
+          )}
         </div>
 
         {card.assignee && (

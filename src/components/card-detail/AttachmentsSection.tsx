@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Paperclip, File, X, Upload } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { createClient } from "@/lib/supabase/client";
 
@@ -99,7 +100,8 @@ export function AttachmentsSection({
 
   return (
     <div className="mt-4">
-      <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+      <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+        <Paperclip className="h-3.5 w-3.5" />
         Attachments
       </label>
 
@@ -121,8 +123,8 @@ export function AttachmentsSection({
                   />
                 </a>
               ) : (
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#DFE1E6] text-[10px] text-[#5E6C84] dark:bg-[#2A3547] dark:text-[#8C9BAB]">
-                  FILE
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#DFE1E6] text-[#5E6C84] dark:bg-[#2A3547] dark:text-[#8C9BAB]">
+                  <File className="h-5 w-5" />
                 </span>
               )}
               <div className="min-w-0 flex-1">
@@ -147,9 +149,10 @@ export function AttachmentsSection({
               </div>
               <button
                 onClick={() => deleteAttachment.mutate({ attachmentId: attachment.id })}
-                className="shrink-0 text-xs text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB]"
+                aria-label="Delete attachment"
+                className="shrink-0 text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
           );
@@ -172,9 +175,10 @@ export function AttachmentsSection({
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="mt-2 rounded-md px-2 py-1.5 text-sm text-[#5E6C84] hover:bg-[#DFE1E6]/50 disabled:opacity-50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
+        className="mt-2 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-[#5E6C84] hover:bg-[#DFE1E6]/50 disabled:opacity-50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
       >
-        {uploading ? "Uploading..." : "+ Add attachment"}
+        <Upload className="h-4 w-4" />
+        {uploading ? "Uploading..." : "Add attachment"}
       </button>
     </div>
   );

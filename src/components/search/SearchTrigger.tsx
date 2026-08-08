@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { SearchPalette } from "./SearchPalette";
 
 export function SearchTrigger({
   organizationId,
   orgSlug,
+  fullWidth = false,
 }: {
   organizationId: string;
   orgSlug: string;
+  fullWidth?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -27,9 +31,13 @@ export function SearchTrigger({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-md border border-[#DFE1E6] px-2.5 py-1.5 text-sm text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50"
+        className={cn(
+          "flex items-center gap-2 rounded-md border border-[#DFE1E6] px-2.5 py-1.5 text-sm text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50",
+          fullWidth && "w-full",
+        )}
       >
-        Search
+        <Search className="h-4 w-4 shrink-0" />
+        <span className="flex-1 text-left">Search</span>
         <span className="rounded border border-[#DFE1E6] px-1 font-[family-name:var(--font-plex-mono)] text-[10px] dark:border-[#2A3547]">
           ⌘K
         </span>

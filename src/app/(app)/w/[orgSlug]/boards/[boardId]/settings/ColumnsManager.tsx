@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronUp, ChevronDown, Trash2, Plus } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -68,19 +69,19 @@ export function ColumnsManager({
                 type="button"
                 onClick={() => moveColumn(i, -1)}
                 disabled={i === 0}
-                className="text-xs text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
                 aria-label="Move up"
               >
-                ▲
+                <ChevronUp className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => moveColumn(i, 1)}
                 disabled={i === columns.length - 1}
-                className="text-xs text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
                 aria-label="Move down"
               >
-                ▼
+                <ChevronDown className="h-3.5 w-3.5" />
               </button>
             </div>
 
@@ -137,9 +138,10 @@ export function ColumnsManager({
             <button
               type="button"
               onClick={() => deleteColumn.mutate({ columnId: column.id })}
-              className="text-xs text-[#DE350B] hover:underline dark:text-[#FF5630]"
+              aria-label="Delete column"
+              className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
             >
-              Delete
+              <Trash2 className="h-4 w-4" />
             </button>
           </li>
         ))}
@@ -162,7 +164,12 @@ export function ColumnsManager({
           onChange={(e) => setNewColumnName(e.target.value)}
           placeholder="New column name"
         />
-        <Button type="submit" className="w-auto" disabled={createColumn.isPending}>
+        <Button
+          type="submit"
+          className="flex w-auto items-center gap-1.5"
+          disabled={createColumn.isPending}
+        >
+          <Plus className="h-4 w-4" />
           Add column
         </Button>
       </form>

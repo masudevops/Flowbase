@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
@@ -92,9 +93,10 @@ export function Column({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="rounded-md px-2 py-1.5 text-left text-[13px] text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-[13px] text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
           >
-            + Add card
+            <Plus className="h-4 w-4" />
+            Add card
           </button>
         )}
       </div>

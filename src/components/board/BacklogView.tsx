@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SlidersHorizontal, ArrowUpDown, Ban } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
@@ -67,6 +68,7 @@ export function BacklogView({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
         <select
           value={assigneeFilter}
           onChange={(e) => setAssigneeFilter(e.target.value)}
@@ -115,15 +117,18 @@ export function BacklogView({
           Blocked only
         </label>
 
-        <select
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-          className="ml-auto rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-        >
-          <option value="priority">Sort: Priority</option>
-          <option value="dueDate">Sort: Due date</option>
-          <option value="title">Sort: Title</option>
-        </select>
+        <div className="ml-auto flex items-center gap-1.5">
+          <ArrowUpDown className="h-4 w-4 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as SortKey)}
+            className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+          >
+            <option value="priority">Sort: Priority</option>
+            <option value="dueDate">Sort: Due date</option>
+            <option value="title">Sort: Title</option>
+          </select>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
@@ -165,7 +170,8 @@ export function BacklogView({
                 </td>
                 <td className="px-3 py-2">
                   {card.isBlocked && (
-                    <span className="rounded bg-[#DE350B]/10 px-1.5 py-0.5 text-xs text-[#DE350B] dark:bg-[#FF5630]/15 dark:text-[#FF5630]">
+                    <span className="flex w-fit items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-0.5 text-xs text-[#DE350B] dark:bg-[#FF5630]/15 dark:text-[#FF5630]">
+                      <Ban className="h-3 w-3" />
                       Blocked
                     </span>
                   )}

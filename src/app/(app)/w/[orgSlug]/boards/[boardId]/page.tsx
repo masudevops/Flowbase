@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ListTodo, Settings2 } from "lucide-react";
 import { requireServerCaller, getOrgBySlugOrNotFound, callOrNotFound } from "@/server/caller";
 import { Board } from "@/components/board/Board";
 
@@ -46,14 +47,16 @@ export default async function BoardPage({
         <div className="flex items-center gap-3">
           <Link
             href={`/w/${orgSlug}/boards/${boardId}/backlog`}
-            className="rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
           >
+            <ListTodo className="h-4 w-4" />
             Backlog
           </Link>
           <Link
             href={`/w/${orgSlug}/boards/${boardId}/settings`}
-            className="rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
           >
+            <Settings2 className="h-4 w-4" />
             Manage columns
           </Link>
         </div>

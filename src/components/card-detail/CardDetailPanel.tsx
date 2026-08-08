@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { PRIORITY_META } from "@/components/board/types";
 import type { CardTypeOption, MemberOption, LabelOption } from "@/components/board/types";
@@ -113,14 +114,15 @@ export function CardDetailPanel({
             className="shrink-0 rounded p-1 text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
             aria-label="Close"
           >
-            ✕
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Field grid */}
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Tag className="h-3.5 w-3.5" />
               Type
             </label>
             <select
@@ -140,7 +142,8 @@ export function CardDetailPanel({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Flag className="h-3.5 w-3.5" />
               Priority
             </label>
             <select
@@ -163,7 +166,8 @@ export function CardDetailPanel({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <User className="h-3.5 w-3.5" />
               Assignee
             </label>
             <select
@@ -183,7 +187,8 @@ export function CardDetailPanel({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Calendar className="h-3.5 w-3.5" />
               Due date
             </label>
             <input
@@ -200,7 +205,8 @@ export function CardDetailPanel({
           </div>
 
           <div className="col-span-2">
-            <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <MapPin className="h-3.5 w-3.5" />
               Location / zone
             </label>
             <input
@@ -231,6 +237,7 @@ export function CardDetailPanel({
                 })
               }
             />
+            <Ban className="h-3.5 w-3.5 text-[#DE350B] dark:text-[#FF5630]" />
             Blocked
           </label>
           {card.isBlocked && (
@@ -254,7 +261,8 @@ export function CardDetailPanel({
 
         {/* Labels */}
         <div className="mt-4">
-          <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <Tag className="h-3.5 w-3.5" />
             Labels
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -310,7 +318,8 @@ export function CardDetailPanel({
 
         {/* Checklist */}
         <div className="mt-4">
-          <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <ListChecks className="h-3.5 w-3.5" />
             Checklist
           </label>
           <div className="space-y-1">
@@ -330,9 +339,10 @@ export function CardDetailPanel({
                 </span>
                 <button
                   onClick={() => deleteChecklistItem.mutate({ itemId: item.id })}
-                  className="text-xs text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB]"
+                  aria-label="Delete checklist item"
+                  className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
                 >
-                  ✕
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             ))}
@@ -357,7 +367,8 @@ export function CardDetailPanel({
 
         {/* Comments */}
         <div className="mt-4">
-          <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+            <MessageSquare className="h-3.5 w-3.5" />
             Comments
           </label>
           <div className="space-y-3">
@@ -402,8 +413,9 @@ export function CardDetailPanel({
                 deleteCard.mutate({ cardId });
               }
             }}
-            className="text-sm text-[#DE350B] hover:underline dark:text-[#FF5630]"
+            className="flex items-center gap-1.5 text-sm text-[#DE350B] hover:underline dark:text-[#FF5630]"
           >
+            <Trash2 className="h-4 w-4" />
             Delete card
           </button>
         </div>

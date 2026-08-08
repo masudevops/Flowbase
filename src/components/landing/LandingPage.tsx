@@ -1,18 +1,5 @@
 import Link from "next/link";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { BoardDemo } from "./BoardDemo";
-
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-plex-mono",
-});
-
-const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-sans",
-});
 
 const BOARD_FEATURES = [
   {
@@ -39,9 +26,7 @@ const BOARD_FEATURES = [
 
 export function LandingPage() {
   return (
-    <div
-      className={`${plexMono.variable} ${plexSans.variable} flex flex-1 flex-col bg-[#F7F9FC] font-[family-name:var(--font-plex-sans)] text-[#172B4D] dark:bg-[#0E1624] dark:text-[#E4E7EC]`}
-    >
+    <div className="flex flex-1 flex-col bg-[#F7F9FC] text-[#172B4D] dark:bg-[#0E1624] dark:text-[#E4E7EC]">
       {/* Header */}
       <header className="flex items-center justify-between border-b border-[#DFE1E6] px-6 py-4 dark:border-[#2A3547]">
         <span className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] uppercase">
