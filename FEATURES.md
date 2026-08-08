@@ -32,6 +32,13 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - Board deletion is admin-only, behind a confirmation dialog in board settings' "Danger zone"
 - Verified end-to-end live against Supabase: invite → accept (as a second real account) → promote to admin → remove, plus the admin-only board-delete flow, all confirmed with zero console errors. Caught and fixed a real Postgres RLS bug along the way: accepting an invite means inserting your own membership row before you're visible to the tenant-isolation SELECT policy that even `RETURNING` needs — same chicken-and-egg class of bug as the original org-bootstrap fix, solved the same way (raw `INSERT` with no `RETURNING`). Also discovered `ON CONFLICT DO NOTHING` doesn't work under RLS for a not-yet-a-member row (Postgres still requires SELECT-policy visibility on the conflict target), so duplicate-accept protection is a plain try/catch on the unique-constraint violation instead
 
+### Epics, automations, activity feed & calendar view
+- **Epics**: any card can be a parent of other cards on the same board (loose, Jira-style — no separate "epic" type, a card is an epic just by having children). Card detail panel: pick a parent from a dropdown, or see a "Sub-tasks (X/Y done)" checklist-style list if it has children, with click-through to any of them; card previews show a small progress badge. "Done" is derived from whether a child's current column is marked as the done column, not a separate flag
+- **Automations**: board settings → set up "when a card enters column X, notify its assignee" (by email + in-app). MVP scope on purpose — one trigger shape, one action — matching the exact use case this was asked for, not a general rules engine
+- **In-app activity feed**: a bell icon (sidebar, desktop and mobile) with an unread badge, polling every 20s; dropdown lists notifications (card assigned, new comment, automation fired), click one to mark it read and jump straight to the card, "mark all read". Written by the same code paths that already send the email notifications, so the two can't drift out of sync
+- **Calendar view**: a new view per board (next to Backlog) — a real month grid with cards plotted on their due date, prev/next/today navigation, undated cards listed separately below
+- Verified end-to-end live with two real accounts: set a parent/child relationship and confirmed the progress badge and sub-task list; created an automation and moved a card into its trigger column, confirmed the assignee (a different logged-in user) got both the email attempt and the in-app notification, including click-through and mark-read/mark-all-read. Caught and fixed a real bug along the way: notification code makes a real HTTP call to Resend *inside* the same RLS-scoped DB transaction as the mutation that triggered it, and a slow/failing Resend response pushed that transaction past Prisma's 5-second default interactive-transaction timeout, killing the whole mutation (not just the email) — fixed by raising the timeout (`src/server/rls.ts`)
+
 ### Boards
 - Create a board blank, or from a starter template:
   - **IT / Dev** — Backlog, To Do, In Progress, Blocked, In Review, Done; Task/Bug/Feature card types
@@ -42,7 +49,7 @@ A running list of what's actually built and verified vs. what's planned. Update 
 ### Kanban board & cards
 - Real drag-and-drop (via `@dnd-kit`) — move cards between columns and reorder within a column
 - Moving a card into a column marked "blocked" auto-flags it blocked; moving it back out auto-clears that (a manual block set while sitting in a non-blocked column is left alone by moves through other columns)
-- Card detail panel (slide-over, Jira/Monday-style — no full page navigation): title, description (markdown text, not yet rendered as rich markdown in view mode), card type, priority, assignee (from workspace members), due date, location/zone field, color-coded labels, blocked flag + reason, checklist, comments
+- Card detail panel (slide-over, Jira/Monday-style — no full page navigation): title, rendered-markdown description, card type, priority, assignee (workspace members or external contacts), due date, location/zone field, parent/sub-tasks, color-coded labels, blocked flag + reason, checklist, comments, attachments
 - Inline "+ Add card" per column
 
 ### Backlog & filters
@@ -80,16 +87,12 @@ The agreed "practical features to attract external users" list is done: ~~real-t
 
 ## 💡 Ideas borrowed from Jira/Monday, worth considering (not started)
 
-Not a commitment — flagging where a "best of both" idea could genuinely improve the product, since that's what was asked for:
-- **Monday-style automations** ("when moved to Done, notify assignee") — Monday's signature feature; would need a small rules engine, real scope, not a quick add
-- **Jira-style epics** (a card that groups other cards) — useful for the IT template's sprint planning; would need a self-referencing relation on `Card`
-- **Multiple board views** beyond Kanban + the backlog table — a calendar or timeline view (see Phase 2 below) is the natural next one
+Not a commitment — flagging where a "best of both" idea could genuinely improve the product, since that's what was asked for. Automations, epics, and a second board view are all done now (see above); a timeline/Gantt-style view would be the natural next one if calendar isn't enough.
 
 ## 📋 Planned (Phase 2 — after MVP is solid, not started)
 
-- In-app activity feed / notification center (email notifications for assignment and comments are already built — this would be the in-app equivalent, plus due-date reminders, which need a scheduled job, not just an event trigger)
+- Due-date reminders in the activity feed / email (assignment and comment notifications exist; a due-date reminder needs a scheduled job, not just an event trigger, which the current notification system doesn't have)
 - Time tracking (estimated vs. actual)
-- Calendar view of due dates
 - Swimlanes (group board rows by assignee, priority, or location)
 - CSV export of a board/backlog
 - A manual dark-mode toggle (dark mode already *renders* correctly today based on OS/browser preference — there's just no in-app switch to override it)
@@ -102,5 +105,5 @@ Not a commitment — flagging where a "best of both" idea could genuinely improv
 - AI suggestions: draft a card description from a short note, summarize a long comment thread, suggest priority/labels — always a suggestion the user accepts/edits, never an auto-write, scoped strictly to one workspace's data
 
 ---
-*Last updated: 2026-08-08. Cross-reference `ARCHITECTURE.md` for how things are built; this file is about what's built.*
+*Last updated: 2026-08-09. Cross-reference `ARCHITECTURE.md` for how things are built; this file is about what's built.*
 

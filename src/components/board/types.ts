@@ -19,6 +19,8 @@ export type BoardCard = {
   labels: { label: { id: string; name: string; color: string } }[];
   checklistItems: { id: string; text: string; isDone: boolean }[];
   _count: { comments: number };
+  parent: { id: string; title: string } | null;
+  children: { id: string; title: string; isBlocked: boolean; column: { isDoneColumn: boolean } }[];
 };
 
 export type BoardColumn = {

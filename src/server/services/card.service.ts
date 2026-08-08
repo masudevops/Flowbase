@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import { generateKeyBetween } from "fractional-indexing";
 import { writeAuditLog } from "./audit.service";
 
@@ -51,6 +52,7 @@ export async function updateCard(
     organizationId: string;
     actorId: string;
     cardId: string;
+    boardId: string;
     title?: string;
     description?: string | null;
     priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
@@ -59,9 +61,10 @@ export async function updateCard(
     assigneeContactId?: string | null;
     cardTypeId?: string | null;
     location?: string | null;
+    parentCardId?: string | null;
   },
 ) {
-  const { cardId, organizationId, actorId, ...fields } = params;
+  const { cardId, organizationId, actorId, boardId, ...fields } = params;
 
   // A card is assigned to a registered member OR an external contact,
   // never both — setting one clears the other rather than requiring the
@@ -73,6 +76,19 @@ export async function updateCard(
         ? { assigneeContactId: fields.assigneeContactId, assigneeId: fields.assigneeContactId ? null : undefined }
         : {};
 
+  if (fields.parentCardId) {
+    if (fields.parentCardId === cardId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "A card can't be its own parent." });
+    }
+    const parent = await db.card.findUnique({ where: { id: fields.parentCardId } });
+    if (!parent || parent.boardId !== boardId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Parent must be a card on the same board." });
+    }
+    if (parent.parentCardId === cardId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "That would create a loop." });
+    }
+  }
+
   const card = await db.card.update({
     where: { id: cardId },
     data: {
@@ -82,6 +98,7 @@ export async function updateCard(
       dueDate: fields.dueDate === undefined ? undefined : fields.dueDate ? new Date(fields.dueDate) : null,
       cardTypeId: fields.cardTypeId,
       location: fields.location,
+      parentCardId: fields.parentCardId,
       ...assigneeFields,
     },
   });

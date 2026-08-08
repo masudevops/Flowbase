@@ -1,4 +1,5 @@
-import type { Prisma } from "@prisma/client";
+import { randomUUID } from "node:crypto";
+import type { Prisma, NotificationType } from "@prisma/client";
 import { sendEmail } from "@/lib/resend";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -23,6 +24,29 @@ async function cardLink(db: Prisma.TransactionClient, card: { organizationId: st
     select: { slug: true },
   });
   return `${APP_URL}/w/${org?.slug}/boards/${card.boardId}?card=${card.id}`;
+}
+
+/// Writes the in-app activity-feed row. Raw INSERT with no RETURNING —
+/// the actor writing this (assigning a card, commenting) is virtually
+/// never the recipient, so a normal Prisma .create() would hit the
+/// RETURNING-requires-SELECT-policy wall (see
+/// prisma/rls/006_epics_notifications_automations.sql). actorId is
+/// nullable for system-generated notifications (e.g. automations).
+export async function createNotification(
+  db: Prisma.TransactionClient,
+  params: {
+    organizationId: string;
+    userId: string;
+    type: NotificationType;
+    message: string;
+    cardId?: string | null;
+    actorId?: string | null;
+  },
+) {
+  await db.$executeRaw`
+    insert into notifications (id, organization_id, user_id, type, card_id, actor_id, message, created_at)
+    values (${randomUUID()}, ${params.organizationId}, ${params.userId}, ${params.type}::"NotificationType", ${params.cardId ?? null}, ${params.actorId ?? null}, ${params.message}, now())
+  `;
 }
 
 /// Invites don't have a User row to look up yet, so this takes the raw
@@ -61,16 +85,26 @@ export async function notifyCardAssigned(
   ]);
   if (!card || !assignee) return;
 
+  const actorName = actor?.fullName ?? actor?.email ?? "Someone";
   const url = await cardLink(db, card);
   await sendEmail({
     to: assignee.email,
     subject: `You were assigned: ${card.title}`,
     html: emailShell(
-      `<p>${actor?.fullName ?? actor?.email ?? "Someone"} assigned you a card:</p>
+      `<p>${actorName} assigned you a card:</p>
        <p style="font-weight: 600; font-size: 16px;">${card.title}</p>`,
       url,
       "View card",
     ),
+  });
+
+  await createNotification(db, {
+    organizationId: card.organizationId,
+    userId: assignee.id,
+    type: "CARD_ASSIGNED",
+    cardId: card.id,
+    actorId: params.actorId,
+    message: `${actorName} assigned you: ${card.title}`,
   });
 }
 
@@ -89,16 +123,64 @@ export async function notifyNewComment(
   ]);
   if (!assignee) return;
 
+  const authorName = author?.fullName ?? author?.email ?? "Someone";
   const url = await cardLink(db, card);
   await sendEmail({
     to: assignee.email,
     subject: `New comment on: ${card.title}`,
     html: emailShell(
-      `<p>${author?.fullName ?? author?.email ?? "Someone"} commented on a card you're assigned to:</p>
+      `<p>${authorName} commented on a card you're assigned to:</p>
        <p style="font-weight: 600; font-size: 16px;">${card.title}</p>
        <p style="color: #5E6C84; white-space: pre-wrap;">${params.body}</p>`,
       url,
       "View card",
     ),
+  });
+
+  await createNotification(db, {
+    organizationId: card.organizationId,
+    userId: assignee.id,
+    type: "COMMENT",
+    cardId: card.id,
+    actorId: params.authorId,
+    message: `${authorName} commented on: ${card.title}`,
+  });
+}
+
+/// Fires when a board automation's trigger condition is met (currently:
+/// card moved into a specific column). Notifies the card's assignee —
+/// skips silently if there's no assignee, or if the assignee is the same
+/// person who moved the card (nothing useful to tell them). actorId on
+/// the notification is null: this is system-generated, not something the
+/// mover "did to" the assignee the way a manual assignment is.
+export async function notifyAutomationTriggered(
+  db: Prisma.TransactionClient,
+  params: { cardId: string; automationName: string; movedById: string },
+) {
+  const card = await db.card.findUnique({ where: { id: params.cardId } });
+  if (!card || !card.assigneeId || card.assigneeId === params.movedById) return;
+
+  const assignee = await db.user.findUnique({ where: { id: card.assigneeId } });
+  if (!assignee) return;
+
+  const url = await cardLink(db, card);
+  await sendEmail({
+    to: assignee.email,
+    subject: `Automation triggered: ${card.title}`,
+    html: emailShell(
+      `<p>The automation "${params.automationName}" ran on a card assigned to you:</p>
+       <p style="font-weight: 600; font-size: 16px;">${card.title}</p>`,
+      url,
+      "View card",
+    ),
+  });
+
+  await createNotification(db, {
+    organizationId: card.organizationId,
+    userId: assignee.id,
+    type: "AUTOMATION",
+    cardId: card.id,
+    actorId: null,
+    message: `Automation "${params.automationName}" ran on: ${card.title}`,
   });
 }

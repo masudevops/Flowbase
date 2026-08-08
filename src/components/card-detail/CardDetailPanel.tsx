@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2 } from "lucide-react";
+import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
@@ -62,6 +62,7 @@ export function CardDetailPanel({
   contacts,
   onClose,
   onChanged,
+  onOpenCard,
 }: {
   cardId: string;
   cardTypes: CardTypeOption[];
@@ -70,10 +71,19 @@ export function CardDetailPanel({
   contacts: ContactOption[];
   onClose: () => void;
   onChanged: () => void;
+  /// Lets "Parent: X" and sub-task rows switch which card this same
+  /// panel is showing, instead of only being able to open one card per
+  /// panel instance. Optional — callers that don't wire it up just won't
+  /// get click-through (the parent/child names still render as text).
+  onOpenCard?: (cardId: string) => void;
 }) {
   const utils = trpc.useUtils();
   const { data: card } = trpc.card.byId.useQuery({ cardId });
   const { data: comments } = trpc.comment.list.useQuery({ cardId });
+  const { data: boardCards } = trpc.card.listByBoard.useQuery(
+    { boardId: card?.boardId ?? "" },
+    { enabled: !!card },
+  );
 
   const invalidateCard = () => {
     utils.card.byId.invalidate({ cardId });
@@ -285,6 +295,36 @@ export function CardDetailPanel({
               className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
             />
           </div>
+
+          <div className="col-span-2">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Layers className="h-3.5 w-3.5" />
+              Parent
+            </label>
+            <select
+              value={card.parentCardId ?? ""}
+              onChange={(e) => updateCard.mutate({ cardId, parentCardId: e.target.value || null })}
+              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            >
+              <option value="">No parent</option>
+              {boardCards
+                ?.filter((c) => c.id !== cardId && !card.children.some((child) => child.id === c.id))
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+            </select>
+            {card.parent && onOpenCard && (
+              <button
+                type="button"
+                onClick={() => onOpenCard(card.parent!.id)}
+                className="mt-1 text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+              >
+                Open &quot;{card.parent.title}&quot;
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Blocked */}
@@ -398,6 +438,38 @@ export function CardDetailPanel({
         </div>
 
         <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />
+
+        {/* Sub-tasks (children) */}
+        {card.children.length > 0 && (
+          <div className="mt-4">
+            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Layers className="h-3.5 w-3.5" />
+              Sub-tasks ({card.children.filter((c) => c.column.isDoneColumn).length}/
+              {card.children.length} done)
+            </label>
+            <div className="space-y-1">
+              {card.children.map((child) => (
+                <button
+                  key={child.id}
+                  type="button"
+                  onClick={() => onOpenCard?.(child.id)}
+                  disabled={!onOpenCard}
+                  className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-[#172B4D] hover:bg-[#F4F6FA] disabled:cursor-default disabled:hover:bg-transparent dark:text-[#E4E7EC] dark:hover:bg-[#0E1624]"
+                >
+                  {child.column.isDoneColumn ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#00875A] dark:text-[#36B37E]" />
+                  ) : (
+                    <Circle className="h-3.5 w-3.5 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+                  )}
+                  <span className={child.column.isDoneColumn ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : ""}>
+                    {child.title}
+                  </span>
+                  {child.isBlocked && <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Checklist */}
         <div className="mt-4">

@@ -13,6 +13,8 @@ import { membershipRouter } from "./membership";
 import { dashboardRouter } from "./dashboard";
 import { attachmentRouter } from "./attachment";
 import { searchRouter } from "./search";
+import { notificationRouter } from "./notification";
+import { automationRouter } from "./automation";
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({
@@ -33,6 +35,8 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   attachment: attachmentRouter,
   search: searchRouter,
+  notification: notificationRouter,
+  automation: automationRouter,
 });
 
 export type AppRouter = typeof appRouter;

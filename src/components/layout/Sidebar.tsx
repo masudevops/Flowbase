@@ -7,6 +7,7 @@ import { LayoutDashboard, Kanban, Users, Settings, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
+import { NotificationBell } from "./NotificationBell";
 
 export function Sidebar({
   organizationId,
@@ -48,8 +49,11 @@ export function Sidebar({
         </button>
       </div>
 
-      <div className="px-3 pb-3">
-        <SearchTrigger organizationId={organizationId} orgSlug={orgSlug} fullWidth />
+      <div className="flex items-center gap-1.5 px-3 pb-3">
+        <div className="min-w-0 flex-1">
+          <SearchTrigger organizationId={organizationId} orgSlug={orgSlug} fullWidth />
+        </div>
+        <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
       </div>
 
       <nav className="flex-1 space-y-0.5 px-3">
@@ -110,7 +114,7 @@ export function Sidebar({
         <span className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
           {organizationName}
         </span>
-        <div className="w-5" />
+        <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
       </div>
 
       {/* Desktop sidebar */}

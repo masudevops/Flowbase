@@ -20,6 +20,7 @@ export const updateCardSchema = z.object({
   assigneeContactId: z.string().nullable().optional(),
   cardTypeId: z.string().nullable().optional(),
   location: z.string().max(200).nullable().optional(),
+  parentCardId: z.string().nullable().optional(),
 });
 
 export const moveCardSchema = z.object({

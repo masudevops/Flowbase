@@ -186,6 +186,7 @@ export function Board({
           contacts={contacts}
           onClose={() => setOpenCardId(null)}
           onChanged={refreshBoard}
+          onOpenCard={setOpenCardId}
         />
       )}
     </>

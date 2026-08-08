@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { ColumnsManager } from "./ColumnsManager";
 import { CardTypesManager } from "@/components/board/CardTypesManager";
+import { AutomationsManager } from "@/components/board/AutomationsManager";
 import { DeleteBoardButton } from "@/components/board/DeleteBoardButton";
 
 export default async function BoardSettingsPage({
@@ -18,7 +19,10 @@ export default async function BoardSettingsPage({
     notFound();
   }
 
-  const cardTypes = await caller.cardType.list({ organizationId: organization.id });
+  const [cardTypes, automations] = await Promise.all([
+    caller.cardType.list({ organizationId: organization.id }),
+    caller.automation.list({ boardId }),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
@@ -32,6 +36,16 @@ export default async function BoardSettingsPage({
 
       <div className="mt-10">
         <CardTypesManager organizationId={organization.id} initialCardTypes={cardTypes} />
+      </div>
+
+      <div className="mt-10">
+        <AutomationsManager
+          organizationId={organization.id}
+          boardId={boardId}
+          isAdmin={role === "ADMIN"}
+          initialAutomations={automations}
+          columns={board.columns.map((c) => ({ id: c.id, name: c.name }))}
+        />
       </div>
 
       {role === "ADMIN" && (

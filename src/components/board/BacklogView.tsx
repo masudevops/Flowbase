@@ -204,6 +204,7 @@ export function BacklogView({
           contacts={contacts}
           onClose={() => setOpenCardId(null)}
           onChanged={() => {}}
+          onOpenCard={setOpenCardId}
         />
       )}
     </div>

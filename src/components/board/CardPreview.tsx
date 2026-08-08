@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Flag, ListChecks, MessageSquare, Ban } from "lucide-react";
+import { Flag, ListChecks, MessageSquare, Ban, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BoardCard } from "./types";
 import { PRIORITY_META } from "./types";
@@ -20,6 +20,8 @@ export function CardPreview({
 
   const checklistTotal = card.checklistItems.length;
   const checklistDone = card.checklistItems.filter((i) => i.isDone).length;
+  const childrenTotal = card.children.length;
+  const childrenDone = card.children.filter((c) => c.column.isDoneColumn).length;
   const priority = PRIORITY_META[card.priority];
 
   return (
@@ -86,6 +88,12 @@ export function CardPreview({
             <span className="flex items-center gap-1">
               <ListChecks className="h-3 w-3" />
               {checklistDone}/{checklistTotal}
+            </span>
+          )}
+          {childrenTotal > 0 && (
+            <span className="flex items-center gap-1">
+              <Layers className="h-3 w-3" />
+              {childrenDone}/{childrenTotal}
             </span>
           )}
           {card._count.comments > 0 && (

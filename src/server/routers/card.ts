@@ -18,7 +18,7 @@ import {
   deleteCard,
   setCardLabels,
 } from "../services/card.service";
-import { notifyCardAssigned } from "../services/notification.service";
+import { notifyCardAssigned, notifyAutomationTriggered } from "../services/notification.service";
 
 const cardInclude = {
   cardType: true,
@@ -27,6 +27,11 @@ const cardInclude = {
   labels: { include: { label: true } },
   checklistItems: { orderBy: { position: "asc" as const } },
   _count: { select: { comments: true } },
+  parent: { select: { id: true, title: true } },
+  children: {
+    select: { id: true, title: true, isBlocked: true, column: { select: { isDoneColumn: true } } },
+    orderBy: { createdAt: "asc" as const },
+  },
 };
 
 export const cardRouter = router({
@@ -77,6 +82,7 @@ export const cardRouter = router({
       organizationId: card.organizationId,
       actorId: ctx.userId,
       cardId,
+      boardId: card.boardId,
       ...fields,
     });
 
@@ -97,7 +103,7 @@ export const cardRouter = router({
       throw new TRPCError({ code: "NOT_FOUND" });
     }
 
-    return moveCard(ctx.db, {
+    const updated = await moveCard(ctx.db, {
       organizationId: card.organizationId,
       actorId: ctx.userId,
       cardId: input.cardId,
@@ -105,6 +111,23 @@ export const cardRouter = router({
       beforePosition: input.beforePosition,
       afterPosition: input.afterPosition,
     });
+
+    if (card.columnId !== input.columnId) {
+      const automations = await ctx.db.automation.findMany({
+        where: { boardId: card.boardId, triggerColumnId: input.columnId, enabled: true },
+      });
+      for (const automation of automations) {
+        if (automation.action === "NOTIFY_ASSIGNEE") {
+          await notifyAutomationTriggered(ctx.db, {
+            cardId: input.cardId,
+            automationName: automation.name,
+            movedById: ctx.userId,
+          });
+        }
+      }
+    }
+
+    return updated;
   }),
 
   toggleBlocked: protectedProcedure.input(toggleBlockedSchema).mutation(async ({ ctx, input }) => {
