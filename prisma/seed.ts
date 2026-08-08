@@ -17,11 +17,11 @@ async function main() {
   });
 
   const user = await prisma.user.upsert({
-    where: { email: "demo@flowbase.local" },
+    where: { email: "demo@kelbara.local" },
     update: {},
     create: {
       id: "00000000-0000-0000-0000-000000000001",
-      email: "demo@flowbase.local",
+      email: "demo@kelbara.local",
       fullName: "Demo Admin",
     },
   });

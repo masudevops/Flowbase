@@ -53,7 +53,7 @@ export function ContactsManager({
         External contacts
       </h2>
       <p className="mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
-        People who can be assigned cards without a Flowbase account — subcontractors, clients,
+        People who can be assigned cards without a Kelbara account — subcontractors, clients,
         vendors.
       </p>
 

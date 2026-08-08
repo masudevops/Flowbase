@@ -14,7 +14,7 @@ export default function SignupPage() {
     <div className="w-full max-w-sm space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Sign up</h1>
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">Create your Flowbase account.</p>
+        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">Create your Kelbara account.</p>
       </div>
 
       <GoogleAuthButton />

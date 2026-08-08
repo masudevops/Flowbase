@@ -30,7 +30,7 @@ export function LandingPage() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-[#DFE1E6] px-6 py-4 dark:border-[#2A3547]">
         <span className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] uppercase">
-          Flowbase
+          Kelbara
         </span>
         <nav className="flex items-center gap-4">
           <Link
@@ -60,7 +60,7 @@ export function LandingPage() {
             Different job.
           </h1>
           <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#172B4D]/75 dark:text-[#E4E7EC]/75">
-            Flowbase is a kanban tracker that relabels itself for your trade — sprints and bugs
+            Kelbara is a kanban tracker that relabels itself for your trade — sprints and bugs
             for dev shops, punch lists and inspections for the crew. Customize columns, card
             types, and workflows from day one.
           </p>
@@ -198,7 +198,7 @@ export function LandingPage() {
       {/* Footer */}
       <footer className="flex items-center justify-between border-t border-[#DFE1E6] px-6 py-6 dark:border-[#2A3547]">
         <span className="font-[family-name:var(--font-plex-mono)] text-xs tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
-          Flowbase
+          Kelbara
         </span>
         <span className="rotate-[-2deg] rounded border border-[#DFE1E6] px-2 py-0.5 font-[family-name:var(--font-plex-mono)] text-[10px] tracking-wide text-[#5E6C84] uppercase dark:border-[#2A3547] dark:text-[#8C9BAB]">
           Rev. 01 · {new Date().getFullYear()}

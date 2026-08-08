@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendEmail(params: { to: string; subject: string; html: string }) {
   try {
     const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL ?? "Flowbase <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM_EMAIL ?? "Kelbara <onboarding@resend.dev>",
       to: params.to,
       subject: params.subject,
       html: params.html,

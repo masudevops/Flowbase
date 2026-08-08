@@ -34,7 +34,7 @@ export function Sidebar({
       <div className="flex items-center justify-between px-4 py-4">
         <Link href={`/w/${orgSlug}`} className="min-w-0">
           <span className="block font-[family-name:var(--font-plex-mono)] text-xs font-semibold tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
-            Flowbase
+            Kelbara
           </span>
           <span className="block truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
             {organizationName}

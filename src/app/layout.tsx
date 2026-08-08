@@ -16,7 +16,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flowbase",
+  title: "Kelbara",
   description: "Kanban-based project management for small IT and construction teams.",
 };
 

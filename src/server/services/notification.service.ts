@@ -13,7 +13,7 @@ function emailShell(bodyHtml: string, ctaUrl: string, ctaLabel: string): string 
           ${ctaLabel}
         </a>
       </p>
-      <p style="margin-top: 32px; font-size: 12px; color: #5E6C84;">Flowbase</p>
+      <p style="margin-top: 32px; font-size: 12px; color: #5E6C84;">Kelbara</p>
     </div>
   `;
 }
@@ -61,9 +61,9 @@ export async function sendInviteEmail(params: {
   const url = `${APP_URL}/invite/${params.token}`;
   await sendEmail({
     to: params.to,
-    subject: `${params.inviterName} invited you to join ${params.organizationName} on Flowbase`,
+    subject: `${params.inviterName} invited you to join ${params.organizationName} on Kelbara`,
     html: emailShell(
-      `<p>${params.inviterName} invited you to join <strong>${params.organizationName}</strong> on Flowbase as a ${params.role === "ADMIN" ? "project manager" : "team member"}.</p>`,
+      `<p>${params.inviterName} invited you to join <strong>${params.organizationName}</strong> on Kelbara as a ${params.role === "ADMIN" ? "project manager" : "team member"}.</p>`,
       url,
       "Accept invite",
     ),

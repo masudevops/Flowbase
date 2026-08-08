@@ -1,4 +1,4 @@
-# Flowbase — Feature Tracker
+# Kelbara — Feature Tracker
 
 A running list of what's actually built and verified vs. what's planned. Update this as features land — it's meant to be the source of truth for "what can I show/sell today," not a wishlist.
 
@@ -21,7 +21,7 @@ A running list of what's actually built and verified vs. what's planned. Update 
 - `/settings` lets anyone edit their own name later, including accounts created before this existed
 
 ### External contacts & card types
-- **Contacts**: workspace-scoped people who can be assigned cards without ever having a Flowbase account — subcontractors, clients, vendors. Managed from the Team page (add/rename/delete, inline editing); a card's assignee dropdown lists team members and contacts in separate groups, and a card is assigned to one or the other, never both (selecting one clears the other server-side)
+- **Contacts**: workspace-scoped people who can be assigned cards without ever having a Kelbara account — subcontractors, clients, vendors. Managed from the Team page (add/rename/delete, inline editing); a card's assignee dropdown lists team members and contacts in separate groups, and a card is assigned to one or the other, never both (selecting one clears the other server-side)
 - **Card types**: previously template-only (Task/Bug/Feature, etc.), now fully manageable in-app from a board's settings page — add, rename, recolor, delete. Shared across every board in the workspace, not per-board, since that's how the underlying data is scoped. Deleting a type in use just clears it off those cards rather than blocking the delete
 - **Rendered markdown**: a card's description now renders as real markdown (headings, bold/italic, lists, links, code, GFM tables/strikethrough via `remark-gfm`) instead of plain text; click into it to get the raw markdown back in an editable textarea, blur to re-render
 - Verified end-to-end live: created and renamed a contact, assigned a card to it, confirmed it shows correctly on the card preview (dashed avatar), card detail, and backlog table (`(contact)` suffix); created and renamed a card type; wrote markdown with a heading/bold/list and confirmed it renders correctly and round-trips back to raw text in edit mode — zero console errors throughout

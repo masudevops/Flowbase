@@ -40,7 +40,7 @@ async function main() {
     for (const enumName of ENUMS) {
       await client.query(`drop type if exists "${enumName}" cascade`);
     }
-    console.log("Dropped all Flowbase tables and enums.");
+    console.log("Dropped all Kelbara tables and enums.");
   } finally {
     await client.end();
   }

@@ -25,7 +25,7 @@ export default async function InvitePage({
         href="/"
         className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]"
       >
-        Flowbase
+        Kelbara
       </Link>
 
       <div className="w-full max-w-sm space-y-5 rounded-lg border border-[#DFE1E6] bg-white p-6 text-center dark:border-[#2A3547] dark:bg-[#161D2E]">
@@ -38,7 +38,7 @@ export default async function InvitePage({
               This invite link is invalid or has expired. Ask whoever invited you to send a new one.
             </p>
             <Link href="/" className="text-sm font-medium text-[#0B5CFF] dark:text-[#4C9AFF]">
-              Back to Flowbase
+              Back to Kelbara
             </Link>
           </>
         ) : (

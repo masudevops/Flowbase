@@ -162,7 +162,7 @@ model Invite {
 }
 
 /// A workspace-scoped person who can be assigned cards without ever
-/// having a Flowbase account — e.g. a subcontractor who just gets a
+/// having a Kelbara account — e.g. a subcontractor who just gets a
 /// phone call, not a login. Deliberately separate from User/Membership:
 /// User.id must equal a real Supabase auth UUID, so there's no way to
 /// represent an unregistered person as a User. See Card.assigneeContactId.

@@ -1,6 +1,6 @@
-# Flowbase Architecture
+# Kelbara Architecture
 
-Flowbase is a multi-tenant, Kanban-based project management app for small teams — initially targeting IT/dev teams and construction/trade teams as two industry-flavored templates on top of one shared engine. This doc explains how the pieces fit together for anyone picking up the project cold.
+Kelbara is a multi-tenant, Kanban-based project management app for small teams — initially targeting IT/dev teams and construction/trade teams as two industry-flavored templates on top of one shared engine. This doc explains how the pieces fit together for anyone picking up the project cold.
 
 ## Status
 

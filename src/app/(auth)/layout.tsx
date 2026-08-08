@@ -18,7 +18,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         href="/"
         className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]"
       >
-        Flowbase
+        Kelbara
       </Link>
       {children}
     </div>
