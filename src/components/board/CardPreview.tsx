@@ -32,7 +32,7 @@ export function CardPreview({
       {...listeners}
       onClick={() => onOpen(card.id)}
       className={cn(
-        "cursor-pointer rounded-md border border-[#DFE1E6] bg-white p-2.5 text-left shadow-sm transition-shadow hover:shadow-md dark:border-[#2A3547] dark:bg-[#161D2E]",
+        "cursor-pointer rounded-md border border-[#DFE1E6] bg-white p-2.5 text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] dark:border-[#2A3547] dark:bg-[#161D2E] dark:focus-visible:ring-[#4C9AFF]",
         isDragging && "opacity-40",
       )}
     >

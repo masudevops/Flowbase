@@ -6,12 +6,15 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  KeyboardSensor,
   closestCenter,
   useSensor,
   useSensors,
+  type Announcements,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
@@ -62,6 +65,7 @@ export function Board({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const activeCard = activeCardId
@@ -152,12 +156,47 @@ export function Board({
     );
   }
 
+  // Named for screen readers using a card's title and column name instead
+  // of dnd-kit's default "draggable item" wording — the only part of
+  // keyboard drag-and-drop a sighted mouse user never has to think about.
+  function findCard(id: string) {
+    return columns.flatMap((c) => c.cards).find((c) => c.id === id);
+  }
+  function findColumnFor(id: string) {
+    return columns.find((c) => c.id === id) ?? columns.find((c) => c.cards.some((card) => card.id === id));
+  }
+
+  const announcements: Announcements = {
+    onDragStart({ active }) {
+      const card = findCard(String(active.id));
+      return card ? `Picked up "${card.title}".` : undefined;
+    },
+    onDragOver({ active, over }) {
+      if (!over) return undefined;
+      const card = findCard(String(active.id));
+      const column = findColumnFor(String(over.id));
+      return card && column ? `"${card.title}" is over the ${column.name} column.` : undefined;
+    },
+    onDragEnd({ active, over }) {
+      const card = findCard(String(active.id));
+      if (!card) return undefined;
+      if (!over) return `Moving "${card.title}" was cancelled.`;
+      const column = findColumnFor(String(over.id));
+      return column ? `"${card.title}" was moved to the ${column.name} column.` : undefined;
+    },
+    onDragCancel({ active }) {
+      const card = findCard(String(active.id));
+      return card ? `Moving "${card.title}" was cancelled.` : undefined;
+    },
+  };
+
   return (
     <>
       <DndContext
         id={`board-${boardId}`}
         sensors={sensors}
         collisionDetection={closestCenter}
+        accessibility={{ announcements }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >

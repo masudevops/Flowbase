@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Sidebar({
   organizationId,
@@ -55,6 +56,7 @@ export function Sidebar({
           <SearchTrigger organizationId={organizationId} orgSlug={orgSlug} fullWidth />
         </div>
         <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
+        <ThemeToggle className="rounded-md p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624]" />
       </div>
 
       <nav className="flex-1 space-y-0.5 px-3">
@@ -115,7 +117,10 @@ export function Sidebar({
         <span className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
           {organizationName}
         </span>
-        <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
+        <div className="flex items-center gap-1">
+          <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
+          <ThemeToggle className="rounded-md p-1.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+        </div>
       </div>
 
       {/* Desktop sidebar */}

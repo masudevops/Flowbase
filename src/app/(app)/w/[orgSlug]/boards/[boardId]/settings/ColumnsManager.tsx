@@ -64,84 +64,97 @@ export function ColumnsManager({
     <div className="space-y-6">
       <ul className="divide-y divide-[#DFE1E6] rounded-md border border-[#DFE1E6] dark:divide-[#2A3547] dark:border-[#2A3547]">
         {columns.map((column, i) => (
-          <li key={column.id} className="flex items-center gap-3 px-4 py-3">
-            <div className="flex flex-col gap-0.5">
+          <li key={column.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => moveColumn(i, -1)}
+                  disabled={i === 0}
+                  className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                  aria-label="Move up"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveColumn(i, 1)}
+                  disabled={i === columns.length - 1}
+                  className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                  aria-label="Move down"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {editingId === column.id ? (
+                <form
+                  className="flex flex-1 gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    updateColumn.mutate({ columnId: column.id, name: editingName });
+                    setEditingId(null);
+                  }}
+                >
+                  <Input
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    autoFocus
+                    onBlur={() => setEditingId(null)}
+                  />
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  className="flex-1 text-left text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]"
+                  onClick={() => {
+                    setEditingId(column.id);
+                    setEditingName(column.name);
+                  }}
+                >
+                  {column.name}
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => moveColumn(i, -1)}
-                disabled={i === 0}
-                className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
-                aria-label="Move up"
+                onClick={() => deleteColumn.mutate({ columnId: column.id })}
+                aria-label="Delete column"
+                className="shrink-0 text-[#5E6C84] hover:text-[#DE350B] sm:hidden dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
               >
-                <ChevronUp className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => moveColumn(i, 1)}
-                disabled={i === columns.length - 1}
-                className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
-                aria-label="Move down"
-              >
-                <ChevronDown className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               </button>
             </div>
 
-            {editingId === column.id ? (
-              <form
-                className="flex flex-1 gap-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  updateColumn.mutate({ columnId: column.id, name: editingName });
-                  setEditingId(null);
-                }}
-              >
-                <Input
-                  value={editingName}
-                  onChange={(e) => setEditingName(e.target.value)}
-                  autoFocus
-                  onBlur={() => setEditingId(null)}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-[26px] sm:ml-auto sm:pl-0">
+              <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                <Checkbox
+                  checked={column.isBlockedColumn}
+                  onChange={(e) =>
+                    updateColumn.mutate({ columnId: column.id, isBlockedColumn: e.target.checked })
+                  }
                 />
-              </form>
-            ) : (
+                Blocked column
+              </label>
+              <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                <Checkbox
+                  checked={column.isDoneColumn}
+                  onChange={(e) =>
+                    updateColumn.mutate({ columnId: column.id, isDoneColumn: e.target.checked })
+                  }
+                />
+                Done column
+              </label>
+
               <button
                 type="button"
-                className="flex-1 text-left text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]"
-                onClick={() => {
-                  setEditingId(column.id);
-                  setEditingName(column.name);
-                }}
+                onClick={() => deleteColumn.mutate({ columnId: column.id })}
+                aria-label="Delete column"
+                className="hidden shrink-0 text-[#5E6C84] hover:text-[#DE350B] sm:block dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
               >
-                {column.name}
+                <Trash2 className="h-4 w-4" />
               </button>
-            )}
-
-            <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Checkbox
-                checked={column.isBlockedColumn}
-                onChange={(e) =>
-                  updateColumn.mutate({ columnId: column.id, isBlockedColumn: e.target.checked })
-                }
-              />
-              Blocked column
-            </label>
-            <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Checkbox
-                checked={column.isDoneColumn}
-                onChange={(e) =>
-                  updateColumn.mutate({ columnId: column.id, isDoneColumn: e.target.checked })
-                }
-              />
-              Done column
-            </label>
-
-            <button
-              type="button"
-              onClick={() => deleteColumn.mutate({ columnId: column.id })}
-              aria-label="Delete column"
-              className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            </div>
           </li>
         ))}
       </ul>

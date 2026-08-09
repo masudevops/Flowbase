@@ -159,7 +159,7 @@ export function MembersManager({
           {members?.map((m) => {
             const isSelf = m.userId === currentUserId;
             return (
-              <div key={m.id} className="flex items-center justify-between px-4 py-2.5">
+              <div key={m.id} className="flex flex-col gap-2.5 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-2.5">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0B5CFF] text-xs font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]">
                     {initialOf(m)}
@@ -173,7 +173,7 @@ export function MembersManager({
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2 pl-[38px] sm:pl-0">
                   {isAdmin ? (
                     <Select
                       value={m.role}

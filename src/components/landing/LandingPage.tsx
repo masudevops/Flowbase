@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BoardDemo } from "./BoardDemo";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const BOARD_FEATURES = [
   {
@@ -31,6 +32,7 @@ export function LandingPage() {
           Kelbara
         </span>
         <nav className="flex items-center gap-4">
+          <ThemeToggle className="rounded p-1.5 text-[#172B4D]/70 hover:bg-[#172B4D]/5 hover:text-[#172B4D] dark:text-[#E4E7EC]/70 dark:hover:bg-[#E4E7EC]/10 dark:hover:text-[#E4E7EC]" />
           <Link
             href="/login"
             className="rounded px-2 py-1 text-sm text-[#172B4D]/70 transition-colors hover:text-[#172B4D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] dark:text-[#E4E7EC]/70 dark:hover:text-[#E4E7EC]"

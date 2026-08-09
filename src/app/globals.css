@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Explicit light/dark choice (ThemeToggle) wins over the OS preference —
+   dark: utilities only apply under a .dark class on <html>, which
+   theme-init.js sets before paint (falling back to the OS preference
+   only when the visitor has never chosen one explicitly). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
@@ -36,11 +42,9 @@ body {
   background-color: #dfe1e6;
   border-radius: 9999px;
 }
-@media (prefers-color-scheme: dark) {
-  .thin-scrollbar {
-    scrollbar-color: #2a3547 transparent;
-  }
-  .thin-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #2a3547;
-  }
+:where(.dark) .thin-scrollbar {
+  scrollbar-color: #2a3547 transparent;
+}
+:where(.dark) .thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #2a3547;
 }
