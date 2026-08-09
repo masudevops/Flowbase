@@ -67,18 +67,18 @@ export function TimelineView({
 
   return (
     <div>
-      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
+      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#D3DBD8] dark:border-[#23414F]">
         <div style={{ width: rangeDays * DAY_WIDTH }}>
           {/* Date axis header */}
-          <div className="sticky top-0 z-10 flex border-b border-[#DFE1E6] bg-[#F4F6FA] dark:border-[#2A3547] dark:bg-[#0E1624]">
+          <div className="sticky top-0 z-10 flex border-b border-[#D3DBD8] bg-[#EEF2F0] dark:border-[#23414F] dark:bg-[#0B1F2E]">
             {days.map((day, i) => (
               <div
                 key={i}
-                className="flex shrink-0 flex-col items-center border-r border-[#DFE1E6] py-1 text-[10px] text-[#5E6C84] last:border-r-0 dark:border-[#2A3547] dark:text-[#8C9BAB]"
+                className="flex shrink-0 flex-col items-center border-r border-[#D3DBD8] py-1 text-[10px] text-[#55707D] last:border-r-0 dark:border-[#23414F] dark:text-[#8FA8B3]"
                 style={{ width: DAY_WIDTH }}
               >
                 <span>{day.getDate() === 1 ? day.toLocaleDateString(undefined, { month: "short" }) : " "}</span>
-                <span className={i === todayOffset ? "font-semibold text-[#0B5CFF] dark:text-[#4C9AFF]" : ""}>
+                <span className={i === todayOffset ? "font-semibold text-[#1D5C8A] dark:text-[#5FB4E0]" : ""}>
                   {day.getDate()}
                 </span>
               </div>
@@ -86,17 +86,17 @@ export function TimelineView({
           </div>
 
           {/* Rows */}
-          <div className="relative">
+          <div className="blueprint-grid relative">
             {/* Today marker */}
             {todayOffset >= 0 && todayOffset < rangeDays && (
               <div
-                className="pointer-events-none absolute top-0 bottom-0 w-px bg-[#0B5CFF] dark:bg-[#4C9AFF]"
+                className="pointer-events-none absolute top-0 bottom-0 w-px bg-[#1D5C8A] dark:bg-[#5FB4E0]"
                 style={{ left: todayOffset * DAY_WIDTH }}
               />
             )}
 
             {scheduled.length === 0 && (
-              <p className="px-3 py-6 text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+              <p className="px-3 py-6 text-center text-sm text-[#55707D] dark:text-[#8FA8B3]">
                 No cards with a start or due date yet.
               </p>
             )}
@@ -113,7 +113,7 @@ export function TimelineView({
               if (barEndOffset < 0 || barStartOffset >= rangeDays) return null;
 
               return (
-                <div key={card.id} className="flex h-9 items-center border-b border-[#DFE1E6] last:border-0 dark:border-[#2A3547]">
+                <div key={card.id} className="flex h-9 items-center border-b border-[#D3DBD8] last:border-0 dark:border-[#23414F]">
                   <button
                     type="button"
                     onClick={() => setOpenCardId(card.id)}
@@ -133,7 +133,7 @@ export function TimelineView({
 
       {unscheduled.length > 0 && (
         <div className="mt-4">
-          <h3 className="mb-2 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+          <h3 className="mb-2 text-xs font-medium text-[#55707D] dark:text-[#8FA8B3]">
             No start or due date ({unscheduled.length})
           </h3>
           <div className="flex flex-wrap gap-1.5">
@@ -142,7 +142,7 @@ export function TimelineView({
                 key={card.id}
                 type="button"
                 onClick={() => setOpenCardId(card.id)}
-                className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1 text-xs font-medium text-[#172B4D] dark:border-[#2A3547] dark:bg-[#161D2E] dark:text-[#E4E7EC]"
+                className="rounded-md border border-[#D3DBD8] bg-white px-2 py-1 text-xs font-medium text-[#14242E] dark:border-[#23414F] dark:bg-[#0F2A3D] dark:text-[#E7EEF0]"
               >
                 {card.title}
               </button>

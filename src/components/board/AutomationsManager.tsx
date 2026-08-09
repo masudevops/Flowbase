@@ -59,29 +59,29 @@ export function AutomationsManager({
 
   return (
     <div>
-      <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+      <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
         <Zap className="h-4 w-4" />
         Automations
       </h2>
-      <p className="mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+      <p className="mb-3 text-sm text-[#55707D] dark:text-[#8FA8B3]">
         When a card enters a column, notify its assignee — by email and in the activity feed.
       </p>
 
       {automations && automations.length > 0 && (
-        <div className="divide-y divide-[#DFE1E6] rounded-md border border-[#DFE1E6] dark:divide-[#2A3547] dark:border-[#2A3547]">
+        <div className="divide-y divide-[#D3DBD8] rounded-md border border-[#D3DBD8] dark:divide-[#23414F] dark:border-[#23414F]">
           {automations.map((a) => (
             <div key={a.id} className="flex items-center gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                <p className="truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
                   {a.name}
                 </p>
-                <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                <p className="text-xs text-[#55707D] dark:text-[#8FA8B3]">
                   When moved to &quot;{a.triggerColumn.name}&quot; → notify assignee
                 </p>
               </div>
               {isAdmin && (
                 <>
-                  <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                  <label className="flex items-center gap-1.5 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                     <Checkbox
                       checked={a.enabled}
                       onChange={(e) =>
@@ -98,7 +98,7 @@ export function AutomationsManager({
                       }
                     }}
                     aria-label="Delete automation"
-                    className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                    className="text-[#55707D] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -109,7 +109,7 @@ export function AutomationsManager({
         </div>
       )}
       {(!automations || automations.length === 0) && !isAdmin && (
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No automations set up yet.</p>
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">No automations set up yet.</p>
       )}
 
       {isAdmin && columns.length > 0 && (
@@ -127,7 +127,7 @@ export function AutomationsManager({
             placeholder="Automation name"
             className="max-w-[200px]"
           />
-          <span className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">When moved to</span>
+          <span className="text-sm text-[#55707D] dark:text-[#8FA8B3]">When moved to</span>
           <Select
             value={triggerColumnId}
             onChange={(e) => setTriggerColumnId(e.target.value)}
@@ -139,7 +139,7 @@ export function AutomationsManager({
               </option>
             ))}
           </Select>
-          <span className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">notify assignee</span>
+          <span className="text-sm text-[#55707D] dark:text-[#8FA8B3]">notify assignee</span>
           <Button
             type="submit"
             className="flex w-auto items-center gap-1.5"
@@ -151,7 +151,7 @@ export function AutomationsManager({
         </form>
       )}
       {createAutomation.error && (
-        <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">
+        <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">
           {createAutomation.error.message}
         </p>
       )}

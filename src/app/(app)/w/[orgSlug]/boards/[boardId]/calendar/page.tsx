@@ -34,7 +34,7 @@ export default async function CalendarPage({
         actions={
           <Link
             href={`/w/${orgSlug}/boards/${boardId}`}
-            className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to board

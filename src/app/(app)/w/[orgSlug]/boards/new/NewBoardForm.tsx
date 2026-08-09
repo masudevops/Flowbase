@@ -90,7 +90,7 @@ export function NewBoardForm({
       className="space-y-6"
     >
       <div>
-        <label className="mb-1 block text-sm font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+        <label className="mb-1 block text-sm font-medium text-[#55707D] dark:text-[#8FA8B3]">
           Board name
         </label>
         <Input
@@ -105,7 +105,7 @@ export function NewBoardForm({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+        <label className="mb-2 block text-sm font-medium text-[#55707D] dark:text-[#8FA8B3]">
           Template
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -115,13 +115,13 @@ export function NewBoardForm({
             className={cn(
               "rounded-md border p-3 text-left text-sm transition-colors",
               templateId === undefined
-                ? "border-[#0B5CFF] bg-[#0B5CFF]/5 dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/10"
-                : "border-[#DFE1E6] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:hover:border-[#4C9AFF]/50",
+                ? "border-[#1D5C8A] bg-[#1D5C8A]/5 dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/10"
+                : "border-[#D3DBD8] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:hover:border-[#5FB4E0]/50",
             )}
           >
-            <LayoutTemplate className="h-5 w-5 text-[#0B5CFF] dark:text-[#4C9AFF]" />
-            <div className="mt-2 font-medium text-[#172B4D] dark:text-[#E4E7EC]">Blank</div>
-            <div className="mt-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+            <LayoutTemplate className="h-5 w-5 text-[#1D5C8A] dark:text-[#5FB4E0]" />
+            <div className="mt-2 font-medium text-[#14242E] dark:text-[#E7EEF0]">Blank</div>
+            <div className="mt-1 text-xs text-[#55707D] dark:text-[#8FA8B3]">
               No columns or card types — start from scratch.
             </div>
           </button>
@@ -134,16 +134,16 @@ export function NewBoardForm({
                 className={cn(
                   "group relative rounded-md border p-3 text-left text-sm transition-colors",
                   templateId === template.id
-                    ? "border-[#0B5CFF] bg-[#0B5CFF]/5 dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/10"
-                    : "border-[#DFE1E6] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:hover:border-[#4C9AFF]/50",
+                    ? "border-[#1D5C8A] bg-[#1D5C8A]/5 dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/10"
+                    : "border-[#D3DBD8] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:hover:border-[#5FB4E0]/50",
                 )}
               >
                 <button type="button" onClick={() => setTemplateId(template.id)} className="w-full text-left">
-                  <Icon className="h-5 w-5 text-[#0B5CFF] dark:text-[#4C9AFF]" />
-                  <div className="mt-2 font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                  <Icon className="h-5 w-5 text-[#1D5C8A] dark:text-[#5FB4E0]" />
+                  <div className="mt-2 font-medium text-[#14242E] dark:text-[#E7EEF0]">
                     {template.name}
                   </div>
-                  <div className="mt-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                  <div className="mt-1 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                     {summarize(template)}
                   </div>
                 </button>
@@ -157,7 +157,7 @@ export function NewBoardForm({
                       }
                     }}
                     aria-label={`Delete ${template.name} template`}
-                    className="absolute top-2 right-2 hidden rounded p-1 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] group-hover:block dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                    className="absolute top-2 right-2 hidden rounded p-1 text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#C1440E] group-hover:block dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E8703A]"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -169,7 +169,7 @@ export function NewBoardForm({
       </div>
 
       {createBoard.error && (
-        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{createBoard.error.message}</p>
+        <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{createBoard.error.message}</p>
       )}
 
       <Button

@@ -44,28 +44,28 @@ export default async function BoardPage({
           <>
             <Link
               href={`/w/${orgSlug}/boards/${boardId}/backlog`}
-              className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+              className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
             >
               <ListTodo className="h-4 w-4" />
               Backlog
             </Link>
             <Link
               href={`/w/${orgSlug}/boards/${boardId}/calendar`}
-              className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+              className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
             >
               <CalendarDays className="h-4 w-4" />
               Calendar
             </Link>
             <Link
               href={`/w/${orgSlug}/boards/${boardId}/timeline`}
-              className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+              className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
             >
               <GanttChartSquare className="h-4 w-4" />
               Timeline
             </Link>
             <Link
               href={`/w/${orgSlug}/boards/${boardId}/settings`}
-              className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+              className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
             >
               <Settings2 className="h-4 w-4" />
               Manage columns
@@ -75,7 +75,7 @@ export default async function BoardPage({
       />
 
       {columns.length === 0 ? (
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
           No columns yet.{" "}
           <Link
             href={`/w/${orgSlug}/boards/${boardId}/settings`}

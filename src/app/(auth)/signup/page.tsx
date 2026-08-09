@@ -13,16 +13,16 @@ export default function SignupPage() {
   return (
     <div className="w-full max-w-sm space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Sign up</h1>
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">Create your Kelbara account.</p>
+        <h1 className="text-2xl font-semibold text-[#14242E] dark:text-[#E7EEF0]">Sign up</h1>
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">Create your Kelbara account.</p>
       </div>
 
       <GoogleAuthButton />
 
-      <div className="flex items-center gap-3 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-        <div className="h-px flex-1 bg-[#DFE1E6] dark:bg-[#2A3547]" />
+      <div className="flex items-center gap-3 text-xs text-[#55707D] dark:text-[#8FA8B3]">
+        <div className="h-px flex-1 bg-[#D3DBD8] dark:bg-[#23414F]" />
         or
-        <div className="h-px flex-1 bg-[#DFE1E6] dark:bg-[#2A3547]" />
+        <div className="h-px flex-1 bg-[#D3DBD8] dark:bg-[#23414F]" />
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -37,19 +37,19 @@ export default function SignupPage() {
           autoComplete="new-password"
         />
         {state?.error && (
-          <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{state.error}</p>
+          <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{state.error}</p>
         )}
         {state?.message && (
-          <p className="text-sm text-[#00875A] dark:text-[#36B37E]">{state.message}</p>
+          <p className="text-sm text-[#0F7A5C] dark:text-[#3FBF95]">{state.message}</p>
         )}
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "Creating account..." : "Sign up"}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+      <p className="text-center text-sm text-[#55707D] dark:text-[#8FA8B3]">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-[#0B5CFF] dark:text-[#4C9AFF]">
+        <Link href="/login" className="font-medium text-[#1D5C8A] dark:text-[#5FB4E0]">
           Log in
         </Link>
       </p>

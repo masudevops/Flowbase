@@ -5,7 +5,7 @@ export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#DFE1E6] bg-white dark:border-[#2A3547] dark:bg-[#161D2E]",
+        "rounded-lg border border-[#D3DBD8] bg-white dark:border-[#23414F] dark:bg-[#0F2A3D]",
         className,
       )}
       {...props}

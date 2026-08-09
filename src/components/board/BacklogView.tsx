@@ -74,7 +74,7 @@ export function BacklogView({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#55707D] dark:text-[#8FA8B3]" />
         <Select
           value={assigneeFilter}
           onChange={(e) => setAssigneeFilter(e.target.value)}
@@ -110,13 +110,13 @@ export function BacklogView({
           ))}
         </Select>
 
-        <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+        <label className="flex items-center gap-1.5 text-sm text-[#14242E] dark:text-[#E7EEF0]">
           <Checkbox checked={blockedOnly} onChange={(e) => setBlockedOnly(e.target.checked)} />
           Blocked only
         </label>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <ArrowUpDown className="h-4 w-4 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <ArrowUpDown className="h-4 w-4 text-[#55707D] dark:text-[#8FA8B3]" />
           <Select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
@@ -129,10 +129,10 @@ export function BacklogView({
         </div>
       </div>
 
-      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
+      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#D3DBD8] dark:border-[#23414F]">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
-            <tr className="border-b border-[#DFE1E6] bg-[#F4F6FA] text-left text-xs text-[#5E6C84] dark:border-[#2A3547] dark:bg-[#0E1624] dark:text-[#8C9BAB]">
+            <tr className="border-b border-[#D3DBD8] bg-[#EEF2F0] text-left text-xs text-[#55707D] dark:border-[#23414F] dark:bg-[#0B1F2E] dark:text-[#8FA8B3]">
               <th className="px-3 py-2 font-medium">Title</th>
               <th className="px-3 py-2 font-medium">Type</th>
               <th className="px-3 py-2 font-medium">Priority</th>
@@ -146,14 +146,14 @@ export function BacklogView({
               <tr
                 key={card.id}
                 onClick={() => setOpenCardId(card.id)}
-                className="cursor-pointer border-b border-[#DFE1E6] last:border-0 hover:bg-[#F4F6FA] dark:border-[#2A3547] dark:hover:bg-[#0E1624]"
+                className="cursor-pointer border-b border-[#D3DBD8] last:border-0 hover:bg-[#EEF2F0] dark:border-[#23414F] dark:hover:bg-[#0B1F2E]"
               >
-                <td className="px-3 py-2 font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                <td className="px-3 py-2 font-medium text-[#14242E] dark:text-[#E7EEF0]">
                   {card.title}
                 </td>
                 <td className="px-3 py-2">
                   {card.cardType ? (
-                    <span className="flex items-center gap-1.5 text-[#5E6C84] dark:text-[#8C9BAB]">
+                    <span className="flex items-center gap-1.5 text-[#55707D] dark:text-[#8FA8B3]">
                       <span
                         className="h-1.5 w-1.5 shrink-0 rounded-full"
                         style={{ backgroundColor: card.cardType.color }}
@@ -161,7 +161,7 @@ export function BacklogView({
                       {card.cardType.name}
                     </span>
                   ) : (
-                    <span className="text-[#5E6C84] dark:text-[#8C9BAB]">—</span>
+                    <span className="text-[#55707D] dark:text-[#8FA8B3]">—</span>
                   )}
                 </td>
                 <td className="px-3 py-2">
@@ -169,12 +169,12 @@ export function BacklogView({
                     {PRIORITY_META[card.priority].label}
                   </Badge>
                 </td>
-                <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
+                <td className="px-3 py-2 text-[#55707D] dark:text-[#8FA8B3]">
                   {card.assignees.length > 0
                     ? card.assignees.map((a) => assigneeName(a)).join(", ")
                     : "Unassigned"}
                 </td>
-                <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
+                <td className="px-3 py-2 text-[#55707D] dark:text-[#8FA8B3]">
                   {card.dueDate ? new Date(card.dueDate).toLocaleDateString() : "—"}
                 </td>
                 <td className="px-3 py-2">
@@ -189,7 +189,7 @@ export function BacklogView({
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-[#5E6C84] dark:text-[#8C9BAB]">
+                <td colSpan={6} className="px-3 py-6 text-center text-[#55707D] dark:text-[#8FA8B3]">
                   No cards match these filters.
                 </td>
               </tr>

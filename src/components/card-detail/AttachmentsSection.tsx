@@ -101,7 +101,7 @@ export function AttachmentsSection({
   return (
     <div>
       {attachments?.length === 0 && (
-        <p className="mb-2 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No attachments yet.</p>
+        <p className="mb-2 text-sm text-[#55707D] dark:text-[#8FA8B3]">No attachments yet.</p>
       )}
       <div className="space-y-2">
         {attachments?.map((attachment) => {
@@ -110,7 +110,7 @@ export function AttachmentsSection({
           return (
             <div
               key={attachment.id}
-              className="flex items-center gap-3 rounded-md border border-[#DFE1E6] bg-[#F4F6FA] p-2 dark:border-[#2A3547] dark:bg-[#0E1624]"
+              className="flex items-center gap-3 rounded-md border border-[#D3DBD8] bg-[#EEF2F0] p-2 dark:border-[#23414F] dark:bg-[#0B1F2E]"
             >
               {isImage && url ? (
                 <a href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
@@ -121,7 +121,7 @@ export function AttachmentsSection({
                   />
                 </a>
               ) : (
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#DFE1E6] text-[#5E6C84] dark:bg-[#2A3547] dark:text-[#8C9BAB]">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#D3DBD8] text-[#55707D] dark:bg-[#23414F] dark:text-[#8FA8B3]">
                   <File className="h-5 w-5" />
                 </span>
               )}
@@ -131,16 +131,16 @@ export function AttachmentsSection({
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block truncate text-sm font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+                    className="block truncate text-sm font-medium text-[#1D5C8A] hover:underline dark:text-[#5FB4E0]"
                   >
                     {attachment.fileName}
                   </a>
                 ) : (
-                  <span className="block truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                  <span className="block truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
                     {attachment.fileName}
                   </span>
                 )}
-                <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                <span className="text-xs text-[#55707D] dark:text-[#8FA8B3]">
                   {formatSize(attachment.sizeBytes)} ·{" "}
                   {attachment.uploadedBy.fullName ?? attachment.uploadedBy.email}
                 </span>
@@ -148,7 +148,7 @@ export function AttachmentsSection({
               <button
                 onClick={() => deleteAttachment.mutate({ attachmentId: attachment.id })}
                 aria-label="Delete attachment"
-                className="shrink-0 text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                className="shrink-0 text-[#55707D] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -157,7 +157,7 @@ export function AttachmentsSection({
         })}
       </div>
 
-      {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">{error}</p>}
 
       <input
         ref={fileInputRef}
@@ -173,7 +173,7 @@ export function AttachmentsSection({
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="mt-2 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-[#5E6C84] hover:bg-[#DFE1E6]/50 disabled:opacity-50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
+        className="mt-2 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-[#55707D] hover:bg-[#D3DBD8]/50 disabled:opacity-50 dark:text-[#8FA8B3] dark:hover:bg-[#23414F]/50"
       >
         <Upload className="h-4 w-4" />
         {uploading ? "Uploading..." : "Add attachment"}

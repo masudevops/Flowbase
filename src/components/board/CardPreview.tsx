@@ -43,7 +43,7 @@ export function CardPreview({
       {...listeners}
       onClick={() => onOpen(card.id)}
       className={cn(
-        "cursor-pointer rounded-md border border-[#DFE1E6] bg-white p-2.5 text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] dark:border-[#2A3547] dark:bg-[#161D2E] dark:focus-visible:ring-[#4C9AFF]",
+        "cursor-pointer rounded-md border border-[#D3DBD8] bg-white p-2.5 text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D5C8A] dark:border-[#23414F] dark:bg-[#0F2A3D] dark:focus-visible:ring-[#5FB4E0]",
         isDragging && "opacity-40",
       )}
     >
@@ -53,13 +53,13 @@ export function CardPreview({
             className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ backgroundColor: card.cardType.color }}
           />
-          <span className="font-[family-name:var(--font-plex-mono)] text-[9px] tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+          <span className="font-[family-name:var(--font-plex-mono)] text-[9px] tracking-wide text-[#55707D] uppercase dark:text-[#8FA8B3]">
             {card.cardType.name}
           </span>
         </div>
       )}
 
-      <p className="text-[13px] leading-snug font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+      <p className="text-[13px] leading-snug font-medium text-[#14242E] dark:text-[#E7EEF0]">
         {card.title}
       </p>
 
@@ -78,16 +78,16 @@ export function CardPreview({
       )}
 
       {card.isBlocked && (
-        <div className="mt-1.5 flex items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-1 dark:bg-[#FF5630]/15">
-          <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />
-          <span className="truncate text-[9px] leading-tight text-[#DE350B] dark:text-[#FF5630]">
+        <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/15">
+          <Ban className="h-3 w-3 shrink-0 text-[#C1440E] dark:text-[#E8703A]" />
+          <span className="truncate text-[9px] leading-tight text-[#C1440E] dark:text-[#E8703A]">
             {card.blockedByCard ? `Blocked by "${card.blockedByCard.title}"` : card.blockedReason || "Blocked"}
           </span>
         </div>
       )}
 
       <div className="mt-2 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
+        <div className="flex items-center gap-2 text-[10px] text-[#55707D] dark:text-[#8FA8B3]">
           <span
             className="flex items-center gap-1 font-medium"
             style={{ color: priority.color }}
@@ -99,7 +99,7 @@ export function CardPreview({
             <span
               className={cn(
                 "flex items-center gap-1",
-                overdue && "font-medium text-[#DE350B] dark:text-[#FF5630]",
+                overdue && "font-medium text-[#C1440E] dark:text-[#E8703A]",
               )}
             >
               <Calendar className="h-3 w-3" />
@@ -134,10 +134,10 @@ export function CardPreview({
                 title={assigneeName(a)}
                 style={{ marginLeft: i === 0 ? 0 : "-6px", zIndex: MAX_VISIBLE_ASSIGNEES - i }}
                 className={cn(
-                  "relative flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium ring-2 ring-white dark:ring-[#161D2E]",
+                  "relative flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium ring-2 ring-white dark:ring-[#0F2A3D]",
                   a.user
-                    ? "bg-[#0B5CFF] text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
-                    : "border border-dashed border-[#5E6C84] bg-white text-[#5E6C84] dark:border-[#8C9BAB] dark:bg-[#161D2E] dark:text-[#8C9BAB]",
+                    ? "bg-[#1D5C8A] text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]"
+                    : "border border-dashed border-[#55707D] bg-white text-[#55707D] dark:border-[#8FA8B3] dark:bg-[#0F2A3D] dark:text-[#8FA8B3]",
                 )}
               >
                 {assigneeInitial(a)}
@@ -150,7 +150,7 @@ export function CardPreview({
                   .map((a) => assigneeName(a))
                   .join(", ")}
                 style={{ marginLeft: "-6px" }}
-                className="relative flex h-5 w-5 items-center justify-center rounded-full bg-[#DFE1E6] text-[9px] font-medium text-[#5E6C84] ring-2 ring-white dark:bg-[#2A3547] dark:text-[#8C9BAB] dark:ring-[#161D2E]"
+                className="relative flex h-5 w-5 items-center justify-center rounded-full bg-[#D3DBD8] text-[9px] font-medium text-[#55707D] ring-2 ring-white dark:bg-[#23414F] dark:text-[#8FA8B3] dark:ring-[#0F2A3D]"
               >
                 +{card.assignees.length - MAX_VISIBLE_ASSIGNEES}
               </span>

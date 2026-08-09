@@ -29,7 +29,7 @@ body {
 
 .thin-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #dfe1e6 transparent;
+  scrollbar-color: #d3dbd8 transparent;
 }
 .thin-scrollbar::-webkit-scrollbar {
   height: 8px;
@@ -39,12 +39,25 @@ body {
   background: transparent;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #dfe1e6;
+  background-color: #d3dbd8;
   border-radius: 9999px;
 }
 :where(.dark) .thin-scrollbar {
-  scrollbar-color: #2a3547 transparent;
+  scrollbar-color: #23414f transparent;
 }
 :where(.dark) .thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #2a3547;
+  background-color: #23414f;
+}
+
+/* Faint blueprint grid-dot texture — the board canvas's signature
+   surface. Kept deliberately quiet (low-alpha dots, generous spacing)
+   so it reads as material, not decoration, and never competes with
+   card content. */
+.blueprint-grid {
+  background-image: radial-gradient(circle, rgba(29, 92, 138, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -11px -11px;
+}
+:where(.dark) .blueprint-grid {
+  background-image: radial-gradient(circle, rgba(95, 180, 224, 0.16) 1px, transparent 1px);
 }

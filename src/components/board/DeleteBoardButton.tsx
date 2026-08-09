@@ -24,9 +24,9 @@ export function DeleteBoardButton({
   });
 
   return (
-    <div className="mt-10 rounded-lg border border-[#DE350B]/30 bg-[#DE350B]/5 p-4 dark:border-[#FF5630]/30 dark:bg-[#FF5630]/10">
-      <h2 className="text-sm font-semibold text-[#DE350B] dark:text-[#FF5630]">Danger zone</h2>
-      <p className="mt-1 mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+    <div className="mt-10 rounded-lg border border-[#C1440E]/30 bg-[#C1440E]/5 p-4 dark:border-[#E8703A]/30 dark:bg-[#E8703A]/10">
+      <h2 className="text-sm font-semibold text-[#C1440E] dark:text-[#E8703A]">Danger zone</h2>
+      <p className="mt-1 mb-3 text-sm text-[#55707D] dark:text-[#8FA8B3]">
         Deleting a board removes it from the boards list for everyone. This can&apos;t be undone from
         the UI.
       </p>
@@ -42,7 +42,7 @@ export function DeleteBoardButton({
         <Trash2 className="h-4 w-4" />
         {archiveBoard.isPending ? "Deleting..." : "Delete board"}
       </Button>
-      {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">{error}</p>}
     </div>
   );
 }

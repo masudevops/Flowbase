@@ -36,7 +36,7 @@ export function BoardFilterBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+      <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#55707D] dark:text-[#8FA8B3]" />
 
       <Select
         value={filters.assigneeId}
@@ -76,7 +76,7 @@ export function BoardFilterBar({
         <option value="LOW">Low</option>
       </Select>
 
-      <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+      <label className="flex items-center gap-1.5 text-sm text-[#14242E] dark:text-[#E7EEF0]">
         <Checkbox
           checked={filters.blockedOnly}
           onChange={(e) => onChange({ ...filters, blockedOnly: e.target.checked })}
@@ -88,7 +88,7 @@ export function BoardFilterBar({
         <button
           type="button"
           onClick={() => onChange(EMPTY_BOARD_FILTERS)}
-          className="text-sm font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+          className="text-sm font-medium text-[#1D5C8A] hover:underline dark:text-[#5FB4E0]"
         >
           Clear filters
         </button>

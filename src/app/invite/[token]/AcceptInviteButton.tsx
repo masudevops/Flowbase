@@ -23,7 +23,7 @@ export function AcceptInviteButton({ token }: { token: string }) {
       >
         {acceptInvite.isPending ? "Joining..." : "Accept invite"}
       </Button>
-      {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">{error}</p>}
     </div>
   );
 }

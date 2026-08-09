@@ -32,19 +32,19 @@ export function Sidebar({
   ];
 
   const content = (
-    <div className="flex h-full w-60 shrink-0 flex-col border-r border-[#DFE1E6] bg-white dark:border-[#2A3547] dark:bg-[#161D2E]">
+    <div className="flex h-full w-60 shrink-0 flex-col border-r border-[#D3DBD8] bg-white dark:border-[#23414F] dark:bg-[#0F2A3D]">
       <div className="flex items-center justify-between px-4 py-4">
         <Link href={`/w/${orgSlug}`} className="min-w-0">
-          <span className="block font-[family-name:var(--font-plex-mono)] text-xs font-semibold tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
+          <span className="block font-[family-name:var(--font-plex-mono)] text-xs font-semibold tracking-[0.15em] text-[#1D5C8A] uppercase dark:text-[#5FB4E0]">
             Kelbara
           </span>
-          <span className="block truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+          <span className="block truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
             {organizationName}
           </span>
         </Link>
         <button
           onClick={() => setMobileOpen(false)}
-          className="rounded p-1 text-[#5E6C84] hover:bg-[#F4F6FA] md:hidden dark:text-[#8C9BAB] dark:hover:bg-[#0E1624]"
+          className="rounded p-1 text-[#55707D] hover:bg-[#EEF2F0] md:hidden dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E]"
           aria-label="Close menu"
         >
           <X className="h-5 w-5" />
@@ -56,7 +56,7 @@ export function Sidebar({
           <SearchTrigger organizationId={organizationId} orgSlug={orgSlug} fullWidth />
         </div>
         <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
-        <ThemeToggle className="rounded-md p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624]" />
+        <ThemeToggle className="rounded-md p-1.5 text-[#55707D] hover:bg-[#EEF2F0] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E]" />
       </div>
 
       <nav className="flex-1 space-y-0.5 px-3">
@@ -71,8 +71,8 @@ export function Sidebar({
               className={cn(
                 "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-[#0B5CFF]/10 text-[#0B5CFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]"
-                  : "text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#E4E7EC]",
+                  ? "bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]"
+                  : "text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E7EEF0]",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -82,13 +82,13 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-[#DFE1E6] px-3 py-3 dark:border-[#2A3547]">
+      <div className="border-t border-[#D3DBD8] px-3 py-3 dark:border-[#23414F]">
         <Link
           href={`/settings?from=${orgSlug}`}
           onClick={() => setMobileOpen(false)}
-          className="mb-2 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#E4E7EC]"
+          className="mb-2 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E7EEF0]"
         >
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0B5CFF] text-[11px] font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1D5C8A] text-[11px] font-medium text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]">
             {(currentUser.fullName ?? currentUser.email).charAt(0).toUpperCase()}
           </span>
           <span className="min-w-0 flex-1 truncate font-medium">
@@ -106,20 +106,20 @@ export function Sidebar({
   return (
     <>
       {/* Mobile top bar */}
-      <div className="flex items-center justify-between border-b border-[#DFE1E6] bg-white px-4 py-3 md:hidden dark:border-[#2A3547] dark:bg-[#161D2E]">
+      <div className="flex items-center justify-between border-b border-[#D3DBD8] bg-white px-4 py-3 md:hidden dark:border-[#23414F] dark:bg-[#0F2A3D]">
         <button
           onClick={() => setMobileOpen(true)}
-          className="rounded p-1 text-[#5E6C84] dark:text-[#8C9BAB]"
+          className="rounded p-1 text-[#55707D] dark:text-[#8FA8B3]"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+        <span className="truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
           {organizationName}
         </span>
         <div className="flex items-center gap-1">
           <NotificationBell organizationId={organizationId} orgSlug={orgSlug} />
-          <ThemeToggle className="rounded-md p-1.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <ThemeToggle className="rounded-md p-1.5 text-[#55707D] dark:text-[#8FA8B3]" />
         </div>
       </div>
 

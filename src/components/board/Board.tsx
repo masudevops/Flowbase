@@ -249,7 +249,7 @@ export function Board({
     <>
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
-        <label className="flex shrink-0 items-center gap-1.5 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+        <label className="flex shrink-0 items-center gap-1.5 text-sm text-[#55707D] dark:text-[#8FA8B3]">
           Group by
           <Select
             value={groupBy}
@@ -272,7 +272,7 @@ export function Board({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="thin-scrollbar flex flex-1 gap-4 overflow-x-auto pb-4">
+        <div className="blueprint-grid thin-scrollbar flex flex-1 gap-4 overflow-x-auto rounded-lg pb-4">
           {filteredColumns.map((column) => (
             <Column
               key={column.id}

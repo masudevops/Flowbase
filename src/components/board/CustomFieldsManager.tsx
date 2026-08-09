@@ -89,7 +89,7 @@ function NewFieldForm({
         Add field
       </Button>
       {createDefinition.error && (
-        <p className="w-full text-sm text-[#DE350B] dark:text-[#FF5630]">{createDefinition.error.message}</p>
+        <p className="w-full text-sm text-[#C1440E] dark:text-[#E8703A]">{createDefinition.error.message}</p>
       )}
     </form>
   );
@@ -104,18 +104,18 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
   });
 
   return (
-    <div className="rounded-md border border-[#DFE1E6] p-3 dark:border-[#2A3547]">
+    <div className="rounded-md border border-[#D3DBD8] p-3 dark:border-[#23414F]">
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: cardType.color }} />
-        <h3 className="text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">{cardType.name}</h3>
+        <h3 className="text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">{cardType.name}</h3>
       </div>
 
       {definitions && definitions.length > 0 && (
-        <ul className="mt-2 divide-y divide-[#DFE1E6] dark:divide-[#2A3547]">
+        <ul className="mt-2 divide-y divide-[#D3DBD8] dark:divide-[#23414F]">
           {definitions.map((def) => (
             <li key={def.id} className="flex items-center gap-3 py-2 text-sm">
-              <span className="flex-1 text-[#172B4D] dark:text-[#E4E7EC]">{def.name}</span>
-              <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+              <span className="flex-1 text-[#14242E] dark:text-[#E7EEF0]">{def.name}</span>
+              <span className="text-xs text-[#55707D] dark:text-[#8FA8B3]">
                 {FIELD_TYPE_LABEL[def.fieldType as FieldType]}
                 {def.fieldType === "SELECT" &&
                   Array.isArray(def.options) &&
@@ -129,7 +129,7 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
                   }
                 }}
                 aria-label={`Delete field ${def.name}`}
-                className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                className="text-[#55707D] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -138,7 +138,7 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
         </ul>
       )}
       {definitions && definitions.length === 0 && (
-        <p className="mt-2 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No custom fields on this type yet.</p>
+        <p className="mt-2 text-xs text-[#55707D] dark:text-[#8FA8B3]">No custom fields on this type yet.</p>
       )}
 
       <NewFieldForm
@@ -166,13 +166,13 @@ export function CustomFieldsManager({
 
   return (
     <div>
-      <h2 className="mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Custom fields</h2>
-      <p className="mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+      <h2 className="mb-1 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">Custom fields</h2>
+      <p className="mb-3 text-sm text-[#55707D] dark:text-[#8FA8B3]">
         Defined per card type — a field added to one type doesn&apos;t show up on another.
       </p>
 
       {cardTypes.length === 0 ? (
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">Add a card type first to define fields on it.</p>
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">Add a card type first to define fields on it.</p>
       ) : (
         <div className="space-y-3">
           {cardTypes.map((type) => (

@@ -17,7 +17,7 @@ export default async function AccountSettingsPage({
     <div className="mx-auto w-full max-w-sm flex-1 px-6 py-10">
       <Link
         href={from ? `/w/${from}` : "/"}
-        className="mb-6 flex items-center gap-1.5 text-sm font-medium text-[#5E6C84] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+        className="mb-6 flex items-center gap-1.5 text-sm font-medium text-[#55707D] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to workspace

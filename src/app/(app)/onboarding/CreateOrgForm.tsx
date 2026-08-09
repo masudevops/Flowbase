@@ -25,10 +25,10 @@ export function CreateOrgForm() {
       className="w-full max-w-sm space-y-4"
     >
       <div>
-        <h1 className="text-2xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+        <h1 className="text-2xl font-semibold text-[#14242E] dark:text-[#E7EEF0]">
           Create your workspace
         </h1>
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
           This is where your boards, members, and settings will live.
         </p>
       </div>
@@ -42,7 +42,7 @@ export function CreateOrgForm() {
         autoFocus
       />
       {createOrg.error && (
-        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{createOrg.error.message}</p>
+        <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{createOrg.error.message}</p>
       )}
       <Button type="submit" className="w-full" disabled={createOrg.isPending || name.trim().length < 2}>
         {createOrg.isPending ? "Creating..." : "Create workspace"}

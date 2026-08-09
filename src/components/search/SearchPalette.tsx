@@ -57,49 +57,49 @@ export function SearchPalette({
         role="dialog"
         aria-modal="true"
         aria-label="Search"
-        className="w-full max-w-lg rounded-lg border border-[#DFE1E6] bg-white shadow-xl dark:border-[#2A3547] dark:bg-[#161D2E]"
+        className="w-full max-w-lg rounded-lg border border-[#D3DBD8] bg-white shadow-xl dark:border-[#23414F] dark:bg-[#0F2A3D]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#55707D] dark:text-[#8FA8B3]" />
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search cards and boards..."
-            className="w-full border-b border-[#DFE1E6] bg-transparent py-3 pr-4 pl-10 text-sm text-[#172B4D] outline-none dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            className="w-full border-b border-[#D3DBD8] bg-transparent py-3 pr-4 pl-10 text-sm text-[#14242E] outline-none dark:border-[#23414F] dark:text-[#E7EEF0]"
           />
         </div>
 
         <div className="max-h-96 overflow-y-auto p-2">
           {debouncedQuery.length === 0 && (
-            <p className="px-2 py-4 text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+            <p className="px-2 py-4 text-center text-sm text-[#55707D] dark:text-[#8FA8B3]">
               Type to search across this workspace.
             </p>
           )}
 
           {debouncedQuery.length > 0 && isFetching && !data && (
-            <p className="px-2 py-4 text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+            <p className="px-2 py-4 text-center text-sm text-[#55707D] dark:text-[#8FA8B3]">
               Searching...
             </p>
           )}
 
           {debouncedQuery.length > 0 && data && !hasResults && (
-            <p className="px-2 py-4 text-center text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+            <p className="px-2 py-4 text-center text-sm text-[#55707D] dark:text-[#8FA8B3]">
               No results for &ldquo;{debouncedQuery}&rdquo;.
             </p>
           )}
 
           {data && data.boards.length > 0 && (
             <div className="mb-2">
-              <p className="px-2 py-1 font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+              <p className="px-2 py-1 font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-wide text-[#55707D] uppercase dark:text-[#8FA8B3]">
                 Boards
               </p>
               {data.boards.map((board) => (
                 <button
                   key={board.id}
                   onClick={() => goToBoard(board.id)}
-                  className="block w-full rounded px-2 py-2 text-left text-sm text-[#172B4D] hover:bg-[#F4F6FA] dark:text-[#E4E7EC] dark:hover:bg-[#0E1624]"
+                  className="block w-full rounded px-2 py-2 text-left text-sm text-[#14242E] hover:bg-[#EEF2F0] dark:text-[#E7EEF0] dark:hover:bg-[#0B1F2E]"
                 >
                   {board.name}
                 </button>
@@ -109,14 +109,14 @@ export function SearchPalette({
 
           {data && data.cards.length > 0 && (
             <div>
-              <p className="px-2 py-1 font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+              <p className="px-2 py-1 font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-wide text-[#55707D] uppercase dark:text-[#8FA8B3]">
                 Cards
               </p>
               {data.cards.map((card) => (
                 <button
                   key={card.id}
                   onClick={() => goToCard(card.boardId, card.id)}
-                  className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm hover:bg-[#F4F6FA] dark:hover:bg-[#0E1624]"
+                  className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm hover:bg-[#EEF2F0] dark:hover:bg-[#0B1F2E]"
                 >
                   {card.cardType && (
                     <span
@@ -124,10 +124,10 @@ export function SearchPalette({
                       style={{ backgroundColor: card.cardType.color }}
                     />
                   )}
-                  <span className="min-w-0 flex-1 truncate text-[#172B4D] dark:text-[#E4E7EC]">
+                  <span className="min-w-0 flex-1 truncate text-[#14242E] dark:text-[#E7EEF0]">
                     {card.title}
                   </span>
-                  <span className="shrink-0 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                  <span className="shrink-0 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                     {card.board.name}
                   </span>
                 </button>

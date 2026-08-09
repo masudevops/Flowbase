@@ -6,14 +6,14 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 function emailShell(bodyHtml: string, ctaUrl: string, ctaLabel: string): string {
   return `
-    <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; color: #172B4D;">
+    <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; color: #14242E;">
       ${bodyHtml}
       <p style="margin-top: 24px;">
-        <a href="${ctaUrl}" style="display: inline-block; background: #0B5CFF; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+        <a href="${ctaUrl}" style="display: inline-block; background: #1D5C8A; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 500;">
           ${ctaLabel}
         </a>
       </p>
-      <p style="margin-top: 32px; font-size: 12px; color: #5E6C84;">Kelbara</p>
+      <p style="margin-top: 32px; font-size: 12px; color: #55707D;">Kelbara</p>
     </div>
   `;
 }
@@ -135,7 +135,7 @@ export async function notifyNewComment(
       html: emailShell(
         `<p>${authorName} commented on a card you're assigned to:</p>
          <p style="font-weight: 600; font-size: 16px;">${card.title}</p>
-         <p style="color: #5E6C84; white-space: pre-wrap;">${params.body}</p>`,
+         <p style="color: #55707D; white-space: pre-wrap;">${params.body}</p>`,
         url,
         "View card",
       ),

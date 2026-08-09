@@ -87,8 +87,8 @@ export function MembersManager({
   return (
     <div className="space-y-8">
       {isAdmin && (
-        <div className="rounded-lg border border-[#DFE1E6] bg-white p-4 dark:border-[#2A3547] dark:bg-[#161D2E]">
-          <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+        <div className="rounded-lg border border-[#D3DBD8] bg-white p-4 dark:border-[#23414F] dark:bg-[#0F2A3D]">
+          <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
             <UserPlus className="h-4 w-4" />
             Invite someone
           </h2>
@@ -119,28 +119,28 @@ export function MembersManager({
               {invite.isPending ? "Sending..." : "Send invite"}
             </Button>
           </form>
-          {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
+          {error && <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">{error}</p>}
         </div>
       )}
 
       {isAdmin && invites && invites.length > 0 && (
         <div>
-          <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+          <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
             <Mail className="h-4 w-4" />
             Pending invites
           </h2>
-          <div className="divide-y divide-[#DFE1E6] rounded-lg border border-[#DFE1E6] bg-white dark:divide-[#2A3547] dark:border-[#2A3547] dark:bg-[#161D2E]">
+          <div className="divide-y divide-[#D3DBD8] rounded-lg border border-[#D3DBD8] bg-white dark:divide-[#23414F] dark:border-[#23414F] dark:bg-[#0F2A3D]">
             {invites.map((inv) => (
               <div key={inv.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <div>
-                  <span className="text-[#172B4D] dark:text-[#E4E7EC]">{inv.email}</span>
-                  <span className="ml-2 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                  <span className="text-[#14242E] dark:text-[#E7EEF0]">{inv.email}</span>
+                  <span className="ml-2 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                     {inv.role === "ADMIN" ? "Admin / project manager" : "Team member"}
                   </span>
                 </div>
                 <button
                   onClick={() => cancelInvite.mutate({ organizationId, inviteId: inv.id })}
-                  className="rounded p-1 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                  className="rounded p-1 text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E8703A]"
                   aria-label="Cancel invite"
                 >
                   <X className="h-4 w-4" />
@@ -152,24 +152,24 @@ export function MembersManager({
       )}
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+        <h2 className="mb-2 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
           Members ({members?.length ?? 0})
         </h2>
-        <div className="divide-y divide-[#DFE1E6] rounded-lg border border-[#DFE1E6] bg-white dark:divide-[#2A3547] dark:border-[#2A3547] dark:bg-[#161D2E]">
+        <div className="divide-y divide-[#D3DBD8] rounded-lg border border-[#D3DBD8] bg-white dark:divide-[#23414F] dark:border-[#23414F] dark:bg-[#0F2A3D]">
           {members?.map((m) => {
             const isSelf = m.userId === currentUserId;
             return (
               <div key={m.id} className="flex flex-col gap-2.5 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0B5CFF] text-xs font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1D5C8A] text-xs font-medium text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]">
                     {initialOf(m)}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                    <p className="truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
                       {m.fullName ?? m.email}
-                      {isSelf && <span className="ml-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">(you)</span>}
+                      {isSelf && <span className="ml-1.5 text-xs text-[#55707D] dark:text-[#8FA8B3]">(you)</span>}
                     </p>
-                    <p className="truncate text-xs text-[#5E6C84] dark:text-[#8C9BAB]">{m.email}</p>
+                    <p className="truncate text-xs text-[#55707D] dark:text-[#8FA8B3]">{m.email}</p>
                   </div>
                 </div>
 
@@ -190,7 +190,7 @@ export function MembersManager({
                       <option value="ADMIN">Admin / PM</option>
                     </Select>
                   ) : (
-                    <span className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                    <span className="flex items-center gap-1 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                       {m.role === "ADMIN" && <Shield className="h-3 w-3" />}
                       {m.role === "ADMIN" ? "Admin / PM" : "Team member"}
                     </span>
@@ -203,7 +203,7 @@ export function MembersManager({
                           removeMember.mutate({ organizationId, membershipId: m.id });
                         }
                       }}
-                      className="rounded p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                      className="rounded p-1.5 text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E8703A]"
                       aria-label={isSelf ? "Leave workspace" : "Remove member"}
                     >
                       {isSelf ? <LogOut className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}

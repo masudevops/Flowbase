@@ -6,7 +6,7 @@ export function Checkbox({ className, ...props }: InputHTMLAttributes<HTMLInputE
     <input
       type="checkbox"
       className={cn(
-        "h-4 w-4 shrink-0 cursor-pointer rounded border-[#DFE1E6] text-[#0B5CFF] accent-[#0B5CFF] focus:ring-2 focus:ring-[#0B5CFF] focus:outline-none dark:border-[#2A3547] dark:bg-[#0E1624]",
+        "h-4 w-4 shrink-0 cursor-pointer rounded border-[#D3DBD8] text-[#1D5C8A] accent-[#1D5C8A] focus:ring-2 focus:ring-[#1D5C8A] focus:outline-none dark:border-[#23414F] dark:bg-[#0B1F2E]",
         className,
       )}
       {...props}

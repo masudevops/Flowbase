@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 type BadgeTone = "neutral" | "blue" | "red" | "orange" | "green" | "purple";
 
 const TONES: Record<BadgeTone, string> = {
-  neutral: "bg-[#5E6C84]/10 text-[#5E6C84] dark:bg-[#8C9BAB]/15 dark:text-[#8C9BAB]",
-  blue: "bg-[#0B5CFF]/10 text-[#0B5CFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]",
-  red: "bg-[#DE350B]/10 text-[#DE350B] dark:bg-[#FF5630]/15 dark:text-[#FF5630]",
-  orange: "bg-[#FF991F]/10 text-[#B5680A] dark:bg-[#FF991F]/15 dark:text-[#FF991F]",
-  green: "bg-[#00875A]/10 text-[#00875A] dark:bg-[#36B37E]/15 dark:text-[#36B37E]",
+  neutral: "bg-[#55707D]/10 text-[#55707D] dark:bg-[#8FA8B3]/15 dark:text-[#8FA8B3]",
+  blue: "bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]",
+  red: "bg-[#C1440E]/10 text-[#C1440E] dark:bg-[#E8703A]/15 dark:text-[#E8703A]",
+  orange: "bg-[#D98324]/10 text-[#9C5A1A] dark:bg-[#D98324]/15 dark:text-[#D98324]",
+  green: "bg-[#0F7A5C]/10 text-[#0F7A5C] dark:bg-[#3FBF95]/15 dark:text-[#3FBF95]",
   purple: "bg-[#6554C0]/10 text-[#6554C0] dark:bg-[#8777D9]/15 dark:text-[#8777D9]",
 };
 

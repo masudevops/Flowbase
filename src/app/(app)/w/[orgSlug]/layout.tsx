@@ -14,7 +14,7 @@ export default async function WorkspaceLayout({
   const me = await caller.user.me();
 
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-[#F7F9FC] md:flex-row dark:bg-[#0E1624]">
+    <div className="flex min-h-full flex-1 flex-col bg-[#F5F7F4] md:flex-row dark:bg-[#0B1F2E]">
       <Sidebar
         organizationId={organization.id}
         organizationName={organization.name}

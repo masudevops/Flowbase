@@ -50,8 +50,8 @@ export const PRIORITY_META: Record<
   BoardCard["priority"],
   { label: string; color: string }
 > = {
-  LOW: { label: "Low", color: "#5E6C84" },
-  MEDIUM: { label: "Medium", color: "#0B5CFF" },
-  HIGH: { label: "High", color: "#FF991F" },
-  URGENT: { label: "Urgent", color: "#DE350B" },
+  LOW: { label: "Low", color: "#55707D" },
+  MEDIUM: { label: "Medium", color: "#1D5C8A" },
+  HIGH: { label: "High", color: "#D98324" },
+  URGENT: { label: "Urgent", color: "#C1440E" },
 };

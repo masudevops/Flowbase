@@ -29,13 +29,13 @@ export function ProfileForm({
       className="space-y-4"
     >
       <div>
-        <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+        <label className="mb-1 block text-xs font-medium text-[#55707D] dark:text-[#8FA8B3]">
           Email
         </label>
         <Input value={email} disabled className="opacity-60" />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+        <label className="mb-1 block text-xs font-medium text-[#55707D] dark:text-[#8FA8B3]">
           Full name
         </label>
         <Input
@@ -47,10 +47,10 @@ export function ProfileForm({
         />
       </div>
       {updateProfile.error && (
-        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{updateProfile.error.message}</p>
+        <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{updateProfile.error.message}</p>
       )}
       {saved && !updateProfile.isPending && (
-        <p className="text-sm text-[#00875A] dark:text-[#36B37E]">Saved.</p>
+        <p className="text-sm text-[#0F7A5C] dark:text-[#3FBF95]">Saved.</p>
       )}
       <Button
         type="submit"

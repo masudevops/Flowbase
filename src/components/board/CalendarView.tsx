@@ -69,12 +69,12 @@ export function CalendarView({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">{monthLabel}</h2>
+        <h2 className="text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">{monthLabel}</h2>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => setCursor(new Date(year, month - 1, 1))}
-            className="rounded p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624]"
+            className="rounded p-1.5 text-[#55707D] hover:bg-[#EEF2F0] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E]"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -82,14 +82,14 @@ export function CalendarView({
           <button
             type="button"
             onClick={() => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))}
-            className="rounded-md border border-[#DFE1E6] px-2 py-1 text-xs font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            className="rounded-md border border-[#D3DBD8] px-2 py-1 text-xs font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => setCursor(new Date(year, month + 1, 1))}
-            className="rounded p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624]"
+            className="rounded p-1.5 text-[#55707D] hover:bg-[#EEF2F0] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E]"
             aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
@@ -97,12 +97,12 @@ export function CalendarView({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
-        <div className="grid grid-cols-7 border-b border-[#DFE1E6] bg-[#F4F6FA] dark:border-[#2A3547] dark:bg-[#0E1624]">
+      <div className="overflow-hidden rounded-md border border-[#D3DBD8] dark:border-[#23414F]">
+        <div className="grid grid-cols-7 border-b border-[#D3DBD8] bg-[#EEF2F0] dark:border-[#23414F] dark:bg-[#0B1F2E]">
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="px-2 py-1.5 text-center text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]"
+              className="px-2 py-1.5 text-center text-xs font-medium text-[#55707D] dark:text-[#8FA8B3]"
             >
               {d}
             </div>
@@ -116,15 +116,15 @@ export function CalendarView({
             return (
               <div
                 key={key}
-                className="min-h-[92px] border-b border-r border-[#DFE1E6] p-1.5 last:border-r-0 dark:border-[#2A3547] [&:nth-child(7n)]:border-r-0"
+                className="min-h-[92px] border-b border-r border-[#D3DBD8] p-1.5 last:border-r-0 dark:border-[#23414F] [&:nth-child(7n)]:border-r-0"
               >
                 {date && (
                   <>
                     <span
                       className={
                         isToday
-                          ? "flex h-5 w-5 items-center justify-center rounded-full bg-[#0B5CFF] text-[11px] font-semibold text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
-                          : "text-xs text-[#5E6C84] dark:text-[#8C9BAB]"
+                          ? "flex h-5 w-5 items-center justify-center rounded-full bg-[#1D5C8A] text-[11px] font-semibold text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]"
+                          : "text-xs text-[#55707D] dark:text-[#8FA8B3]"
                       }
                     >
                       {date.getDate()}
@@ -154,7 +154,7 @@ export function CalendarView({
 
       {undated.length > 0 && (
         <div className="mt-4">
-          <h3 className="mb-2 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
+          <h3 className="mb-2 text-xs font-medium text-[#55707D] dark:text-[#8FA8B3]">
             No due date ({undated.length})
           </h3>
           <div className="flex flex-wrap gap-1.5">
@@ -163,7 +163,7 @@ export function CalendarView({
                 key={card.id}
                 type="button"
                 onClick={() => setOpenCardId(card.id)}
-                className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1 text-xs font-medium text-[#172B4D] dark:border-[#2A3547] dark:bg-[#161D2E] dark:text-[#E4E7EC]"
+                className="rounded-md border border-[#D3DBD8] bg-white px-2 py-1 text-xs font-medium text-[#14242E] dark:border-[#23414F] dark:bg-[#0F2A3D] dark:text-[#E7EEF0]"
               >
                 {card.title}
               </button>

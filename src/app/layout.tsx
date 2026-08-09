@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {THEME_INIT_SCRIPT}
         </Script>
       </head>
-      <body className="flex min-h-full flex-col bg-[#F7F9FC] text-[#172B4D] dark:bg-[#0E1624] dark:text-[#E4E7EC]">
+      <body className="flex min-h-full flex-col bg-[#F5F7F4] text-[#14242E] dark:bg-[#0B1F2E] dark:text-[#E7EEF0]">
         <TRPCProvider>{children}</TRPCProvider>
       </body>
     </html>

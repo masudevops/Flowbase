@@ -62,7 +62,7 @@ export function ColumnsManager({
 
   return (
     <div className="space-y-6">
-      <ul className="divide-y divide-[#DFE1E6] rounded-md border border-[#DFE1E6] dark:divide-[#2A3547] dark:border-[#2A3547]">
+      <ul className="divide-y divide-[#D3DBD8] rounded-md border border-[#D3DBD8] dark:divide-[#23414F] dark:border-[#23414F]">
         {columns.map((column, i) => (
           <li key={column.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
             <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function ColumnsManager({
                   type="button"
                   onClick={() => moveColumn(i, -1)}
                   disabled={i === 0}
-                  className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                  className="text-[#55707D] hover:text-[#14242E] disabled:opacity-30 dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]"
                   aria-label="Move up"
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
@@ -80,7 +80,7 @@ export function ColumnsManager({
                   type="button"
                   onClick={() => moveColumn(i, 1)}
                   disabled={i === columns.length - 1}
-                  className="text-[#5E6C84] hover:text-[#172B4D] disabled:opacity-30 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                  className="text-[#55707D] hover:text-[#14242E] disabled:opacity-30 dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]"
                   aria-label="Move down"
                 >
                   <ChevronDown className="h-3.5 w-3.5" />
@@ -106,7 +106,7 @@ export function ColumnsManager({
               ) : (
                 <button
                   type="button"
-                  className="flex-1 text-left text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]"
+                  className="flex-1 text-left text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]"
                   onClick={() => {
                     setEditingId(column.id);
                     setEditingName(column.name);
@@ -120,14 +120,14 @@ export function ColumnsManager({
                 type="button"
                 onClick={() => deleteColumn.mutate({ columnId: column.id })}
                 aria-label="Delete column"
-                className="shrink-0 text-[#5E6C84] hover:text-[#DE350B] sm:hidden dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                className="shrink-0 text-[#55707D] hover:text-[#C1440E] sm:hidden dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-[26px] sm:ml-auto sm:pl-0">
-              <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+              <label className="flex items-center gap-1.5 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                 <Checkbox
                   checked={column.isBlockedColumn}
                   onChange={(e) =>
@@ -136,7 +136,7 @@ export function ColumnsManager({
                 />
                 Blocked column
               </label>
-              <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+              <label className="flex items-center gap-1.5 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                 <Checkbox
                   checked={column.isDoneColumn}
                   onChange={(e) =>
@@ -150,7 +150,7 @@ export function ColumnsManager({
                 type="button"
                 onClick={() => deleteColumn.mutate({ columnId: column.id })}
                 aria-label="Delete column"
-                className="hidden shrink-0 text-[#5E6C84] hover:text-[#DE350B] sm:block dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                className="hidden shrink-0 text-[#55707D] hover:text-[#C1440E] sm:block dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -159,7 +159,7 @@ export function ColumnsManager({
         ))}
       </ul>
       {deleteColumn.error && (
-        <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{deleteColumn.error.message}</p>
+        <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{deleteColumn.error.message}</p>
       )}
 
       <form

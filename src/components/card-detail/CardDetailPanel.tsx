@@ -40,26 +40,26 @@ function memberLabel(m: { fullName: string | null; email: string }): string {
 }
 
 const markdownComponents: Components = {
-  h1: (props) => <h1 className="mt-1 mb-1 text-base font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
-  h2: (props) => <h2 className="mt-1 mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
-  h3: (props) => <h3 className="mt-1 mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
-  p: (props) => <p className="mb-2 text-sm text-[#172B4D] last:mb-0 dark:text-[#E4E7EC]" {...props} />,
-  ul: (props) => <ul className="mb-2 ml-4 list-disc text-sm text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
-  ol: (props) => <ol className="mb-2 ml-4 list-decimal text-sm text-[#172B4D] dark:text-[#E4E7EC]" {...props} />,
+  h1: (props) => <h1 className="mt-1 mb-1 text-base font-semibold text-[#14242E] dark:text-[#E7EEF0]" {...props} />,
+  h2: (props) => <h2 className="mt-1 mb-1 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]" {...props} />,
+  h3: (props) => <h3 className="mt-1 mb-1 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]" {...props} />,
+  p: (props) => <p className="mb-2 text-sm text-[#14242E] last:mb-0 dark:text-[#E7EEF0]" {...props} />,
+  ul: (props) => <ul className="mb-2 ml-4 list-disc text-sm text-[#14242E] dark:text-[#E7EEF0]" {...props} />,
+  ol: (props) => <ol className="mb-2 ml-4 list-decimal text-sm text-[#14242E] dark:text-[#E7EEF0]" {...props} />,
   li: (props) => <li className="mb-0.5" {...props} />,
   a: (props) => (
-    <a className="text-[#0B5CFF] underline dark:text-[#4C9AFF]" target="_blank" rel="noreferrer" {...props} />
+    <a className="text-[#1D5C8A] underline dark:text-[#5FB4E0]" target="_blank" rel="noreferrer" {...props} />
   ),
   code: (props) => (
-    <code className="rounded bg-[#F4F6FA] px-1 py-0.5 text-xs dark:bg-[#0E1624]" {...props} />
+    <code className="rounded bg-[#EEF2F0] px-1 py-0.5 text-xs dark:bg-[#0B1F2E]" {...props} />
   ),
   pre: (props) => (
-    <pre className="mb-2 overflow-x-auto rounded-md bg-[#F4F6FA] p-2 text-xs dark:bg-[#0E1624]" {...props} />
+    <pre className="mb-2 overflow-x-auto rounded-md bg-[#EEF2F0] p-2 text-xs dark:bg-[#0B1F2E]" {...props} />
   ),
   strong: (props) => <strong className="font-semibold" {...props} />,
   blockquote: (props) => (
     <blockquote
-      className="border-l-2 border-[#DFE1E6] pl-2 text-[#5E6C84] dark:border-[#2A3547] dark:text-[#8C9BAB]"
+      className="border-l-2 border-[#D3DBD8] pl-2 text-[#55707D] dark:border-[#23414F] dark:text-[#8FA8B3]"
       {...props}
     />
   ),
@@ -71,7 +71,7 @@ const markdownComponents: Components = {
 /// (primary content / metadata / collaboration) without adding boxes.
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.1em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+    <p className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.1em] text-[#55707D] uppercase dark:text-[#8FA8B3]">
       {children}
     </p>
   );
@@ -195,7 +195,7 @@ export function CardDetailPanel({
   if (!card) {
     return (
       <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={onClose}>
-        <div className="h-full w-full max-w-lg bg-white dark:bg-[#161D2E]" />
+        <div className="h-full w-full max-w-lg bg-white dark:bg-[#0F2A3D]" />
       </div>
     );
   }
@@ -209,7 +209,7 @@ export function CardDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={`${card.title} details`}
-        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#DFE1E6] bg-white dark:border-[#2A3547] dark:bg-[#161D2E]"
+        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#D3DBD8] bg-white dark:border-[#23414F] dark:bg-[#0F2A3D]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ---------- Primary content ---------- */}
@@ -224,7 +224,7 @@ export function CardDetailPanel({
                 }
               }}
               rows={2}
-              className="w-full resize-none bg-transparent text-lg font-semibold text-[#172B4D] outline-none dark:text-[#E4E7EC]"
+              className="w-full resize-none bg-transparent text-lg font-semibold text-[#14242E] outline-none dark:text-[#E7EEF0]"
             />
             <div className="flex shrink-0 items-center gap-1">
               <button
@@ -233,14 +233,14 @@ export function CardDetailPanel({
                     deleteCard.mutate({ cardId });
                   }
                 }}
-                className="rounded p-1.5 text-[#5E6C84] hover:bg-[#DE350B]/10 hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#FF5630]/10 dark:hover:text-[#FF5630]"
+                className="rounded p-1.5 text-[#55707D] hover:bg-[#C1440E]/10 hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:bg-[#E8703A]/10 dark:hover:text-[#E8703A]"
                 aria-label="Delete card"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
               <button
                 onClick={onClose}
-                className="rounded p-1.5 text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
+                className="rounded p-1.5 text-[#55707D] hover:bg-[#D3DBD8]/50 dark:text-[#8FA8B3] dark:hover:bg-[#23414F]/50"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -265,14 +265,14 @@ export function CardDetailPanel({
           ) : (
             <div
               onClick={() => setEditingDescription(true)}
-              className="min-h-[2.5rem] cursor-text rounded-md border border-transparent px-0.5 py-1 hover:border-[#DFE1E6] dark:hover:border-[#2A3547]"
+              className="min-h-[2.5rem] cursor-text rounded-md border border-transparent px-0.5 py-1 hover:border-[#D3DBD8] dark:hover:border-[#23414F]"
             >
               {card.description ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                   {card.description}
                 </ReactMarkdown>
               ) : (
-                <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+                <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
                   Click to add a description (markdown supported)
                 </p>
               )}
@@ -281,7 +281,7 @@ export function CardDetailPanel({
         </div>
 
         {/* ---------- Metadata ---------- */}
-        <div className="mt-5 space-y-4 border-t border-[#DFE1E6] px-6 pt-4 dark:border-[#2A3547]">
+        <div className="mt-5 space-y-4 border-t border-[#D3DBD8] px-6 pt-4 dark:border-[#23414F]">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <Label className="flex items-center gap-1.5">
@@ -382,8 +382,8 @@ export function CardDetailPanel({
                     className={cn(
                       "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                       selected
-                        ? "border-[#0B5CFF] bg-[#0B5CFF]/10 text-[#0B5CFF] dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]"
-                        : "border-[#DFE1E6] text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50",
+                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]"
+                        : "border-[#D3DBD8] text-[#55707D] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:text-[#8FA8B3] dark:hover:border-[#5FB4E0]/50",
                     )}
                   >
                     {memberLabel(m)}
@@ -406,8 +406,8 @@ export function CardDetailPanel({
                     className={cn(
                       "rounded-full border border-dashed px-2.5 py-1 text-xs font-medium transition-colors",
                       selected
-                        ? "border-[#0B5CFF] bg-[#0B5CFF]/10 text-[#0B5CFF] dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]"
-                        : "border-[#DFE1E6] text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50",
+                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]"
+                        : "border-[#D3DBD8] text-[#55707D] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:text-[#8FA8B3] dark:hover:border-[#5FB4E0]/50",
                     )}
                   >
                     {c.name} (contact)
@@ -415,14 +415,14 @@ export function CardDetailPanel({
                 );
               })}
               {members.length === 0 && contacts.length === 0 && (
-                <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No members yet.</p>
+                <p className="text-xs text-[#55707D] dark:text-[#8FA8B3]">No members yet.</p>
               )}
             </div>
           </div>
 
           {/* Blocked */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
               <Checkbox
                 checked={card.isBlocked}
                 onChange={(e) =>
@@ -434,7 +434,7 @@ export function CardDetailPanel({
                   })
                 }
               />
-              <Ban className="h-3.5 w-3.5 text-[#DE350B] dark:text-[#FF5630]" />
+              <Ban className="h-3.5 w-3.5 text-[#C1440E] dark:text-[#E8703A]" />
               Blocked
             </label>
             {card.isBlocked && (
@@ -479,7 +479,7 @@ export function CardDetailPanel({
                   <button
                     type="button"
                     onClick={() => onOpenCard(card.blockedByCard!.id)}
-                    className="text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+                    className="text-xs font-medium text-[#1D5C8A] hover:underline dark:text-[#5FB4E0]"
                   >
                     Open &quot;{card.blockedByCard.title}&quot;
                   </button>
@@ -519,7 +519,7 @@ export function CardDetailPanel({
                 );
               })}
               {labels.length === 0 && (
-                <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No labels yet.</p>
+                <p className="text-xs text-[#55707D] dark:text-[#8FA8B3]">No labels yet.</p>
               )}
             </div>
           </div>
@@ -564,7 +564,7 @@ export function CardDetailPanel({
                 <button
                   type="button"
                   onClick={() => onOpenCard(card.parent!.id)}
-                  className="mt-1 text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+                  className="mt-1 text-xs font-medium text-[#1D5C8A] hover:underline dark:text-[#5FB4E0]"
                 >
                   Open &quot;{card.parent.title}&quot;
                 </button>
@@ -576,10 +576,10 @@ export function CardDetailPanel({
         </div>
 
         {/* ---------- Collaboration ---------- */}
-        <div className="mt-5 space-y-5 border-t border-[#DFE1E6] px-6 py-5 dark:border-[#2A3547]">
+        <div className="mt-5 space-y-5 border-t border-[#D3DBD8] px-6 py-5 dark:border-[#23414F]">
           <div>
-            <div className="mb-2 flex items-center gap-1.5">
-              <Paperclip className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+            <div className="mb-2 flex items-center gap-1.5 border-b border-[#D3DBD8] pb-1.5 dark:border-[#23414F]">
+              <Paperclip className="h-3.5 w-3.5 text-[#55707D] dark:text-[#8FA8B3]" />
               <SectionLabel>Attachments</SectionLabel>
             </div>
             <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />
@@ -588,8 +588,8 @@ export function CardDetailPanel({
           {/* Sub-tasks (children) */}
           {card.children.length > 0 && (
             <div>
-              <div className="mb-2 flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+              <div className="mb-2 flex items-center gap-1.5 border-b border-[#D3DBD8] pb-1.5 dark:border-[#23414F]">
+                <Layers className="h-3.5 w-3.5 text-[#55707D] dark:text-[#8FA8B3]" />
                 <SectionLabel>
                   Sub-tasks ({card.children.filter((c) => c.column.isDoneColumn).length}/
                   {card.children.length} done)
@@ -602,17 +602,17 @@ export function CardDetailPanel({
                     type="button"
                     onClick={() => onOpenCard?.(child.id)}
                     disabled={!onOpenCard}
-                    className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-[#172B4D] hover:bg-[#F4F6FA] disabled:cursor-default disabled:hover:bg-transparent dark:text-[#E4E7EC] dark:hover:bg-[#0E1624]"
+                    className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-[#14242E] hover:bg-[#EEF2F0] disabled:cursor-default disabled:hover:bg-transparent dark:text-[#E7EEF0] dark:hover:bg-[#0B1F2E]"
                   >
                     {child.column.isDoneColumn ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#00875A] dark:text-[#36B37E]" />
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#0F7A5C] dark:text-[#3FBF95]" />
                     ) : (
-                      <Circle className="h-3.5 w-3.5 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+                      <Circle className="h-3.5 w-3.5 shrink-0 text-[#55707D] dark:text-[#8FA8B3]" />
                     )}
-                    <span className={child.column.isDoneColumn ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : ""}>
+                    <span className={child.column.isDoneColumn ? "text-[#55707D] line-through dark:text-[#8FA8B3]" : ""}>
                       {child.title}
                     </span>
-                    {child.isBlocked && <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />}
+                    {child.isBlocked && <Ban className="h-3 w-3 shrink-0 text-[#C1440E] dark:text-[#E8703A]" />}
                   </button>
                 ))}
               </div>
@@ -621,8 +621,8 @@ export function CardDetailPanel({
 
           {/* Checklist */}
           <div>
-            <div className="mb-2 flex items-center gap-1.5">
-              <ListChecks className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+            <div className="mb-2 flex items-center gap-1.5 border-b border-[#D3DBD8] pb-1.5 dark:border-[#23414F]">
+              <ListChecks className="h-3.5 w-3.5 text-[#55707D] dark:text-[#8FA8B3]" />
               <SectionLabel>Checklist</SectionLabel>
             </div>
             <div className="space-y-1">
@@ -635,14 +635,14 @@ export function CardDetailPanel({
                     }
                   />
                   <span
-                    className={`flex-1 text-sm ${item.isDone ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : "text-[#172B4D] dark:text-[#E4E7EC]"}`}
+                    className={`flex-1 text-sm ${item.isDone ? "text-[#55707D] line-through dark:text-[#8FA8B3]" : "text-[#14242E] dark:text-[#E7EEF0]"}`}
                   >
                     {item.text}
                   </span>
                   <button
                     onClick={() => deleteChecklistItem.mutate({ itemId: item.id })}
                     aria-label="Delete checklist item"
-                    className="text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#DE350B] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                    className="text-[#55707D] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#C1440E] focus-visible:opacity-100 dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -669,8 +669,8 @@ export function CardDetailPanel({
 
           {/* Comments */}
           <div>
-            <div className="mb-2 flex items-center gap-1.5">
-              <MessageSquare className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+            <div className="mb-2 flex items-center gap-1.5 border-b border-[#D3DBD8] pb-1.5 dark:border-[#23414F]">
+              <MessageSquare className="h-3.5 w-3.5 text-[#55707D] dark:text-[#8FA8B3]" />
               <SectionLabel>Comments</SectionLabel>
             </div>
             <div className="space-y-3">
@@ -680,13 +680,13 @@ export function CardDetailPanel({
                 const isEditing = editingCommentId === comment.id;
 
                 return (
-                  <div key={comment.id} className="group rounded-md bg-[#F4F6FA] p-2 dark:bg-[#0E1624]">
+                  <div key={comment.id} className="group rounded-md bg-[#EEF2F0] p-2 dark:bg-[#0B1F2E]">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                      <span className="text-xs font-medium text-[#14242E] dark:text-[#E7EEF0]">
                         {comment.author.fullName ?? comment.author.email}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
+                        <span className="text-[10px] text-[#55707D] dark:text-[#8FA8B3]">
                           {new Date(comment.createdAt).toLocaleString()}
                           {comment.editedAt && " (edited)"}
                         </span>
@@ -697,7 +697,7 @@ export function CardDetailPanel({
                               setEditingCommentId(comment.id);
                               setEditingCommentBody(comment.body);
                             }}
-                            className="text-[10px] font-medium text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#172B4D] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                            className="text-[10px] font-medium text-[#55707D] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#14242E] focus-visible:opacity-100 dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]"
                           >
                             Edit
                           </button>
@@ -710,7 +710,7 @@ export function CardDetailPanel({
                                 deleteComment.mutate({ commentId: comment.id });
                               }
                             }}
-                            className="text-[10px] font-medium text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#DE350B] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                            className="text-[10px] font-medium text-[#55707D] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#C1440E] focus-visible:opacity-100 dark:text-[#8FA8B3] dark:hover:text-[#E8703A]"
                           >
                             Delete
                           </button>
@@ -737,14 +737,14 @@ export function CardDetailPanel({
                               setEditingCommentId(null);
                             }
                           }}
-                          className="bg-white dark:bg-[#161D2E]"
+                          className="bg-white dark:bg-[#0F2A3D]"
                         />
                         <Button type="submit" size="sm" className="shrink-0" disabled={updateComment.isPending}>
                           Save
                         </Button>
                       </form>
                     ) : (
-                      <p className="mt-1 text-sm whitespace-pre-wrap text-[#172B4D] dark:text-[#E4E7EC]">
+                      <p className="mt-1 text-sm whitespace-pre-wrap text-[#14242E] dark:text-[#E7EEF0]">
                         {comment.body}
                       </p>
                     )}
@@ -752,7 +752,7 @@ export function CardDetailPanel({
                 );
               })}
               {comments?.length === 0 && (
-                <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No comments yet.</p>
+                <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">No comments yet.</p>
               )}
             </div>
             <form
@@ -775,27 +775,27 @@ export function CardDetailPanel({
 
           {/* Activity */}
           <div>
-            <div className="mb-2 flex items-center gap-1.5">
-              <History className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+            <div className="mb-2 flex items-center gap-1.5 border-b border-[#D3DBD8] pb-1.5 dark:border-[#23414F]">
+              <History className="h-3.5 w-3.5 text-[#55707D] dark:text-[#8FA8B3]" />
               <SectionLabel>Activity</SectionLabel>
             </div>
             {auditLog ? (
               <div className="space-y-2">
                 {auditLog.map((entry) => (
-                  <p key={entry.id} className="text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+                  <p key={entry.id} className="text-sm text-[#14242E] dark:text-[#E7EEF0]">
                     <span className="font-medium">
                       {entry.actor?.fullName ?? entry.actor?.email ?? "Someone"}
                     </span>{" "}
-                    <span className="text-[#5E6C84] dark:text-[#8C9BAB]">
+                    <span className="text-[#55707D] dark:text-[#8FA8B3]">
                       {describeAuditLog(entry)}
                     </span>{" "}
-                    <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                    <span className="text-xs text-[#55707D] dark:text-[#8FA8B3]">
                       · {timeAgo(new Date(entry.createdAt))}
                     </span>
                   </p>
                 ))}
                 {auditLog.length === 0 && (
-                  <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No activity yet.</p>
+                  <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">No activity yet.</p>
                 )}
               </div>
             ) : (

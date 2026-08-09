@@ -49,16 +49,16 @@ export function ContactsManager({
 
   return (
     <div>
-      <h2 className="mb-1 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+      <h2 className="mb-1 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
         External contacts
       </h2>
-      <p className="mb-3 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+      <p className="mb-3 text-sm text-[#55707D] dark:text-[#8FA8B3]">
         People who can be assigned cards without a Kelbara account — subcontractors, clients,
         vendors.
       </p>
 
-      <div className="rounded-lg border border-[#DFE1E6] bg-white p-4 dark:border-[#2A3547] dark:bg-[#161D2E]">
-        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+      <div className="rounded-lg border border-[#D3DBD8] bg-white p-4 dark:border-[#23414F] dark:bg-[#0F2A3D]">
+        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">
           <UserPlus className="h-4 w-4" />
           Add a contact
         </h3>
@@ -99,14 +99,14 @@ export function ContactsManager({
           </Button>
         </form>
         {createContact.error && (
-          <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">
+          <p className="mt-2 text-sm text-[#C1440E] dark:text-[#E8703A]">
             {createContact.error.message}
           </p>
         )}
       </div>
 
       {contacts && contacts.length > 0 && (
-        <div className="mt-3 divide-y divide-[#DFE1E6] rounded-lg border border-[#DFE1E6] bg-white dark:divide-[#2A3547] dark:border-[#2A3547] dark:bg-[#161D2E]">
+        <div className="mt-3 divide-y divide-[#D3DBD8] rounded-lg border border-[#D3DBD8] bg-white dark:divide-[#23414F] dark:border-[#23414F] dark:bg-[#0F2A3D]">
           {contacts.map((c) => (
             <div key={c.id} className="flex items-center gap-2 px-4 py-2.5">
               <input
@@ -117,7 +117,7 @@ export function ContactsManager({
                     updateContact.mutate({ contactId: c.id, name: value });
                   }
                 }}
-                className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium text-[#172B4D] hover:border-[#DFE1E6] focus:border-[#DFE1E6] focus:bg-white focus:outline-none dark:text-[#E4E7EC] dark:hover:border-[#2A3547] dark:focus:border-[#2A3547] dark:focus:bg-[#0E1624]"
+                className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium text-[#14242E] hover:border-[#D3DBD8] focus:border-[#D3DBD8] focus:bg-white focus:outline-none dark:text-[#E7EEF0] dark:hover:border-[#23414F] dark:focus:border-[#23414F] dark:focus:bg-[#0B1F2E]"
               />
               <input
                 defaultValue={c.email ?? ""}
@@ -128,7 +128,7 @@ export function ContactsManager({
                     updateContact.mutate({ contactId: c.id, email: value || null });
                   }
                 }}
-                className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm text-[#5E6C84] hover:border-[#DFE1E6] focus:border-[#DFE1E6] focus:bg-white focus:outline-none dark:text-[#8C9BAB] dark:hover:border-[#2A3547] dark:focus:border-[#2A3547] dark:focus:bg-[#0E1624]"
+                className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm text-[#55707D] hover:border-[#D3DBD8] focus:border-[#D3DBD8] focus:bg-white focus:outline-none dark:text-[#8FA8B3] dark:hover:border-[#23414F] dark:focus:border-[#23414F] dark:focus:bg-[#0B1F2E]"
               />
               <input
                 defaultValue={c.phone ?? ""}
@@ -139,7 +139,7 @@ export function ContactsManager({
                     updateContact.mutate({ contactId: c.id, phone: value || null });
                   }
                 }}
-                className="w-32 shrink-0 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm text-[#5E6C84] hover:border-[#DFE1E6] focus:border-[#DFE1E6] focus:bg-white focus:outline-none dark:text-[#8C9BAB] dark:hover:border-[#2A3547] dark:focus:border-[#2A3547] dark:focus:bg-[#0E1624]"
+                className="w-32 shrink-0 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm text-[#55707D] hover:border-[#D3DBD8] focus:border-[#D3DBD8] focus:bg-white focus:outline-none dark:text-[#8FA8B3] dark:hover:border-[#23414F] dark:focus:border-[#23414F] dark:focus:bg-[#0B1F2E]"
               />
               <button
                 onClick={() => {
@@ -147,7 +147,7 @@ export function ContactsManager({
                     deleteContact.mutate({ contactId: c.id });
                   }
                 }}
-                className="shrink-0 rounded p-1.5 text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#FF5630]"
+                className="shrink-0 rounded p-1.5 text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#C1440E] dark:text-[#8FA8B3] dark:hover:bg-[#0B1F2E] dark:hover:text-[#E8703A]"
                 aria-label="Remove contact"
               >
                 <Trash2 className="h-4 w-4" />

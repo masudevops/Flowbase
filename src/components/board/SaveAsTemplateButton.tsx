@@ -45,7 +45,7 @@ export function SaveAsTemplateButton({
 
   if (saved) {
     return (
-      <p className="text-sm text-[#00875A] dark:text-[#36B37E]">
+      <p className="text-sm text-[#0F7A5C] dark:text-[#3FBF95]">
         Saved — it&apos;ll show up next time you create a board.
       </p>
     );
@@ -73,12 +73,12 @@ export function SaveAsTemplateButton({
       <button
         type="button"
         onClick={() => setOpen(false)}
-        className="text-sm text-[#5E6C84] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+        className="text-sm text-[#55707D] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]"
       >
         Cancel
       </button>
       {saveTemplate.error && (
-        <p className="w-full text-sm text-[#DE350B] dark:text-[#FF5630]">
+        <p className="w-full text-sm text-[#C1440E] dark:text-[#E8703A]">
           {saveTemplate.error.message}
         </p>
       )}

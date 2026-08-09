@@ -94,8 +94,8 @@ export function MyWorkView({
 
   if (cards.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#DFE1E6] py-16 text-center dark:border-[#2A3547]">
-        <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+      <div className="rounded-lg border border-dashed border-[#D3DBD8] py-16 text-center dark:border-[#23414F]">
+        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
           Nothing assigned to you right now.
         </p>
       </div>
@@ -105,7 +105,7 @@ export function MyWorkView({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#55707D] dark:text-[#8FA8B3]" />
 
         {boards.length > 1 && (
           <Select
@@ -122,18 +122,18 @@ export function MyWorkView({
           </Select>
         )}
 
-        <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+        <label className="flex items-center gap-1.5 text-sm text-[#14242E] dark:text-[#E7EEF0]">
           <Checkbox checked={blockedOnly} onChange={(e) => setBlockedOnly(e.target.checked)} />
           Blocked only
         </label>
 
-        <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+        <label className="flex items-center gap-1.5 text-sm text-[#14242E] dark:text-[#E7EEF0]">
           <Checkbox checked={showCompleted} onChange={(e) => setShowCompleted(e.target.checked)} />
           Show completed
         </label>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <ArrowUpDown className="h-4 w-4 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <ArrowUpDown className="h-4 w-4 text-[#55707D] dark:text-[#8FA8B3]" />
           <Select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
@@ -147,8 +147,8 @@ export function MyWorkView({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[#DFE1E6] py-16 text-center dark:border-[#2A3547]">
-          <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+        <div className="rounded-lg border border-dashed border-[#D3DBD8] py-16 text-center dark:border-[#23414F]">
+          <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
             No work matches these filters.
           </p>
         </div>
@@ -162,7 +162,7 @@ export function MyWorkView({
                 key={card.id}
                 type="button"
                 onClick={() => openCard(card)}
-                className="flex w-full flex-col gap-2 rounded-md border border-[#DFE1E6] bg-white p-3 text-left shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between dark:border-[#2A3547] dark:bg-[#161D2E]"
+                className="flex w-full flex-col gap-2 rounded-md border border-[#D3DBD8] bg-white p-3 text-left shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between dark:border-[#23414F] dark:bg-[#0F2A3D]"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
@@ -172,11 +172,11 @@ export function MyWorkView({
                         style={{ backgroundColor: card.cardType.color }}
                       />
                     )}
-                    <span className="truncate text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                    <span className="truncate text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">
                       {card.title}
                     </span>
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#55707D] dark:text-[#8FA8B3]">
                     <span className="flex items-center gap-1">
                       <Kanban className="h-3 w-3" />
                       {card.board.name}
@@ -194,8 +194,8 @@ export function MyWorkView({
                     <span
                       className={
                         overdue
-                          ? "flex items-center gap-1 font-medium text-[#DE350B] dark:text-[#FF5630]"
-                          : "flex items-center gap-1 text-[#5E6C84] dark:text-[#8C9BAB]"
+                          ? "flex items-center gap-1 font-medium text-[#C1440E] dark:text-[#E8703A]"
+                          : "flex items-center gap-1 text-[#55707D] dark:text-[#8FA8B3]"
                       }
                     >
                       <Calendar className="h-3 w-3" />
@@ -204,7 +204,7 @@ export function MyWorkView({
                     </span>
                   )}
                   {card.isBlocked && (
-                    <span className="flex items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-0.5 text-[#DE350B] dark:bg-[#FF5630]/15 dark:text-[#FF5630]">
+                    <span className="flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-0.5 text-[#C1440E] dark:bg-[#E8703A]/15 dark:text-[#E8703A]">
                       <Ban className="h-3 w-3" />
                       Blocked
                     </span>

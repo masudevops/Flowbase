@@ -22,12 +22,12 @@ const DEMO_DATA: Record<DemoMode, DemoColumn[]> = {
   IT_DEV: [
     {
       name: "To Do",
-      cards: [{ title: "Add dark mode toggle", type: "Feature", typeColor: "#0B5CFF" }],
+      cards: [{ title: "Add dark mode toggle", type: "Feature", typeColor: "#1D5C8A" }],
     },
     {
       name: "In Progress",
       cards: [
-        { title: "Fix Safari session bug", type: "Bug", typeColor: "#DE350B", tag: "High" },
+        { title: "Fix Safari session bug", type: "Bug", typeColor: "#C1440E", tag: "High" },
       ],
     },
     {
@@ -36,25 +36,25 @@ const DEMO_DATA: Record<DemoMode, DemoColumn[]> = {
         {
           title: "Payment webhook retry",
           type: "Task",
-          typeColor: "#5E6C84",
+          typeColor: "#55707D",
           blocked: "Waiting on design review",
         },
       ],
     },
     {
       name: "Done",
-      cards: [{ title: "Ship onboarding flow", type: "Feature", typeColor: "#0B5CFF" }],
+      cards: [{ title: "Ship onboarding flow", type: "Feature", typeColor: "#1D5C8A" }],
     },
   ],
   CONSTRUCTION: [
     {
       name: "Scheduled",
-      cards: [{ title: "Frame east wall", type: "Task", typeColor: "#5E6C84", tag: "Bldg 2" }],
+      cards: [{ title: "Frame east wall", type: "Task", typeColor: "#55707D", tag: "Bldg 2" }],
     },
     {
       name: "In Progress",
       cards: [
-        { title: "Rough-in plumbing", type: "Task", typeColor: "#5E6C84", tag: "Unit 4" },
+        { title: "Rough-in plumbing", type: "Task", typeColor: "#55707D", tag: "Unit 4" },
       ],
     },
     {
@@ -70,7 +70,7 @@ const DEMO_DATA: Record<DemoMode, DemoColumn[]> = {
     },
     {
       name: "Complete",
-      cards: [{ title: "Pour foundation", type: "Task", typeColor: "#5E6C84", tag: "Pad C" }],
+      cards: [{ title: "Pour foundation", type: "Task", typeColor: "#55707D", tag: "Pad C" }],
     },
   ],
 };
@@ -83,7 +83,7 @@ export function BoardDemo() {
       <div
         role="tablist"
         aria-label="Board vocabulary"
-        className="mb-3 inline-flex rounded-md border border-[#DFE1E6] bg-white p-0.5 dark:border-[#2A3547] dark:bg-[#161D2E]"
+        className="mb-3 inline-flex rounded-md border border-[#D3DBD8] bg-white p-0.5 dark:border-[#23414F] dark:bg-[#0F2A3D]"
       >
         {(["IT_DEV", "CONSTRUCTION"] as const).map((option) => (
           <button
@@ -92,10 +92,10 @@ export function BoardDemo() {
             aria-selected={mode === option}
             onClick={() => setMode(option)}
             className={cn(
-              "rounded px-3 py-1.5 font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-wide uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] focus-visible:ring-offset-1",
+              "rounded px-3 py-1.5 font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-wide uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D5C8A] focus-visible:ring-offset-1",
               mode === option
-                ? "bg-[#0B5CFF] text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
-                : "text-[#5E6C84] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]",
+                ? "bg-[#1D5C8A] text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]"
+                : "text-[#55707D] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]",
             )}
           >
             {option === "IT_DEV" ? "IT / Dev" : "Construction"}
@@ -103,12 +103,12 @@ export function BoardDemo() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-[#DFE1E6] bg-white p-3 shadow-[0_1px_0_#DFE1E6] dark:border-[#2A3547] dark:bg-[#161D2E] dark:shadow-[0_1px_0_#2A3547]">
+      <div className="rounded-lg border border-[#D3DBD8] bg-white p-3 shadow-[0_1px_0_#D3DBD8] dark:border-[#23414F] dark:bg-[#0F2A3D] dark:shadow-[0_1px_0_#23414F]">
         <div key={mode} className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {DEMO_DATA[mode].map((column, ci) => (
             <div key={column.name} className="min-w-0">
               <div className="mb-2 flex items-center justify-between px-0.5">
-                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] leading-tight font-medium tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+                <span className="font-[family-name:var(--font-plex-mono)] text-[10px] leading-tight font-medium tracking-wide text-[#55707D] uppercase dark:text-[#8FA8B3]">
                   {column.name}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export function BoardDemo() {
                 {column.cards.map((card) => (
                   <div
                     key={card.title}
-                    className="motion-safe:animate-fade-up rounded-md border border-[#DFE1E6] bg-[#F4F6FA] p-2 text-left dark:border-[#2A3547] dark:bg-[#0E1624]"
+                    className="motion-safe:animate-fade-up rounded-md border border-[#D3DBD8] bg-[#EEF2F0] p-2 text-left dark:border-[#23414F] dark:bg-[#0B1F2E]"
                     style={{ animationDelay: `${ci * 40}ms` }}
                   >
                     <div className="mb-1.5 flex items-center gap-1">
@@ -124,22 +124,22 @@ export function BoardDemo() {
                         className="h-1.5 w-1.5 shrink-0 rounded-full"
                         style={{ backgroundColor: card.typeColor }}
                       />
-                      <span className="font-[family-name:var(--font-plex-mono)] text-[9px] tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+                      <span className="font-[family-name:var(--font-plex-mono)] text-[9px] tracking-wide text-[#55707D] uppercase dark:text-[#8FA8B3]">
                         {card.type}
                       </span>
                     </div>
-                    <p className="text-[11px] leading-tight font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                    <p className="text-[11px] leading-tight font-medium text-[#14242E] dark:text-[#E7EEF0]">
                       {card.title}
                     </p>
                     {card.tag && (
-                      <span className="mt-1.5 inline-block font-[family-name:var(--font-plex-mono)] text-[9px] text-[#5E6C84] dark:text-[#8C9BAB]">
+                      <span className="mt-1.5 inline-block font-[family-name:var(--font-plex-mono)] text-[9px] text-[#55707D] dark:text-[#8FA8B3]">
                         {card.tag}
                       </span>
                     )}
                     {card.blocked && (
-                      <div className="mt-1.5 flex items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-1 dark:bg-[#FF5630]/15">
-                        <span className="h-1 w-1 shrink-0 rounded-full bg-[#DE350B] dark:bg-[#FF5630]" />
-                        <span className="text-[9px] leading-tight text-[#DE350B] dark:text-[#FF5630]">
+                      <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/15">
+                        <span className="h-1 w-1 shrink-0 rounded-full bg-[#C1440E] dark:bg-[#E8703A]" />
+                        <span className="text-[9px] leading-tight text-[#C1440E] dark:text-[#E8703A]">
                           {card.blocked}
                         </span>
                       </div>

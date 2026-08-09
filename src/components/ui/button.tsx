@@ -6,13 +6,13 @@ type ButtonSize = "sm" | "md";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-[#0B5CFF] text-white hover:bg-[#0747A6] dark:bg-[#4C9AFF] dark:text-[#0E1624] dark:hover:bg-[#79B1FF]",
+    "bg-[#1D5C8A] text-white hover:bg-[#123F5C] dark:bg-[#5FB4E0] dark:text-[#0B1F2E] dark:hover:bg-[#8FCBEA]",
   secondary:
-    "border border-[#DFE1E6] text-[#172B4D] hover:bg-[#F4F6FA] dark:border-[#2A3547] dark:text-[#E4E7EC] dark:hover:bg-[#161D2E]",
+    "border border-[#D3DBD8] text-[#14242E] hover:bg-[#EEF2F0] dark:border-[#23414F] dark:text-[#E7EEF0] dark:hover:bg-[#0F2A3D]",
   danger:
-    "border border-[#DE350B] text-[#DE350B] hover:bg-[#DE350B]/10 dark:border-[#FF5630] dark:text-[#FF5630] dark:hover:bg-[#FF5630]/10",
+    "border border-[#C1440E] text-[#C1440E] hover:bg-[#C1440E]/10 dark:border-[#E8703A] dark:text-[#E8703A] dark:hover:bg-[#E8703A]/10",
   ghost:
-    "text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:bg-[#161D2E] dark:hover:text-[#E4E7EC]",
+    "text-[#55707D] hover:bg-[#EEF2F0] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:bg-[#0F2A3D] dark:hover:text-[#E7EEF0]",
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -29,7 +29,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex w-auto items-center justify-center gap-1.5 rounded-md font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B5CFF] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-[#4C9AFF] dark:focus-visible:ring-offset-[#0E1624]",
+        "inline-flex w-auto items-center justify-center gap-1.5 rounded-md font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D5C8A] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-[#5FB4E0] dark:focus-visible:ring-offset-[#0B1F2E]",
         SIZES[size],
         VARIANTS[variant],
         className,
