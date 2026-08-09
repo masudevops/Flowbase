@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
+import { SlidersHorizontal } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -53,6 +54,7 @@ export function Board({
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_BOARD_FILTERS);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const groupBy = useSyncExternalStore(
     subscribeToGroupBy,
     () => getStoredGroupBy(boardId),
@@ -247,7 +249,8 @@ export function Board({
 
   return (
     <>
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+      {/* Desktop/tablet: filters + group-by inline, same as always. */}
+      <div className="mb-3 hidden flex-wrap items-start justify-between gap-2 sm:flex">
         <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
         <label className="flex shrink-0 items-center gap-1.5 text-sm text-[#55707D] dark:text-[#8FA8B3]">
           Group by
@@ -263,6 +266,57 @@ export function Board({
           </Select>
         </label>
       </div>
+
+      {/* Mobile: filters/group-by collapse behind one button instead of
+          eating ~40% of a phone screen's vertical space before any card
+          is visible (found during a live UX audit — see Epic 8). */}
+      <div className="mb-3 sm:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileFiltersOpen(true)}
+          className="flex items-center gap-1.5 rounded-md border border-[#D3DBD8] px-3 py-2 text-sm font-medium text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filters
+          {(hasActiveFilters(filters) || groupBy !== "none") && (
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#1D5C8A] dark:bg-[#5FB4E0]" />
+          )}
+        </button>
+      </div>
+
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="absolute inset-0 bg-black/20" onClick={() => setMobileFiltersOpen(false)} />
+          <div className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-xl border-t border-[#D3DBD8] bg-white p-4 dark:border-[#23414F] dark:bg-[#0F2A3D]">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-[#14242E] dark:text-[#E7EEF0]">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                className="text-sm font-medium text-[#1D5C8A] dark:text-[#5FB4E0]"
+              >
+                Done
+              </button>
+            </div>
+            <div className="flex flex-col items-start gap-3">
+              <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
+              <label className="flex w-full items-center justify-between gap-1.5 border-t border-[#D3DBD8] pt-3 text-sm text-[#14242E] dark:border-[#23414F] dark:text-[#E7EEF0]">
+                Group by
+                <Select
+                  value={groupBy}
+                  onChange={(e) => updateGroupBy(e.target.value as GroupBy)}
+                  className="w-auto"
+                >
+                  <option value="none">None</option>
+                  <option value="assignee">Assignee</option>
+                  <option value="priority">Priority</option>
+                  <option value="type">Type</option>
+                </Select>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
 
       <DndContext
         id={`board-${boardId}`}

@@ -123,7 +123,7 @@ describe("card mutations", () => {
     // write" pattern lets two transactions interleave and produce a
     // state that matches neither payload. The fix guarantees the final
     // state always matches exactly one of these three, never a mix.
-    const payloads = [
+    const payloads: { userId?: string; contactId?: string }[][] = [
       [{ userId: adminId }],
       [{ userId: memberId }],
       [{ contactId: contact.id }],
