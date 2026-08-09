@@ -1,6 +1,6 @@
 # Epic 8: Reliability & security hardening
 
-**Status:** In progress — 8.1 done, 8.2/8.3 blocked on account creation, 8.4 not started
+**Status:** In progress — 8.1 done, 8.2 done, 8.3 in progress (Sentry account pending), 8.4 not started
 **Schema change:** No
 **Risk:** Low (8.1), Medium (8.2/8.3 — new external services), Low (8.4 — docs only)
 
@@ -72,24 +72,40 @@ below, don't sign up for or wire in either without checking first.
       the same card, asserting the final state always matches exactly
       one full payload — never a merged/corrupted mix.
 
-### 8.2 — Rate limiting (needs an Upstash account first)
-- [ ] **Before writing code**: confirm with the user whether to create a
-      free-tier Upstash Redis account (10k commands/day free) — this is
-      the standard approach for rate limiting on Vercel's serverless
-      functions, since in-memory counters don't share state across
-      function invocations. Get the REST URL + token into `.env.local`
-      and Vercel before implementing.
-- [ ] `@upstash/ratelimit` + `@upstash/redis`, a small
-      `src/lib/ratelimit.ts` helper wrapping a sliding-window limiter.
-- [ ] Apply to: `POST /signup`, `POST /login` (both server actions, not
-      tRPC procedures — check `src/app/(auth)/*/actions.ts`), the
-      `membership.invite` and `comment.create` tRPC procedures. Keyed by
-      IP for the unauthenticated auth actions, by `userId` for the
-      authenticated tRPC procedures.
-- [ ] Return a clear `TRPCError({ code: "TOO_MANY_REQUESTS" })` /
-      equivalent server-action error, not a silent failure — the UI
-      needs to show something readable, not swallow it like `sendEmail`
-      does.
+### 8.2 — Rate limiting — DONE
+- [x] Used Vercel's Storage tab → Redis (Marketplace/Redis Cloud) instead
+      of a separate Upstash account — same free-tier economics, one less
+      external account, and Vercel auto-wires the connection env var.
+      This gives a plain `REDIS_URL` connection string, not a REST
+      URL/token pair, so the implementation uses `ioredis` +
+      `rate-limiter-flexible`'s `RateLimiterRedis` rather than
+      `@upstash/ratelimit`/`@upstash/redis`.
+- [x] `src/lib/redis.ts` (cached ioredis client, same
+      globalThis-caching pattern as `src/lib/prisma.ts`) and
+      `src/lib/ratelimit.ts` (per-action `RateLimiterRedis` instances +
+      a `checkRateLimit()` helper that fails OPEN on a Redis-level
+      error — rate limiting is a safety net, not a dependency the whole
+      app should go down with if Redis hiccups).
+- [x] Applied to: `signup`/`login` server actions (keyed by IP via a new
+      `src/lib/request-ip.ts`, reading `x-forwarded-for`), and the
+      `membership.invite`/`comment.create` tRPC procedures (keyed by
+      `userId`). Budgets: signup 5/hour, login 10/15min, invite 20/hour,
+      comment 30/10min.
+- [x] Regression test in `tests/comment-lifecycle.test.ts`: 31 rapid
+      `comment.create` calls from a dedicated test user, asserting the
+      31st throws a "too many requests" error.
+- **Known local-dev quirk**: `next dev` has no reverse proxy setting
+  `x-forwarded-for`, so `getClientIp()` falls back to a fixed
+  `"local-dev"` string — every local signup/login shares one budget
+  across all local testing. Not fixed with an environment-based bypass
+  on purpose (a bypass in rate-limiting code is exactly the kind of
+  thing that risks accidentally shipping to production); if a developer
+  hits the local wall while iterating, clear it directly:
+  `redis-cli -u $REDIS_URL DEL rl:signup:local-dev`.
+- [x] Returns a clear `TRPCError({ code: "TOO_MANY_REQUESTS" })` for the
+      tRPC procedures and a readable `{ error }` state for the server
+      actions, not a silent failure — unlike `sendEmail`, a rate-limit
+      rejection must be visible to the user, not swallowed.
 
 ### 8.3 — Error monitoring (needs a Sentry account first)
 - [ ] **Before writing code**: confirm with the user whether to create a
@@ -123,9 +139,9 @@ below, don't sign up for or wire in either without checking first.
       query, mirroring the Epic 5 assignee verification methodology)
       result in all intended labels persisting, not just the last click
       — confirmed live, plus an automated concurrency regression test.
-- Once 8.2 lands: hammering `comment.create` or `membership.invite` in a
-  tight loop gets rate-limited with a readable error, not silently
-  accepted forever.
+- [x] Hammering `comment.create` in a tight loop gets rate-limited with a
+      readable error, not silently accepted forever — confirmed via the
+      automated regression test (31 rapid calls, last one rejected).
 - Once 8.3 lands: a deliberately-thrown error in a tRPC procedure shows
   up in the Sentry dashboard within a minute or two of triggering it.
 - `docs/runbooks/backup-restore.md` exists and accurately reflects the

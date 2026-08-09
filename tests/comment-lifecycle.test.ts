@@ -44,6 +44,21 @@ describe("comment lifecycle", () => {
     await db.end();
   });
 
+  it("rate-limits comment creation past the configured budget (Epic 8.2)", async () => {
+    // A dedicated user so this test's own rate-limit key (keyed by
+    // userId in src/lib/ratelimit.ts) starts fresh regardless of what
+    // other tests/runs have done — the 30/10min budget is per-user.
+    const spammer = await createTestUser(db);
+    await addMember(db, org.id, spammer.id, "MEMBER");
+    const caller = callerAs(spammer.id);
+
+    for (let i = 0; i < 30; i++) {
+      await caller.comment.create({ cardId, body: `Comment ${i}` });
+    }
+
+    await expect(caller.comment.create({ cardId, body: "One too many" })).rejects.toThrow(/too many requests/i);
+  }, 30_000);
+
   it("the author can edit their own comment, and it's marked edited", async () => {
     const comment = await callerAs(authorId).comment.create({ cardId, body: "Original text" });
     const updated = await callerAs(authorId).comment.update({ commentId: comment.id, body: "Fixed text" });

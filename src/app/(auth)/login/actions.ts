@@ -3,10 +3,21 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureUserRecord } from "@/lib/auth";
+import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
+import { getClientIp } from "@/lib/request-ip";
 
 export type LoginState = { error?: string } | undefined;
 
 export async function login(_prevState: LoginState, formData: FormData): Promise<LoginState> {
+  try {
+    await checkRateLimit("login", await getClientIp());
+  } catch (err) {
+    if (err instanceof RateLimitExceededError) {
+      return { error: err.message };
+    }
+    throw err;
+  }
+
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 

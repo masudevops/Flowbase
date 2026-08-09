@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import {
   listMembersSchema,
@@ -10,6 +11,7 @@ import {
 } from "@/schemas/membership.schema";
 import { updateMemberRole, removeMember } from "../services/membership.service";
 import { createInvite, listPendingInvites, cancelInvite, acceptInvite, getInviteByToken } from "../services/invite.service";
+import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
 
 export const membershipRouter = router({
   list: protectedProcedure.input(listMembersSchema).query(async ({ ctx, input }) => {
@@ -28,14 +30,22 @@ export const membershipRouter = router({
     }));
   }),
 
-  invite: protectedProcedure.input(inviteMemberSchema).mutation(({ ctx, input }) =>
-    createInvite(ctx.db, {
+  invite: protectedProcedure.input(inviteMemberSchema).mutation(async ({ ctx, input }) => {
+    try {
+      await checkRateLimit("invite", ctx.userId);
+    } catch (err) {
+      if (err instanceof RateLimitExceededError) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: err.message });
+      }
+      throw err;
+    }
+    return createInvite(ctx.db, {
       organizationId: input.organizationId,
       actorId: ctx.userId,
       email: input.email,
       role: input.role,
-    }),
-  ),
+    });
+  }),
 
   listInvites: protectedProcedure.input(listInvitesSchema).query(({ ctx, input }) =>
     listPendingInvites(ctx.db, input.organizationId),

@@ -9,6 +9,7 @@ import {
 import { createComment, updateComment, deleteComment } from "../services/comment.service";
 import { notifyNewComment } from "../services/notification.service";
 import { assertAdmin } from "../permissions";
+import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
 
 export const commentRouter = router({
   list: protectedProcedure.input(listCommentsSchema).query(({ ctx, input }) =>
@@ -20,6 +21,15 @@ export const commentRouter = router({
   ),
 
   create: protectedProcedure.input(createCommentSchema).mutation(async ({ ctx, input }) => {
+    try {
+      await checkRateLimit("comment", ctx.userId);
+    } catch (err) {
+      if (err instanceof RateLimitExceededError) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: err.message });
+      }
+      throw err;
+    }
+
     const card = await ctx.db.card.findUnique({ where: { id: input.cardId } });
     if (!card) {
       throw new TRPCError({ code: "NOT_FOUND" });
