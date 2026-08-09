@@ -22,10 +22,18 @@ status as stories land; don't let this drift out of sync with reality.
 | 5 | [Multiple assignees](./05-multiple-assignees.md) | Migration (join table) | Medium |
 | 6 | [Timeline / roadmap view](./06-timeline-view.md) | Additive (1 field) | Medium |
 | 7 | [Custom fields](./07-custom-fields.md) | New tables | Medium–high |
+| 8 | [Reliability & security hardening](./08-reliability-hardening.md) | No | Low–medium |
 
 Ordered by risk/value, not strict priority — 1 and 2 are safe enough to do
 back-to-back before checking in; 5–7 each touch enough surface area that
 they should land, get verified, and get committed individually.
+
+Epic 8 is a different category from 1–7 — it's not feature-parity work
+against Jira/Trello, it's closing operational gaps (a known bug, no rate
+limiting, no error monitoring, undocumented backup posture) raised during
+a reliability review. Two of its four stories need a new free-tier
+external account before they can be built — see that epic's stories for
+what to confirm first.
 
 ## Ground rules (carried over from the rest of this project)
 
