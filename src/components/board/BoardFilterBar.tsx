@@ -35,7 +35,7 @@ export function BoardFilterBar({
   cardTypes: CardTypeOption[];
 }) {
   return (
-    <div className="mb-3 flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
 
       <Select

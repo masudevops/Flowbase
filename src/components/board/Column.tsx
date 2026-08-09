@@ -6,14 +6,19 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { CardPreview } from "./CardPreview";
+import { groupCardsByBand, cardsInBand, type GroupBy, type Band } from "./swimlanes";
 import type { BoardColumn } from "./types";
 
 export function Column({
   column,
+  groupBy,
+  bands,
   onOpenCard,
   onAddCard,
 }: {
   column: BoardColumn;
+  groupBy: GroupBy;
+  bands: Band[];
   onOpenCard: (cardId: string) => void;
   onAddCard: (columnId: string, title: string) => void;
 }) {
@@ -29,6 +34,12 @@ export function Column({
     setTitle("");
     setAdding(false);
   }
+
+  // One SortableContext for the whole column, ordered to match the
+  // rendered (band-grouped) layout — dnd-kit's neighbor-based
+  // interactions (and Board.tsx's own before/after position math) both
+  // rely on `items` order agreeing with what's visually adjacent.
+  const orderedCards = groupCardsByBand(column.cards, bands, groupBy);
 
   return (
     <div className="flex w-72 shrink-0 flex-col">
@@ -58,18 +69,30 @@ export function Column({
           isOver && "border-[#0B5CFF] bg-[#0B5CFF]/5 dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/10",
         )}
       >
-        <SortableContext
-          items={column.cards.map((c) => c.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {column.cards.map((card) => (
-            <CardPreview
-              key={card.id}
-              card={card}
-              isDoneColumn={column.isDoneColumn}
-              onOpen={onOpenCard}
-            />
-          ))}
+        <SortableContext items={orderedCards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {groupBy === "none"
+            ? orderedCards.map((card) => (
+                <CardPreview key={card.id} card={card} isDoneColumn={column.isDoneColumn} onOpen={onOpenCard} />
+              ))
+            : bands.map((band) => {
+                const cards = cardsInBand(column.cards, band, groupBy);
+                if (cards.length === 0) return null;
+                return (
+                  <div key={band.key} className="space-y-2">
+                    <p className="px-0.5 text-[10px] font-medium tracking-wide text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+                      {band.label} <span className="normal-case">({cards.length})</span>
+                    </p>
+                    {cards.map((card) => (
+                      <CardPreview
+                        key={card.id}
+                        card={card}
+                        isDoneColumn={column.isDoneColumn}
+                        onOpen={onOpenCard}
+                      />
+                    ))}
+                  </div>
+                );
+              })}
         </SortableContext>
 
         {adding ? (

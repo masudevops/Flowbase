@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   DndContext,
@@ -20,6 +20,16 @@ import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
 import { CardPreview } from "./CardPreview";
 import { BoardFilterBar, EMPTY_BOARD_FILTERS, hasActiveFilters, type BoardFilters } from "./BoardFilterBar";
+import {
+  computeBands,
+  groupCardsByBand,
+  subscribeToGroupBy,
+  getStoredGroupBy,
+  getStoredGroupByServerSnapshot,
+  setStoredGroupBy,
+  type GroupBy,
+} from "./swimlanes";
+import { Select } from "@/components/ui/select";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
 import type { BoardColumn, CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
@@ -43,6 +53,15 @@ export function Board({
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_BOARD_FILTERS);
+  const groupBy = useSyncExternalStore(
+    subscribeToGroupBy,
+    () => getStoredGroupBy(boardId),
+    getStoredGroupByServerSnapshot,
+  );
+
+  function updateGroupBy(next: GroupBy) {
+    setStoredGroupBy(boardId, next);
+  }
 
   // Deep-link support: a notification email (or the search palette) links
   // to /boards/[boardId]?card=[cardId], opening straight to that card. A
@@ -76,6 +95,14 @@ export function Board({
   const activeCardColumn = activeCardId
     ? columns.find((c) => c.cards.some((card) => card.id === activeCardId))
     : undefined;
+
+  // Bands are derived from every card on the board (not just one
+  // column's) so the same band lands in the same position in every
+  // column — see swimlanes.ts.
+  const bands = computeBands(
+    columns.flatMap((c) => c.cards),
+    groupBy,
+  );
 
   // Filtering only narrows what's rendered — `columns` itself (the real
   // source of truth for drag-and-drop and position math) is untouched,
@@ -135,8 +162,14 @@ export function Board({
     const card = sourceColumn.cards.find((c) => c.id === activeId);
     if (!card) return;
 
-    const targetCardsWithoutActive = targetColumn.cards.filter((c) => c.id !== activeId);
-    const overIndex = targetColumn.cards.findIndex((c) => c.id === overId);
+    // Neighbor lookup uses the same band-grouped order the column is
+    // actually rendered in (identity when groupBy is "none") — otherwise
+    // a drag between two swimlane bands would compute a fractional
+    // index against neighbors that aren't the ones visually adjacent to
+    // the drop.
+    const targetCardsOrdered = groupCardsByBand(targetColumn.cards, bands, groupBy);
+    const targetCardsWithoutActive = targetCardsOrdered.filter((c) => c.id !== activeId);
+    const overIndex = targetCardsOrdered.findIndex((c) => c.id === overId);
     const insertIndex =
       overIndex === -1 ? targetCardsWithoutActive.length : Math.min(overIndex, targetCardsWithoutActive.length);
 
@@ -214,7 +247,22 @@ export function Board({
 
   return (
     <>
-      <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+        <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
+        <label className="flex shrink-0 items-center gap-1.5 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+          Group by
+          <Select
+            value={groupBy}
+            onChange={(e) => updateGroupBy(e.target.value as GroupBy)}
+            className="w-auto"
+          >
+            <option value="none">None</option>
+            <option value="assignee">Assignee</option>
+            <option value="priority">Priority</option>
+            <option value="type">Type</option>
+          </Select>
+        </label>
+      </div>
 
       <DndContext
         id={`board-${boardId}`}
@@ -229,6 +277,8 @@ export function Board({
             <Column
               key={column.id}
               column={column}
+              groupBy={groupBy}
+              bands={bands}
               onOpenCard={setOpenCardId}
               onAddCard={handleAddCard}
             />
