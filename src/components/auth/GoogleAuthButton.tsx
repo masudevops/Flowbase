@@ -16,7 +16,7 @@ export function GoogleAuthButton() {
   }
 
   return (
-    <Button type="button" variant="secondary" onClick={handleClick}>
+    <Button type="button" variant="secondary" className="w-full" onClick={handleClick}>
       Continue with Google
     </Button>
   );

@@ -3,24 +3,22 @@ import { BoardDemo } from "./BoardDemo";
 
 const BOARD_FEATURES = [
   {
-    title: "Columns that rename themselves",
-    body: "Start from an IT/Dev or Construction template, or blank. Rename, reorder, add, or delete columns any time.",
+    eyebrow: "Templates",
+    color: "#0B5CFF",
+    title: "Start from how your team already works",
+    body: "IT/Dev, Construction, General Project Management, or blank. Rename, reorder, add, or delete columns any time — or save your own setup as a template for next time.",
   },
   {
+    eyebrow: "Blocked",
+    color: "#DE350B",
     title: "Blocked isn't just a column",
-    body: "Flag any card blocked, in any column, with a reason. The dashboard counts it either way.",
+    body: "Flag any piece of work blocked, in any column, with a reason. Dashboards and My Work count it either way.",
   },
   {
+    eyebrow: "Activity",
+    color: "#00875A",
     title: "A record of who changed what",
-    body: "Every status change, assignment, and deletion is logged — useful when an inspector asks who signed off.",
-  },
-  {
-    title: "Backlog lives on its own",
-    body: "Filter and sort what's not on a board yet, then drag it in when it's time.",
-  },
-  {
-    title: "Walled off by database, not just login",
-    body: "Every table is scoped to your organization and enforced by Postgres row-level security.",
+    body: "Every status change, assignment, and deletion is logged — useful when someone asks who signed off, and when.",
   },
 ];
 
@@ -54,7 +52,7 @@ export function LandingPage() {
           <p className="font-[family-name:var(--font-plex-mono)] text-xs font-medium tracking-[0.12em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
             Flexible work management for every team
           </p>
-          <h1 className="mt-4 font-[family-name:var(--font-plex-mono)] text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl">
+          <h1 className="mt-4 text-4xl leading-[1.08] font-semibold tracking-tight text-balance sm:text-5xl">
             Same board.
             <br />
             Different job.
@@ -83,36 +81,36 @@ export function LandingPage() {
         <BoardDemo />
       </section>
 
-      {/* Features, presented as a backlog column */}
+      {/* Features */}
       <section id="how-it-works" className="border-t border-[#DFE1E6] px-6 py-16 dark:border-[#2A3547]">
         <div className="mx-auto w-full max-w-6xl">
           <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
-            Backlog
+            How it works
           </span>
-          <h2 className="mt-2 font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight">
-            What&apos;s on the board
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+            Built to bend, not to be worked around
           </h2>
 
-          <div className="relative mt-8">
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {BOARD_FEATURES.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="w-64 shrink-0 rounded-lg border border-[#DFE1E6] bg-white p-4 dark:border-[#2A3547] dark:bg-[#161D2E]"
-                >
-                  <h3 className="text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-[13px] leading-relaxed text-[#172B4D]/70 dark:text-[#E4E7EC]/70">
-                    {feature.body}
-                  </p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+            {BOARD_FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className="rounded-lg border border-[#DFE1E6] bg-white p-5 dark:border-[#2A3547] dark:bg-[#161D2E]"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: feature.color }} />
+                  <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.1em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+                    {feature.eyebrow}
+                  </span>
                 </div>
-              ))}
-            </div>
-            <div
-              aria-hidden
-              className="pointer-events-none absolute top-0 right-0 bottom-2 w-16 bg-gradient-to-l from-[#F7F9FC] to-transparent dark:from-[#0E1624]"
-            />
+                <h3 className="mt-2.5 text-sm font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-[#172B4D]/70 dark:text-[#E4E7EC]/70">
+                  {feature.body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -123,7 +121,7 @@ export function LandingPage() {
           <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
             Same engine
           </span>
-          <h2 className="mt-2 font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight">
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
             Different teams. One flexible platform.
           </h2>
 
@@ -179,11 +177,12 @@ export function LandingPage() {
       <section className="bg-[#0747A6] px-6 py-16 dark:bg-[#04294D]">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-[family-name:var(--font-plex-mono)] text-2xl font-semibold tracking-tight text-white">
-              Free to run. No credit card.
+            <h2 className="text-2xl font-semibold tracking-tight text-white">
+              Start free. No credit card required.
             </h2>
             <p className="mt-2 text-[15px] text-white/75">
-              Sign up, create a workspace, and start moving cards in under a minute.
+              Sign up, create a workspace, and start organizing your team&apos;s work in under a
+              minute.
             </p>
           </div>
           <Link

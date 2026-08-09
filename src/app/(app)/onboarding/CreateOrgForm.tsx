@@ -44,7 +44,7 @@ export function CreateOrgForm() {
       {createOrg.error && (
         <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{createOrg.error.message}</p>
       )}
-      <Button type="submit" disabled={createOrg.isPending || name.trim().length < 2}>
+      <Button type="submit" className="w-full" disabled={createOrg.isPending || name.trim().length < 2}>
         {createOrg.isPending ? "Creating..." : "Create workspace"}
       </Button>
     </form>

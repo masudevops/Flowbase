@@ -82,7 +82,7 @@ export function Sidebar({
 
       <div className="border-t border-[#DFE1E6] px-3 py-3 dark:border-[#2A3547]">
         <Link
-          href="/settings"
+          href={`/settings?from=${orgSlug}`}
           onClick={() => setMobileOpen(false)}
           className="mb-2 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-[#5E6C84] hover:bg-[#F4F6FA] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:bg-[#0E1624] dark:hover:text-[#E4E7EC]"
         >

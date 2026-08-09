@@ -42,7 +42,7 @@ export default function SignupPage() {
         {state?.message && (
           <p className="text-sm text-[#00875A] dark:text-[#36B37E]">{state.message}</p>
         )}
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "Creating account..." : "Sign up"}
         </Button>
       </form>

@@ -52,7 +52,11 @@ export function ProfileForm({
       {saved && !updateProfile.isPending && (
         <p className="text-sm text-[#00875A] dark:text-[#36B37E]">Saved.</p>
       )}
-      <Button type="submit" disabled={updateProfile.isPending || fullName.trim().length === 0}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={updateProfile.isPending || fullName.trim().length === 0}
+      >
         {updateProfile.isPending ? "Saving..." : "Save"}
       </Button>
     </form>

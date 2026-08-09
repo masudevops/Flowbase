@@ -16,7 +16,11 @@ export function AcceptInviteButton({ token }: { token: string }) {
 
   return (
     <div>
-      <Button onClick={() => acceptInvite.mutate({ token })} disabled={acceptInvite.isPending}>
+      <Button
+        className="w-full"
+        onClick={() => acceptInvite.mutate({ token })}
+        disabled={acceptInvite.isPending}
+      >
         {acceptInvite.isPending ? "Joining..." : "Accept invite"}
       </Button>
       {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}

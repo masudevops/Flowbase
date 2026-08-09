@@ -31,8 +31,7 @@ export function DeleteBoardButton({
         the UI.
       </p>
       <Button
-        variant="secondary"
-        className="w-auto border-[#DE350B] text-[#DE350B] hover:bg-[#DE350B]/10 dark:border-[#FF5630] dark:text-[#FF5630] dark:hover:bg-[#FF5630]/10"
+        variant="danger"
         disabled={archiveBoard.isPending}
         onClick={() => {
           if (confirm(`Delete "${boardName}"? This can't be undone.`)) {
@@ -40,10 +39,8 @@ export function DeleteBoardButton({
           }
         }}
       >
-        <span className="flex items-center justify-center gap-1.5">
-          <Trash2 className="h-4 w-4" />
-          {archiveBoard.isPending ? "Deleting..." : "Delete board"}
-        </span>
+        <Trash2 className="h-4 w-4" />
+        {archiveBoard.isPending ? "Deleting..." : "Delete board"}
       </Button>
       {error && <p className="mt-2 text-sm text-[#DE350B] dark:text-[#FF5630]">{error}</p>}
     </div>

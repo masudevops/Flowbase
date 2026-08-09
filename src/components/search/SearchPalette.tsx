@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { trpc } from "@/trpc/client";
 
 export function SearchPalette({
@@ -56,13 +57,16 @@ export function SearchPalette({
         className="w-full max-w-lg rounded-lg border border-[#DFE1E6] bg-white shadow-xl dark:border-[#2A3547] dark:bg-[#161D2E]"
         onClick={(e) => e.stopPropagation()}
       >
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search cards and boards..."
-          className="w-full border-b border-[#DFE1E6] bg-transparent px-4 py-3 text-sm text-[#172B4D] outline-none dark:border-[#2A3547] dark:text-[#E4E7EC]"
-        />
+        <div className="relative">
+          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5E6C84] dark:text-[#8C9BAB]" />
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search cards and boards..."
+            className="w-full border-b border-[#DFE1E6] bg-transparent py-3 pr-4 pl-10 text-sm text-[#172B4D] outline-none dark:border-[#2A3547] dark:text-[#E4E7EC]"
+          />
+        </div>
 
         <div className="max-h-96 overflow-y-auto p-2">
           {debouncedQuery.length === 0 && (

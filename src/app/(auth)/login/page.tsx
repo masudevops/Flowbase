@@ -37,7 +37,7 @@ export default function LoginPage() {
         {state?.error && (
           <p className="text-sm text-[#DE350B] dark:text-[#FF5630]">{state.error}</p>
         )}
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "Logging in..." : "Log in"}
         </Button>
       </form>

@@ -3,6 +3,7 @@ import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { createContext } from "@/server/context";
 import { MembersManager } from "@/components/members/MembersManager";
 import { ContactsManager } from "@/components/members/ContactsManager";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function MembersPage({
   params,
@@ -26,10 +27,10 @@ export default async function MembersPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
-      <h1 className="mb-1 text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">Team</h1>
-      <p className="mb-6 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
-        Admins can manage roles, invite people, and remove members. Members can view the team.
-      </p>
+      <PageHeader
+        title="Team"
+        description="Admins can manage roles, invite people, and remove members. Members can view the team."
+      />
       <MembersManager
         organizationId={organization.id}
         currentUserId={ctx.userId!}
