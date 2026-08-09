@@ -6,6 +6,7 @@ import {
   moveCardSchema,
   toggleBlockedSchema,
   setCardLabelsSchema,
+  setCardAssigneesSchema,
   cardByIdSchema,
   deleteCardSchema,
   listCardsByBoardSchema,
@@ -18,13 +19,13 @@ import {
   toggleBlocked,
   deleteCard,
   setCardLabels,
+  setCardAssignees,
 } from "../services/card.service";
 import { notifyCardAssigned, notifyAutomationTriggered } from "../services/notification.service";
 
 const cardInclude = {
   cardType: true,
-  assignee: true,
-  assigneeContact: true,
+  assignees: { include: { user: true, contact: true } },
   labels: { include: { label: true } },
   checklistItems: { orderBy: { position: "asc" as const } },
   _count: { select: { comments: true } },
@@ -48,10 +49,16 @@ export const cardRouter = router({
   /// Cross-board: everything assigned to the caller in this workspace,
   /// for the "My Work" view. RLS still scopes this to orgs the caller
   /// actually belongs to regardless of what organizationId is passed —
-  /// assigneeId = ctx.userId narrows it to "mine" on top of that.
+  /// "I'm one of the assignees" (via CardAssignee) narrows it to "mine"
+  /// on top of that; a card with several assignees shows up once for
+  /// each of them, not just for a single "primary" one.
   listAssignedToMe: protectedProcedure.input(listAssignedToMeSchema).query(({ ctx, input }) =>
     ctx.db.card.findMany({
-      where: { organizationId: input.organizationId, assigneeId: ctx.userId, archivedAt: null },
+      where: {
+        organizationId: input.organizationId,
+        archivedAt: null,
+        assignees: { some: { userId: ctx.userId } },
+      },
       include: {
         board: { select: { id: true, name: true } },
         column: { select: { name: true, isDoneColumn: true } },
@@ -96,23 +103,13 @@ export const cardRouter = router({
     }
 
     const { cardId, ...fields } = input;
-    const updated = await updateCard(ctx.db, {
+    return updateCard(ctx.db, {
       organizationId: card.organizationId,
       actorId: ctx.userId,
       cardId,
       boardId: card.boardId,
       ...fields,
     });
-
-    if (fields.assigneeId && fields.assigneeId !== card.assigneeId) {
-      await notifyCardAssigned(ctx.db, {
-        cardId,
-        assigneeId: fields.assigneeId,
-        actorId: ctx.userId,
-      });
-    }
-
-    return updated;
   }),
 
   move: protectedProcedure.input(moveCardSchema).mutation(async ({ ctx, input }) => {
@@ -163,6 +160,26 @@ export const cardRouter = router({
       blockedReason: input.blockedReason,
       blockedByCardId: input.blockedByCardId,
     });
+  }),
+
+  setAssignees: protectedProcedure.input(setCardAssigneesSchema).mutation(async ({ ctx, input }) => {
+    const card = await ctx.db.card.findUnique({ where: { id: input.cardId } });
+    if (!card) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    const { addedUserIds } = await setCardAssignees(ctx.db, {
+      organizationId: card.organizationId,
+      actorId: ctx.userId,
+      cardId: input.cardId,
+      assignees: input.assignees,
+    });
+
+    for (const userId of addedUserIds) {
+      await notifyCardAssigned(ctx.db, { cardId: input.cardId, assigneeId: userId, actorId: ctx.userId });
+    }
+
+    return { success: true };
   }),
 
   setLabels: protectedProcedure.input(setCardLabelsSchema).mutation(async ({ ctx, input }) => {

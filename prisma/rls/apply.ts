@@ -115,6 +115,7 @@ async function main() {
       "005_invite_lookup.sql",
       "006_epics_notifications_automations.sql",
       "007_workflow_templates.sql",
+      "008_card_assignees.sql",
     ]) {
       const sql = fs.readFileSync(path.join(RLS_DIR, file), "utf8");
       await admin.query(sql);

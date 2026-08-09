@@ -5,10 +5,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { Flag, ListChecks, MessageSquare, Ban, Layers, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isCardOverdue } from "@/lib/dates";
+import { assigneeId, assigneeName, assigneeInitial } from "./assignees";
 import type { BoardCard } from "./types";
 import { PRIORITY_META } from "./types";
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+const MAX_VISIBLE_ASSIGNEES = 3;
 
 export function CardPreview({
   card,
@@ -124,21 +126,36 @@ export function CardPreview({
           )}
         </div>
 
-        {card.assignee && (
-          <span
-            title={card.assignee.fullName ?? card.assignee.email}
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0B5CFF] text-[10px] font-medium text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
-          >
-            {(card.assignee.fullName ?? card.assignee.email).charAt(0).toUpperCase()}
-          </span>
-        )}
-        {!card.assignee && card.assigneeContact && (
-          <span
-            title={`${card.assigneeContact.name} (contact)`}
-            className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-[#5E6C84] text-[10px] font-medium text-[#5E6C84] dark:border-[#8C9BAB] dark:text-[#8C9BAB]"
-          >
-            {card.assigneeContact.name.charAt(0).toUpperCase()}
-          </span>
+        {card.assignees.length > 0 && (
+          <div className="flex shrink-0 items-center">
+            {card.assignees.slice(0, MAX_VISIBLE_ASSIGNEES).map((a, i) => (
+              <span
+                key={assigneeId(a)}
+                title={assigneeName(a)}
+                style={{ marginLeft: i === 0 ? 0 : "-6px", zIndex: MAX_VISIBLE_ASSIGNEES - i }}
+                className={cn(
+                  "relative flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium ring-2 ring-white dark:ring-[#161D2E]",
+                  a.user
+                    ? "bg-[#0B5CFF] text-white dark:bg-[#4C9AFF] dark:text-[#0E1624]"
+                    : "border border-dashed border-[#5E6C84] bg-white text-[#5E6C84] dark:border-[#8C9BAB] dark:bg-[#161D2E] dark:text-[#8C9BAB]",
+                )}
+              >
+                {assigneeInitial(a)}
+              </span>
+            ))}
+            {card.assignees.length > MAX_VISIBLE_ASSIGNEES && (
+              <span
+                title={card.assignees
+                  .slice(MAX_VISIBLE_ASSIGNEES)
+                  .map((a) => assigneeName(a))
+                  .join(", ")}
+                style={{ marginLeft: "-6px" }}
+                className="relative flex h-5 w-5 items-center justify-center rounded-full bg-[#DFE1E6] text-[9px] font-medium text-[#5E6C84] ring-2 ring-white dark:bg-[#2A3547] dark:text-[#8C9BAB] dark:ring-[#161D2E]"
+              >
+                +{card.assignees.length - MAX_VISIBLE_ASSIGNEES}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

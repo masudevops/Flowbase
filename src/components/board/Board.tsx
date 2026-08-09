@@ -112,7 +112,7 @@ export function Board({
     ? columns.map((col) => ({
         ...col,
         cards: col.cards.filter((card) => {
-          if (filters.assigneeId && card.assignee?.id !== filters.assigneeId) return false;
+          if (filters.assigneeId && !card.assignees.some((a) => a.user?.id === filters.assigneeId)) return false;
           if (filters.cardTypeId && card.cardType?.id !== filters.cardTypeId) return false;
           if (filters.priority && card.priority !== filters.priority) return false;
           if (filters.blockedOnly && !card.isBlocked) return false;

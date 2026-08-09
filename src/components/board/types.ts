@@ -15,8 +15,10 @@ export type BoardCard = {
   position: string;
   description: string | null;
   cardType: { id: string; name: string; color: string } | null;
-  assignee: { id: string; email: string; fullName: string | null } | null;
-  assigneeContact: { id: string; name: string } | null;
+  assignees: {
+    user: { id: string; email: string; fullName: string | null } | null;
+    contact: { id: string; name: string } | null;
+  }[];
   labels: { label: { id: string; name: string; color: string } }[];
   checklistItems: { id: string; text: string; isDone: boolean }[];
   _count: { comments: number };

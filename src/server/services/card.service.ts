@@ -57,24 +57,12 @@ export async function updateCard(
     description?: string | null;
     priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
     dueDate?: string | null;
-    assigneeId?: string | null;
-    assigneeContactId?: string | null;
     cardTypeId?: string | null;
     location?: string | null;
     parentCardId?: string | null;
   },
 ) {
   const { cardId, organizationId, actorId, boardId, ...fields } = params;
-
-  // A card is assigned to a registered member OR an external contact,
-  // never both — setting one clears the other rather than requiring the
-  // caller to remember to do so itself.
-  const assigneeFields =
-    fields.assigneeId !== undefined
-      ? { assigneeId: fields.assigneeId, assigneeContactId: fields.assigneeId ? null : undefined }
-      : fields.assigneeContactId !== undefined
-        ? { assigneeContactId: fields.assigneeContactId, assigneeId: fields.assigneeContactId ? null : undefined }
-        : {};
 
   if (fields.parentCardId) {
     if (fields.parentCardId === cardId) {
@@ -99,7 +87,6 @@ export async function updateCard(
       cardTypeId: fields.cardTypeId,
       location: fields.location,
       parentCardId: fields.parentCardId,
-      ...assigneeFields,
     },
   });
 
@@ -249,4 +236,64 @@ export async function setCardLabels(
     cardId: params.cardId,
     metadata: { labelIds: params.labelIds },
   });
+}
+
+/// Replaces a card's full assignee set (registered members and/or
+/// external contacts — same never-both-on-one-row rule the legacy
+/// single-assignee columns used to enforce, just per row now instead of
+/// per card). Diffs against the current rows rather than
+/// delete-then-recreate-everything so callers can tell which
+/// assignments are genuinely new (returned as `addedUserIds`) — the
+/// router uses that to send assignment notifications once per newly-
+/// added person, not once per save regardless of what actually changed.
+export async function setCardAssignees(
+  db: Prisma.TransactionClient,
+  params: {
+    organizationId: string;
+    actorId: string;
+    cardId: string;
+    assignees: { userId?: string; contactId?: string }[];
+  },
+) {
+  const current = await db.cardAssignee.findMany({ where: { cardId: params.cardId } });
+
+  const desiredUserIds = new Set(params.assignees.map((a) => a.userId).filter((v): v is string => !!v));
+  const desiredContactIds = new Set(params.assignees.map((a) => a.contactId).filter((v): v is string => !!v));
+  const existingUserIds = new Set(current.filter((r) => r.userId).map((r) => r.userId!));
+  const existingContactIds = new Set(current.filter((r) => r.contactId).map((r) => r.contactId!));
+
+  const toRemove = current.filter(
+    (row) =>
+      (row.userId && !desiredUserIds.has(row.userId)) || (row.contactId && !desiredContactIds.has(row.contactId)),
+  );
+  const addedUserIds = [...desiredUserIds].filter((id) => !existingUserIds.has(id));
+  const addedContactIds = [...desiredContactIds].filter((id) => !existingContactIds.has(id));
+
+  if (toRemove.length > 0) {
+    await db.cardAssignee.deleteMany({ where: { id: { in: toRemove.map((row) => row.id) } } });
+  }
+  if (addedUserIds.length > 0 || addedContactIds.length > 0) {
+    await db.cardAssignee.createMany({
+      data: [
+        ...addedUserIds.map((userId) => ({ organizationId: params.organizationId, cardId: params.cardId, userId })),
+        ...addedContactIds.map((contactId) => ({
+          organizationId: params.organizationId,
+          cardId: params.cardId,
+          contactId,
+        })),
+      ],
+    });
+  }
+
+  await writeAuditLog(db, {
+    organizationId: params.organizationId,
+    actorId: params.actorId,
+    action: "CARD_UPDATED",
+    entityType: "card",
+    entityId: params.cardId,
+    cardId: params.cardId,
+    metadata: { assigneeUserIds: [...desiredUserIds], assigneeContactIds: [...desiredContactIds] },
+  });
+
+  return { addedUserIds };
 }

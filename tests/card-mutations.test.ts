@@ -60,20 +60,54 @@ describe("card mutations", () => {
     expect(moved.columnId).toBe(doneColumnId);
   });
 
-  it("assigning a member clears any contact assignee already set", async () => {
+  it("a card can be assigned to both a member and a contact at once", async () => {
     const caller = callerAs(adminId);
     const contact = await caller.contact.create({ organizationId: org.id, name: "Subcontractor" });
     const card = await caller.card.create({ boardId, columnId, title: "Assign test" });
 
-    await caller.card.update({ cardId: card.id, assigneeContactId: contact.id });
-    let fetched = await caller.card.byId({ cardId: card.id });
-    expect(fetched.assigneeContactId).toBe(contact.id);
-    expect(fetched.assigneeId).toBeNull();
+    await caller.card.setAssignees({
+      cardId: card.id,
+      assignees: [{ userId: memberId }, { contactId: contact.id }],
+    });
+    const fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.assignees).toHaveLength(2);
+    expect(fetched.assignees.some((a) => a.user?.id === memberId)).toBe(true);
+    expect(fetched.assignees.some((a) => a.contact?.id === contact.id)).toBe(true);
+  });
 
-    await caller.card.update({ cardId: card.id, assigneeId: memberId });
+  it("setAssignees replaces the full set — re-saving with fewer entries removes the rest", async () => {
+    const caller = callerAs(adminId);
+    const card = await caller.card.create({ boardId, columnId, title: "Replace assignees test" });
+
+    await caller.card.setAssignees({
+      cardId: card.id,
+      assignees: [{ userId: adminId }, { userId: memberId }],
+    });
+    let fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.assignees).toHaveLength(2);
+
+    await caller.card.setAssignees({ cardId: card.id, assignees: [{ userId: memberId }] });
     fetched = await caller.card.byId({ cardId: card.id });
-    expect(fetched.assigneeId).toBe(memberId);
-    expect(fetched.assigneeContactId).toBeNull();
+    expect(fetched.assignees).toHaveLength(1);
+    expect(fetched.assignees[0].user?.id).toBe(memberId);
+
+    await caller.card.setAssignees({ cardId: card.id, assignees: [] });
+    fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.assignees).toHaveLength(0);
+  });
+
+  it("a card assigned to a member shows up in that member's My Work for every assignee, not just one", async () => {
+    const caller = callerAs(adminId);
+    const card = await caller.card.create({ boardId, columnId, title: "Shared assignment test" });
+    await caller.card.setAssignees({
+      cardId: card.id,
+      assignees: [{ userId: adminId }, { userId: memberId }],
+    });
+
+    const adminWork = await callerAs(adminId).card.listAssignedToMe({ organizationId: org.id });
+    const memberWork = await callerAs(memberId).card.listAssignedToMe({ organizationId: org.id });
+    expect(adminWork.some((c) => c.id === card.id)).toBe(true);
+    expect(memberWork.some((c) => c.id === card.id)).toBe(true);
   });
 
   it("a card cannot be set as its own parent", async () => {

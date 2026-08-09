@@ -16,11 +16,23 @@ export const updateCardSchema = z.object({
   description: z.string().max(10_000).nullable().optional(),
   priority: priority.optional(),
   dueDate: z.string().datetime().nullable().optional(),
-  assigneeId: z.string().nullable().optional(),
-  assigneeContactId: z.string().nullable().optional(),
   cardTypeId: z.string().nullable().optional(),
   location: z.string().max(200).nullable().optional(),
   parentCardId: z.string().nullable().optional(),
+});
+
+const assigneeEntry = z
+  .object({
+    userId: z.string().optional(),
+    contactId: z.string().optional(),
+  })
+  .refine((a) => (a.userId ? !a.contactId : !!a.contactId), {
+    message: "Each assignee must be either a member or a contact, not both/neither.",
+  });
+
+export const setCardAssigneesSchema = z.object({
+  cardId: z.string(),
+  assignees: z.array(assigneeEntry),
 });
 
 export const moveCardSchema = z.object({

@@ -16,7 +16,8 @@
     "db:seed": "dotenv -e .env.local -- prisma db seed",
     "db:rls": "dotenv -e .env.local -- tsx prisma/rls/apply.ts",
     "db:backfill-cardtype-board": "dotenv -e .env.local -- tsx prisma/backfill-card-type-board.ts",
-    "db:backfill-workflow-templates": "dotenv -e .env.local -- tsx prisma/backfill-workflow-templates.ts"
+    "db:backfill-workflow-templates": "dotenv -e .env.local -- tsx prisma/backfill-workflow-templates.ts",
+    "db:backfill-card-assignees": "dotenv -e .env.local -- tsx prisma/backfill-card-assignees.ts"
   },
   "prisma": {
     "seed": "dotenv -e .env.local -- tsx prisma/seed.ts"

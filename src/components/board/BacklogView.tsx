@@ -8,6 +8,7 @@ import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
 import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { assigneeName } from "./assignees";
 import { PRIORITY_META } from "./types";
 import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
@@ -45,7 +46,7 @@ export function BacklogView({
 
     let result = cards;
     if (assigneeFilter) {
-      result = result.filter((c) => c.assigneeId === assigneeFilter);
+      result = result.filter((c) => c.assignees.some((a) => a.user?.id === assigneeFilter));
     }
     if (priorityFilter) {
       result = result.filter((c) => c.priority === priorityFilter);
@@ -169,11 +170,9 @@ export function BacklogView({
                   </Badge>
                 </td>
                 <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
-                  {card.assignee
-                    ? (card.assignee.fullName ?? card.assignee.email)
-                    : card.assigneeContact
-                      ? `${card.assigneeContact.name} (contact)`
-                      : "Unassigned"}
+                  {card.assignees.length > 0
+                    ? card.assignees.map((a) => assigneeName(a)).join(", ")
+                    : "Unassigned"}
                 </td>
                 <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
                   {card.dueDate ? new Date(card.dueDate).toLocaleDateString() : "—"}

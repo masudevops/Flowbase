@@ -1,5 +1,6 @@
 import type { BoardCard } from "./types";
 import { PRIORITY_META } from "./types";
+import { assigneeId, assigneeName } from "./assignees";
 
 export type GroupBy = "none" | "assignee" | "priority" | "type";
 
@@ -9,10 +10,17 @@ const UNASSIGNED_KEY = "__unassigned__";
 const NO_TYPE_KEY = "__none__";
 const PRIORITY_ORDER = ["URGENT", "HIGH", "MEDIUM", "LOW"] as const;
 
+// A card can have several assignees now — for banding purposes (an
+// inherently single-bucket-per-card view) it's grouped under its first
+// assignee, not duplicated across every assignee's band. There's no
+// "primary" assignee concept anywhere else in the product (every
+// assignee is equal), this is purely an implementation choice to keep
+// swimlanes simple and avoid the drag-and-drop complexity of one card
+// rendering in more than one place at once.
 function bandKeyFor(card: BoardCard, groupBy: GroupBy): string {
   switch (groupBy) {
     case "assignee":
-      return card.assignee?.id ?? card.assigneeContact?.id ?? UNASSIGNED_KEY;
+      return card.assignees.length > 0 ? assigneeId(card.assignees[0]) : UNASSIGNED_KEY;
     case "priority":
       return card.priority;
     case "type":
@@ -35,9 +43,9 @@ export function computeBands(allCards: BoardCard[], groupBy: GroupBy): Band[] {
 
   const labels = new Map<string, string>();
   for (const card of allCards) {
-    if (groupBy === "assignee") {
-      if (card.assignee) labels.set(card.assignee.id, card.assignee.fullName ?? card.assignee.email);
-      else if (card.assigneeContact) labels.set(card.assigneeContact.id, `${card.assigneeContact.name} (contact)`);
+    if (groupBy === "assignee" && card.assignees.length > 0) {
+      const first = card.assignees[0];
+      labels.set(assigneeId(first), assigneeName(first));
     } else if (groupBy === "type" && card.cardType) {
       labels.set(card.cardType.id, card.cardType.name);
     }

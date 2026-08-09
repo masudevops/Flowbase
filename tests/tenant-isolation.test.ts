@@ -53,7 +53,7 @@ describe("tenant isolation", () => {
 
     const column = await callerB.column.create({ boardId: boardBId, name: "To Do" });
     const card = await callerB.card.create({ boardId: boardBId, columnId: column.id, title: "Org B's own card" });
-    await callerB.card.update({ cardId: card.id, assigneeId: userB.id });
+    await callerB.card.setAssignees({ cardId: card.id, assignees: [{ userId: userB.id }] });
     cardBId = card.id;
   });
 
@@ -81,6 +81,16 @@ describe("tenant isolation", () => {
     await expect(
       callerAs(userA.id).card.create({ boardId: boardBId, columnId: boardBId, title: "Sneaky card" }),
     ).rejects.toThrow();
+  });
+
+  it("cannot set assignees on another org's card by its real id", async () => {
+    await expect(
+      callerAs(userA.id).card.setAssignees({ cardId: cardBId, assignees: [{ userId: userA.id }] }),
+    ).rejects.toThrow();
+
+    // Confirm it's actually still assigned to org B's own user, not touched.
+    const stillAssigned = await callerAs(userB.id).card.byId({ cardId: cardBId });
+    expect(stillAssigned.assignees.some((a) => a.user?.id === userB.id)).toBe(true);
   });
 
   it("cannot list another org's members", async () => {

@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { trpc } from "@/trpc/client";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -117,6 +118,7 @@ export function CardDetailPanel({
   const updateCard = trpc.card.update.useMutation({ onSuccess: invalidateCard });
   const toggleBlocked = trpc.card.toggleBlocked.useMutation({ onSuccess: invalidateCard });
   const setLabels = trpc.card.setLabels.useMutation({ onSuccess: invalidateCard });
+  const setAssignees = trpc.card.setAssignees.useMutation({ onSuccess: invalidateCard });
   const deleteCard = trpc.card.delete.useMutation({
     onSuccess: () => {
       onChanged();
@@ -144,6 +146,14 @@ export function CardDetailPanel({
   const [locationDraft, setLocationDraft] = useState("");
   const [blockedReasonDraft, setBlockedReasonDraft] = useState("");
   const [blockedByCardIdDraft, setBlockedByCardIdDraft] = useState("");
+  // Kept in sync with card.assignees but updated optimistically/
+  // synchronously on every toggle click (see below) — deriving "next"
+  // straight from `card.assignees` on each click would race two rapid
+  // clicks against each other: the second click's mutation would still
+  // be computing "next" from the pre-first-click server state if that
+  // mutation's own refetch hadn't landed yet, silently dropping the
+  // first click's change.
+  const [assigneesDraft, setAssigneesDraft] = useState<{ userId?: string; contactId?: string }[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentBody, setEditingCommentBody] = useState("");
@@ -165,6 +175,7 @@ export function CardDetailPanel({
     setLocationDraft(card.location ?? "");
     setBlockedReasonDraft(card.blockedReason ?? "");
     setBlockedByCardIdDraft(card.blockedByCardId ?? "");
+    setAssigneesDraft(card.assignees.map((a) => (a.user ? { userId: a.user.id } : { contactId: a.contact!.id })));
     setEditingDescription(false);
     setEditingCommentId(null);
   }
@@ -312,51 +323,7 @@ export function CardDetailPanel({
               </Select>
             </div>
 
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5" />
-                Assignee
-              </Label>
-              <Select
-                value={
-                  card.assigneeId
-                    ? `user:${card.assigneeId}`
-                    : card.assigneeContactId
-                      ? `contact:${card.assigneeContactId}`
-                      : ""
-                }
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (!value) {
-                    updateCard.mutate({ cardId, assigneeId: null });
-                  } else if (value.startsWith("user:")) {
-                    updateCard.mutate({ cardId, assigneeId: value.slice(5) });
-                  } else {
-                    updateCard.mutate({ cardId, assigneeContactId: value.slice(8) });
-                  }
-                }}
-              >
-                <option value="">Unassigned</option>
-                <optgroup label="Team">
-                  {members.map((m) => (
-                    <option key={m.userId} value={`user:${m.userId}`}>
-                      {memberLabel(m)}
-                    </option>
-                  ))}
-                </optgroup>
-                {contacts.length > 0 && (
-                  <optgroup label="Contacts">
-                    {contacts.map((c) => (
-                      <option key={c.id} value={`contact:${c.id}`}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                )}
-              </Select>
-            </div>
-
-            <div>
+            <div className="col-span-2">
               <Label className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
                 Due date
@@ -371,6 +338,67 @@ export function CardDetailPanel({
                   })
                 }
               />
+            </div>
+          </div>
+
+          {/* Assignees */}
+          <div>
+            <Label className="flex items-center gap-1.5">
+              <User className="h-3.5 w-3.5" />
+              Assignees
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {members.map((m) => {
+                const selected = assigneesDraft.some((a) => a.userId === m.userId);
+                return (
+                  <button
+                    key={m.userId}
+                    type="button"
+                    onClick={() => {
+                      const next = selected
+                        ? assigneesDraft.filter((a) => a.userId !== m.userId)
+                        : [...assigneesDraft, { userId: m.userId }];
+                      setAssigneesDraft(next);
+                      setAssignees.mutate({ cardId, assignees: next });
+                    }}
+                    className={cn(
+                      "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-[#0B5CFF] bg-[#0B5CFF]/10 text-[#0B5CFF] dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]"
+                        : "border-[#DFE1E6] text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50",
+                    )}
+                  >
+                    {memberLabel(m)}
+                  </button>
+                );
+              })}
+              {contacts.map((c) => {
+                const selected = assigneesDraft.some((a) => a.contactId === c.id);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      const next = selected
+                        ? assigneesDraft.filter((a) => a.contactId !== c.id)
+                        : [...assigneesDraft, { contactId: c.id }];
+                      setAssigneesDraft(next);
+                      setAssignees.mutate({ cardId, assignees: next });
+                    }}
+                    className={cn(
+                      "rounded-full border border-dashed px-2.5 py-1 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-[#0B5CFF] bg-[#0B5CFF]/10 text-[#0B5CFF] dark:border-[#4C9AFF] dark:bg-[#4C9AFF]/15 dark:text-[#4C9AFF]"
+                        : "border-[#DFE1E6] text-[#5E6C84] hover:border-[#0B5CFF]/50 dark:border-[#2A3547] dark:text-[#8C9BAB] dark:hover:border-[#4C9AFF]/50",
+                    )}
+                  >
+                    {c.name} (contact)
+                  </button>
+                );
+              })}
+              {members.length === 0 && contacts.length === 0 && (
+                <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No members yet.</p>
+              )}
             </div>
           </div>
 

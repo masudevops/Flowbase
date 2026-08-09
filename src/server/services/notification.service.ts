@@ -108,79 +108,90 @@ export async function notifyCardAssigned(
   });
 }
 
-/// Notifies a card's assignee about a new comment. Never notifies
-/// someone of their own comment.
+/// Notifies every one of a card's (registered-user) assignees about a
+/// new comment. Never notifies someone of their own comment. Contacts
+/// have no login, so they never receive in-app/email notifications —
+/// same as before this card supported more than one assignee.
 export async function notifyNewComment(
   db: Prisma.TransactionClient,
   params: { cardId: string; authorId: string; body: string },
 ) {
   const card = await db.card.findUnique({ where: { id: params.cardId } });
-  if (!card || !card.assigneeId || card.assigneeId === params.authorId) return;
+  if (!card) return;
 
-  const [assignee, author] = await Promise.all([
-    db.user.findUnique({ where: { id: card.assigneeId } }),
+  const [assignees, author] = await Promise.all([
+    db.cardAssignee.findMany({ where: { cardId: params.cardId, userId: { not: null } }, include: { user: true } }),
     db.user.findUnique({ where: { id: params.authorId } }),
   ]);
-  if (!assignee) return;
-
   const authorName = author?.fullName ?? author?.email ?? "Someone";
   const url = await cardLink(db, card);
-  await sendEmail({
-    to: assignee.email,
-    subject: `New comment on: ${card.title}`,
-    html: emailShell(
-      `<p>${authorName} commented on a card you're assigned to:</p>
-       <p style="font-weight: 600; font-size: 16px;">${card.title}</p>
-       <p style="color: #5E6C84; white-space: pre-wrap;">${params.body}</p>`,
-      url,
-      "View card",
-    ),
-  });
 
-  await createNotification(db, {
-    organizationId: card.organizationId,
-    userId: assignee.id,
-    type: "COMMENT",
-    cardId: card.id,
-    actorId: params.authorId,
-    message: `${authorName} commented on: ${card.title}`,
-  });
+  for (const { user: assignee } of assignees) {
+    if (!assignee || assignee.id === params.authorId) continue;
+
+    await sendEmail({
+      to: assignee.email,
+      subject: `New comment on: ${card.title}`,
+      html: emailShell(
+        `<p>${authorName} commented on a card you're assigned to:</p>
+         <p style="font-weight: 600; font-size: 16px;">${card.title}</p>
+         <p style="color: #5E6C84; white-space: pre-wrap;">${params.body}</p>`,
+        url,
+        "View card",
+      ),
+    });
+
+    await createNotification(db, {
+      organizationId: card.organizationId,
+      userId: assignee.id,
+      type: "COMMENT",
+      cardId: card.id,
+      actorId: params.authorId,
+      message: `${authorName} commented on: ${card.title}`,
+    });
+  }
 }
 
 /// Fires when a board automation's trigger condition is met (currently:
-/// card moved into a specific column). Notifies the card's assignee —
-/// skips silently if there's no assignee, or if the assignee is the same
-/// person who moved the card (nothing useful to tell them). actorId on
-/// the notification is null: this is system-generated, not something the
-/// mover "did to" the assignee the way a manual assignment is.
+/// card moved into a specific column). Notifies every one of the card's
+/// (registered-user) assignees — skips whoever moved the card themselves
+/// (nothing useful to tell them). actorId on the notification is null:
+/// this is system-generated, not something the mover "did to" the
+/// assignee the way a manual assignment is.
 export async function notifyAutomationTriggered(
   db: Prisma.TransactionClient,
   params: { cardId: string; automationName: string; movedById: string },
 ) {
   const card = await db.card.findUnique({ where: { id: params.cardId } });
-  if (!card || !card.assigneeId || card.assigneeId === params.movedById) return;
+  if (!card) return;
 
-  const assignee = await db.user.findUnique({ where: { id: card.assigneeId } });
-  if (!assignee) return;
-
+  const assignees = await db.cardAssignee.findMany({
+    where: { cardId: params.cardId, userId: { not: null } },
+    include: { user: true },
+  });
   const url = await cardLink(db, card);
-  await sendEmail({
-    to: assignee.email,
-    subject: `Automation triggered: ${card.title}`,
-    html: emailShell(
-      `<p>The automation "${params.automationName}" ran on a card assigned to you:</p>
-       <p style="font-weight: 600; font-size: 16px;">${card.title}</p>`,
-      url,
-      "View card",
-    ),
-  });
 
-  await createNotification(db, {
-    organizationId: card.organizationId,
-    userId: assignee.id,
-    type: "AUTOMATION",
-    cardId: card.id,
-    actorId: null,
-    message: `Automation "${params.automationName}" ran on: ${card.title}`,
-  });
+  for (const { user: assignee } of assignees) {
+    if (!assignee || assignee.id === params.movedById) continue;
+
+    await sendEmail({
+      to: assignee.email,
+      subject: `Automation triggered: ${card.title}`,
+      html: emailShell(
+        `<p>The automation "${params.automationName}" ran on a card assigned to you:</p>
+         <p style="font-weight: 600; font-size: 16px;">${card.title}</p>`,
+        url,
+        "View card",
+      ),
+    });
+
+    await createNotification(db, {
+      organizationId: card.organizationId,
+      userId: assignee.id,
+      type: "AUTOMATION",
+      cardId: card.id,
+      actorId: null,
+      message: `Automation "${params.automationName}" ran on: ${card.title}`,
+    });
+  }
 }

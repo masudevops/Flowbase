@@ -98,6 +98,7 @@ model Organization {
   notifications  Notification[]
   automations    Automation[]
   workflowTemplates WorkflowTemplate[]
+  cardAssignees  CardAssignee[]
 
   @@map("organizations")
 }
@@ -113,7 +114,12 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   memberships        Membership[]
+  /// Legacy single-assignee relation — Card.assigneeId is no longer
+  /// written to, kept only until existing rows are backfilled and this
+  /// column is dropped in a follow-up. See cardAssignments for the
+  /// current multi-assignee relation.
   assignedCards      Card[]          @relation("CardAssignee")
+  cardAssignments    CardAssignee[]
   comments           Comment[]
   auditLogs          AuditLog[]      @relation("AuditActor")
   checklistItems     ChecklistItem[] @relation("ChecklistCompletedBy")
@@ -177,7 +183,9 @@ model Contact {
   createdAt      DateTime @default(now()) @map("created_at")
 
   organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  assignedCards Card[]       @relation("CardExternalAssignee")
+  /// Legacy — see Card.assigneeContactId doc comment.
+  assignedCards   Card[]         @relation("CardExternalAssignee")
+  cardAssignments CardAssignee[]
 
   @@index([organizationId])
   @@map("contacts")
@@ -384,10 +392,11 @@ model Card {
   priority    Priority  @default(MEDIUM)
   dueDate     DateTime? @map("due_date")
 
+  /// Legacy single-assignee columns — no longer written to as of the
+  /// CardAssignee join table (see below). Kept for one release cycle
+  /// rather than dropped immediately, same pattern as
+  /// Board.templateKey going legacy in the workflow-templates build.
   assigneeId        String? @map("assignee_id")
-  /// A card is assigned to EITHER a registered member (assigneeId) OR an
-  /// unregistered Contact (assigneeContactId), never both — enforced at
-  /// the service layer, not a DB constraint. See Contact model.
   assigneeContactId String? @map("assignee_contact_id")
   /// Independent of column: a card in ANY column can be flagged blocked.
   /// Single source of truth for dashboard/filter queries.
@@ -438,6 +447,7 @@ model Card {
   auditLogs      AuditLog[]
   attachments    Attachment[]
   notifications  Notification[]
+  assignees      CardAssignee[]
 
   @@index([organizationId])
   @@index([boardId])
@@ -449,6 +459,34 @@ model Card {
   @@index([organizationId, isBlocked])
   @@index([organizationId, dueDate])
   @@map("cards")
+}
+
+/// A card can now have several assignees — a row here means "this user
+/// OR this contact is assigned," mirroring the never-both rule the
+/// legacy Card.assigneeId/assigneeContactId columns used to enforce
+/// (still service-layer only, not a DB CHECK constraint, consistent
+/// with how that rule already worked). The two @@unique constraints
+/// prevent assigning the same user (or the same contact) to a card
+/// twice; Postgres treats each NULL as distinct, so they don't collide
+/// with each other.
+model CardAssignee {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  cardId         String   @map("card_id")
+  userId         String?  @map("user_id")
+  contactId      String?  @map("contact_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  card         Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact      Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, userId])
+  @@unique([cardId, contactId])
+  @@index([organizationId])
+  @@index([cardId])
+  @@map("card_assignees")
 }
 
 model CardLabel {
