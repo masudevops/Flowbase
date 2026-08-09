@@ -1,6 +1,6 @@
 # Epic 8: Reliability & security hardening
 
-**Status:** In progress — 8.1 done, 8.2 done, 8.3 in progress (Sentry account pending), 8.4 not started
+**Status:** In progress — 8.1 done, 8.2 done, 8.3 in progress (Sentry account pending), 8.4 done
 **Schema change:** No
 **Risk:** Low (8.1), Medium (8.2/8.3 — new external services), Low (8.4 — docs only)
 
@@ -121,17 +121,20 @@ below, don't sign up for or wire in either without checking first.
       (e.g. don't log full request payloads containing another org's
       data) — scrub or limit context to IDs, not full row contents.
 
-### 8.4 — Document backup/restore posture (no code)
-- [ ] Check the current Supabase project's plan and confirm what backup
-      retention it actually provides (free tier vs. Pro-tier
-      point-in-time recovery differ significantly).
-- [ ] Write `docs/runbooks/backup-restore.md`: what's backed up
-      automatically, how far back, and the exact steps to restore from
-      the Supabase dashboard if ever needed. This is a reference doc for
-      an incident, not a feature.
-- [ ] If the current plan's retention is thin (e.g. free tier's short
-      window), flag that explicitly as a decision point for the user
-      rather than silently upgrading a paid plan.
+### 8.4 — Document backup/restore posture — DONE
+- [x] Checked: the project is on Supabase's **Free** plan, which has no
+      dashboard-managed automatic backups at all (not just "thin
+      retention" — genuinely none). Free-tier backups aren't a lesser
+      version of Pro's, they don't exist.
+- [x] Wrote `docs/runbooks/backup-restore.md`: states the current gap
+      plainly, lays out three options (upgrade to Pro, self-managed
+      `pg_dump` job, or accept the risk for now) without picking one —
+      that's a cost/effort call for the user — plus the actual restore
+      steps for once a plan with backups is in place.
+- [x] Flagged directly rather than silently implementing either
+      remediation (upgrading the plan costs money; building a
+      self-managed backup job is real engineering scope neither asked
+      for nor free of its own risk if done half-heartedly).
 
 ## Acceptance criteria
 
@@ -144,6 +147,7 @@ below, don't sign up for or wire in either without checking first.
       automated regression test (31 rapid calls, last one rejected).
 - Once 8.3 lands: a deliberately-thrown error in a tRPC procedure shows
   up in the Sentry dashboard within a minute or two of triggering it.
-- `docs/runbooks/backup-restore.md` exists and accurately reflects the
-  current Supabase plan's actual retention — not a generic template.
+- [x] `docs/runbooks/backup-restore.md` exists and accurately reflects the
+      current Supabase plan's actual retention (Free — none) — not a
+      generic template.
 - `tsc` / `lint` / `test` / `build` clean for 8.1–8.3 (8.4 is docs-only).
