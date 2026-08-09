@@ -23,6 +23,7 @@ type MyWorkCard = {
   assigneeContactId: string | null;
   isBlocked: boolean;
   blockedReason: string | null;
+  blockedByCardId: string | null;
   location: string | null;
   parentCardId: string | null;
   position: string;

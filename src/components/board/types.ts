@@ -5,6 +5,7 @@ export type BoardCard = {
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   isBlocked: boolean;
   blockedReason: string | null;
+  blockedByCard: { id: string; title: string } | null;
   location: string | null;
   // Server Components pass Date instances (RSC serialization preserves
   // them); the tRPC client hydrates the same field as a Date too, via

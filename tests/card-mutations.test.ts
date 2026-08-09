@@ -122,4 +122,57 @@ describe("card mutations", () => {
     });
     expect(unblocked.isBlocked).toBe(false);
   });
+
+  it("blocking a card with a same-board card reference sets and clears blockedByCardId", async () => {
+    const caller = callerAs(adminId);
+    const blocker = await caller.card.create({ boardId, columnId, title: "The blocker" });
+    const card = await caller.card.create({ boardId, columnId, title: "Blocked-by test" });
+
+    const blocked = await caller.card.toggleBlocked({
+      cardId: card.id,
+      isBlocked: true,
+      blockedByCardId: blocker.id,
+    });
+    expect(blocked.blockedByCardId).toBe(blocker.id);
+
+    const unblocked = await caller.card.toggleBlocked({ cardId: card.id, isBlocked: false });
+    expect(unblocked.blockedByCardId).toBeNull();
+  });
+
+  it("a card cannot be blocked by itself", async () => {
+    const caller = callerAs(adminId);
+    const card = await caller.card.create({ boardId, columnId, title: "Self block test" });
+    await expect(
+      caller.card.toggleBlocked({ cardId: card.id, isBlocked: true, blockedByCardId: card.id }),
+    ).rejects.toThrow();
+  });
+
+  it("blocked-by-card must be on the same board", async () => {
+    const caller = callerAs(adminId);
+    const otherBoard = await caller.board.create({ organizationId: org.id, name: "Other Board 2" });
+    const otherColumn = await caller.column.create({ boardId: otherBoard.id, name: "Col" });
+    const otherCard = await caller.card.create({
+      boardId: otherBoard.id,
+      columnId: otherColumn.id,
+      title: "Elsewhere",
+    });
+    const card = await caller.card.create({ boardId, columnId, title: "Cross-board block test" });
+
+    await expect(
+      caller.card.toggleBlocked({ cardId: card.id, isBlocked: true, blockedByCardId: otherCard.id }),
+    ).rejects.toThrow();
+  });
+
+  it("deleting the blocking card un-links it instead of touching the blocked card", async () => {
+    const caller = callerAs(adminId);
+    const blocker = await caller.card.create({ boardId, columnId, title: "Blocker to delete" });
+    const card = await caller.card.create({ boardId, columnId, title: "Survives blocker deletion" });
+    await caller.card.toggleBlocked({ cardId: card.id, isBlocked: true, blockedByCardId: blocker.id });
+
+    await caller.card.delete({ cardId: blocker.id });
+
+    const fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.isBlocked).toBe(true);
+    expect(fetched.blockedByCardId).toBeNull();
+  });
 });

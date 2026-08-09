@@ -29,6 +29,7 @@ const cardInclude = {
   checklistItems: { orderBy: { position: "asc" as const } },
   _count: { select: { comments: true } },
   parent: { select: { id: true, title: true } },
+  blockedByCard: { select: { id: true, title: true } },
   children: {
     select: { id: true, title: true, isBlocked: true, column: { select: { isDoneColumn: true } } },
     orderBy: { createdAt: "asc" as const },
@@ -157,8 +158,10 @@ export const cardRouter = router({
       organizationId: card.organizationId,
       actorId: ctx.userId,
       cardId: input.cardId,
+      boardId: card.boardId,
       isBlocked: input.isBlocked,
       blockedReason: input.blockedReason,
+      blockedByCardId: input.blockedByCardId,
     });
   }),
 

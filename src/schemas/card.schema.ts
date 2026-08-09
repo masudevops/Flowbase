@@ -34,6 +34,7 @@ export const toggleBlockedSchema = z.object({
   cardId: z.string(),
   isBlocked: z.boolean(),
   blockedReason: z.string().max(500).nullable().optional(),
+  blockedByCardId: z.string().nullable().optional(),
 });
 
 export const setCardLabelsSchema = z.object({

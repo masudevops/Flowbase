@@ -143,6 +143,7 @@ export function CardDetailPanel({
   const [descDraft, setDescDraft] = useState("");
   const [locationDraft, setLocationDraft] = useState("");
   const [blockedReasonDraft, setBlockedReasonDraft] = useState("");
+  const [blockedByCardIdDraft, setBlockedByCardIdDraft] = useState("");
   const [commentDraft, setCommentDraft] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentBody, setEditingCommentBody] = useState("");
@@ -163,6 +164,7 @@ export function CardDetailPanel({
     setDescDraft(card.description ?? "");
     setLocationDraft(card.location ?? "");
     setBlockedReasonDraft(card.blockedReason ?? "");
+    setBlockedByCardIdDraft(card.blockedByCardId ?? "");
     setEditingDescription(false);
     setEditingCommentId(null);
   }
@@ -382,6 +384,7 @@ export function CardDetailPanel({
                     cardId,
                     isBlocked: e.target.checked,
                     blockedReason: e.target.checked ? blockedReasonDraft : null,
+                    blockedByCardId: e.target.checked ? blockedByCardIdDraft || null : null,
                   })
                 }
               />
@@ -389,21 +392,53 @@ export function CardDetailPanel({
               Blocked
             </label>
             {card.isBlocked && (
-              <Input
-                value={blockedReasonDraft}
-                onChange={(e) => setBlockedReasonDraft(e.target.value)}
-                onBlur={() => {
-                  if (blockedReasonDraft !== (card.blockedReason ?? "")) {
+              <div className="mt-2 space-y-2">
+                <Input
+                  value={blockedReasonDraft}
+                  onChange={(e) => setBlockedReasonDraft(e.target.value)}
+                  onBlur={() => {
+                    if (blockedReasonDraft !== (card.blockedReason ?? "")) {
+                      toggleBlocked.mutate({
+                        cardId,
+                        isBlocked: true,
+                        blockedReason: blockedReasonDraft || null,
+                        blockedByCardId: blockedByCardIdDraft || null,
+                      });
+                    }
+                  }}
+                  placeholder="Why is this blocked?"
+                />
+                <Select
+                  value={blockedByCardIdDraft}
+                  onChange={(e) => {
+                    setBlockedByCardIdDraft(e.target.value);
                     toggleBlocked.mutate({
                       cardId,
                       isBlocked: true,
                       blockedReason: blockedReasonDraft || null,
+                      blockedByCardId: e.target.value || null,
                     });
-                  }
-                }}
-                placeholder="Why is this blocked?"
-                className="mt-2"
-              />
+                  }}
+                >
+                  <option value="">Not blocked by a specific card</option>
+                  {boardCards
+                    ?.filter((c) => c.id !== cardId)
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title}
+                      </option>
+                    ))}
+                </Select>
+                {card.blockedByCard && onOpenCard && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenCard(card.blockedByCard!.id)}
+                    className="text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
+                  >
+                    Open &quot;{card.blockedByCard.title}&quot;
+                  </button>
+                )}
+              </div>
             )}
           </div>
 

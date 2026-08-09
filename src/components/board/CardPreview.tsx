@@ -79,7 +79,7 @@ export function CardPreview({
         <div className="mt-1.5 flex items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-1 dark:bg-[#FF5630]/15">
           <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />
           <span className="truncate text-[9px] leading-tight text-[#DE350B] dark:text-[#FF5630]">
-            {card.blockedReason || "Blocked"}
+            {card.blockedByCard ? `Blocked by "${card.blockedByCard.title}"` : card.blockedReason || "Blocked"}
           </span>
         </div>
       )}

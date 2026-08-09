@@ -177,15 +177,28 @@ export async function toggleBlocked(
     organizationId: string;
     actorId: string;
     cardId: string;
+    boardId: string;
     isBlocked: boolean;
     blockedReason?: string | null;
+    blockedByCardId?: string | null;
   },
 ) {
+  if (params.isBlocked && params.blockedByCardId) {
+    if (params.blockedByCardId === params.cardId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "A card can't block itself." });
+    }
+    const blocker = await db.card.findUnique({ where: { id: params.blockedByCardId } });
+    if (!blocker || blocker.boardId !== params.boardId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Blocked-by must be a card on the same board." });
+    }
+  }
+
   const card = await db.card.update({
     where: { id: params.cardId },
     data: {
       isBlocked: params.isBlocked,
       blockedReason: params.isBlocked ? (params.blockedReason ?? null) : null,
+      blockedByCardId: params.isBlocked ? (params.blockedByCardId ?? null) : null,
     },
   });
 

@@ -393,6 +393,11 @@ model Card {
   /// Single source of truth for dashboard/filter queries.
   isBlocked         Boolean @default(false) @map("is_blocked")
   blockedReason     String? @map("blocked_reason")
+  /// Optional structured "blocked by" reference on top of the freetext
+  /// reason above — lets a block point at a real card instead of just a
+  /// sentence. onDelete: SetNull so deleting the blocking card doesn't
+  /// cascade-delete the card it was blocking (mirrors parentCardId).
+  blockedByCardId   String? @map("blocked_by_card_id")
 
   /// Construction vertical: free-text site/floor/zone tag.
   location String?
@@ -424,6 +429,8 @@ model Card {
   assigneeContact Contact?     @relation("CardExternalAssignee", fields: [assigneeContactId], references: [id], onDelete: SetNull)
   parent          Card?        @relation("CardParent", fields: [parentCardId], references: [id], onDelete: SetNull)
   children        Card[]       @relation("CardParent")
+  blockedByCard   Card?        @relation("CardBlockedBy", fields: [blockedByCardId], references: [id], onDelete: SetNull)
+  blocking        Card[]       @relation("CardBlockedBy")
 
   labels         CardLabel[]
   comments       Comment[]
@@ -438,6 +445,7 @@ model Card {
   @@index([assigneeId])
   @@index([assigneeContactId])
   @@index([parentCardId])
+  @@index([blockedByCardId])
   @@index([organizationId, isBlocked])
   @@index([organizationId, dueDate])
   @@map("cards")
