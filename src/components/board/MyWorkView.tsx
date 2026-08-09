@@ -6,6 +6,7 @@ import { SlidersHorizontal, ArrowUpDown, Ban, Calendar, Kanban } from "lucide-re
 import { trpc } from "@/trpc/client";
 import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { isCardOverdue } from "@/lib/dates";
 import { PRIORITY_META } from "./types";
 
 type MyWorkCard = {
@@ -39,11 +40,6 @@ type MyWorkCard = {
 type SortKey = "dueDate" | "priority" | "board";
 
 const PRIORITY_RANK: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-
-function isOverdue(card: MyWorkCard): boolean {
-  if (!card.dueDate || card.column.isDoneColumn) return false;
-  return new Date(card.dueDate).getTime() < Date.now();
-}
 
 export function MyWorkView({
   organizationId,
@@ -157,7 +153,7 @@ export function MyWorkView({
       ) : (
         <div className="space-y-2">
           {filtered.map((card) => {
-            const overdue = isOverdue(card);
+            const overdue = isCardOverdue(card.dueDate, card.column.isDoneColumn);
             const priority = PRIORITY_META[card.priority];
             return (
               <button

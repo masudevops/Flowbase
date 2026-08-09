@@ -2,16 +2,24 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Flag, ListChecks, MessageSquare, Ban, Layers } from "lucide-react";
+import { Flag, ListChecks, MessageSquare, Ban, Layers, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isCardOverdue } from "@/lib/dates";
 import type { BoardCard } from "./types";
 import { PRIORITY_META } from "./types";
 
+const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+
 export function CardPreview({
   card,
+  isDoneColumn,
   onOpen,
 }: {
   card: BoardCard;
+  /// Whether the column this card is currently rendered in is a "done"
+  /// column — needed so a past due date on finished work doesn't read
+  /// as overdue (same rule My Work already applies).
+  isDoneColumn: boolean;
   onOpen: (cardId: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -23,6 +31,7 @@ export function CardPreview({
   const childrenTotal = card.children.length;
   const childrenDone = card.children.filter((c) => c.column.isDoneColumn).length;
   const priority = PRIORITY_META[card.priority];
+  const overdue = isCardOverdue(card.dueDate, isDoneColumn);
 
   return (
     <div
@@ -84,6 +93,17 @@ export function CardPreview({
             <Flag className="h-3 w-3" />
             {priority.label}
           </span>
+          {card.dueDate && (
+            <span
+              className={cn(
+                "flex items-center gap-1",
+                overdue && "font-medium text-[#DE350B] dark:text-[#FF5630]",
+              )}
+            >
+              <Calendar className="h-3 w-3" />
+              {new Date(card.dueDate).toLocaleDateString(undefined, DATE_FORMAT)}
+            </span>
+          )}
           {checklistTotal > 0 && (
             <span className="flex items-center gap-1">
               <ListChecks className="h-3 w-3" />

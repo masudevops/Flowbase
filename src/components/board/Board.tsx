@@ -19,6 +19,7 @@ import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
 import { CardPreview } from "./CardPreview";
+import { BoardFilterBar, EMPTY_BOARD_FILTERS, hasActiveFilters, type BoardFilters } from "./BoardFilterBar";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
 import type { BoardColumn, CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
@@ -41,6 +42,7 @@ export function Board({
   const [columns, setColumns] = useState(initialColumns);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
+  const [filters, setFilters] = useState<BoardFilters>(EMPTY_BOARD_FILTERS);
 
   // Deep-link support: a notification email (or the search palette) links
   // to /boards/[boardId]?card=[cardId], opening straight to that card. A
@@ -71,6 +73,26 @@ export function Board({
   const activeCard = activeCardId
     ? columns.flatMap((c) => c.cards).find((c) => c.id === activeCardId)
     : undefined;
+  const activeCardColumn = activeCardId
+    ? columns.find((c) => c.cards.some((card) => card.id === activeCardId))
+    : undefined;
+
+  // Filtering only narrows what's rendered — `columns` itself (the real
+  // source of truth for drag-and-drop and position math) is untouched,
+  // so clearing the filters mid-session always restores the exact
+  // original board with no risk of corrupted card positions.
+  const filteredColumns = hasActiveFilters(filters)
+    ? columns.map((col) => ({
+        ...col,
+        cards: col.cards.filter((card) => {
+          if (filters.assigneeId && card.assignee?.id !== filters.assigneeId) return false;
+          if (filters.cardTypeId && card.cardType?.id !== filters.cardTypeId) return false;
+          if (filters.priority && card.priority !== filters.priority) return false;
+          if (filters.blockedOnly && !card.isBlocked) return false;
+          return true;
+        }),
+      }))
+    : columns;
 
   async function refreshBoard() {
     // Refetches both columns and cards (not just cards) so a column
@@ -192,6 +214,8 @@ export function Board({
 
   return (
     <>
+      <BoardFilterBar filters={filters} onChange={setFilters} members={members} cardTypes={cardTypes} />
+
       <DndContext
         id={`board-${boardId}`}
         sensors={sensors}
@@ -201,7 +225,7 @@ export function Board({
         onDragEnd={handleDragEnd}
       >
         <div className="thin-scrollbar flex flex-1 gap-4 overflow-x-auto pb-4">
-          {columns.map((column) => (
+          {filteredColumns.map((column) => (
             <Column
               key={column.id}
               column={column}
@@ -212,7 +236,13 @@ export function Board({
         </div>
 
         <DragOverlay>
-          {activeCard ? <CardPreview card={activeCard} onOpen={() => {}} /> : null}
+          {activeCard ? (
+            <CardPreview
+              card={activeCard}
+              isDoneColumn={activeCardColumn?.isDoneColumn ?? false}
+              onOpen={() => {}}
+            />
+          ) : null}
         </DragOverlay>
       </DndContext>
 
