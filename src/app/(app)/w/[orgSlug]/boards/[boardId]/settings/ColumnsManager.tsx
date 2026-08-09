@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown, Trash2, Plus } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Column = {
   id: string;
@@ -114,9 +115,8 @@ export function ColumnsManager({
               </button>
             )}
 
-            <label className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-              <input
-                type="checkbox"
+            <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Checkbox
                 checked={column.isBlockedColumn}
                 onChange={(e) =>
                   updateColumn.mutate({ columnId: column.id, isBlockedColumn: e.target.checked })
@@ -124,9 +124,8 @@ export function ColumnsManager({
               />
               Blocked column
             </label>
-            <label className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-              <input
-                type="checkbox"
+            <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+              <Checkbox
                 checked={column.isDoneColumn}
                 onChange={(e) =>
                   updateColumn.mutate({ columnId: column.id, isDoneColumn: e.target.checked })

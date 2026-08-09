@@ -5,6 +5,7 @@ import { Shield, UserPlus, X, LogOut, Trash2, Mail } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 
 type Member = {
   id: string;
@@ -25,9 +26,6 @@ type Invite = {
   expiresAt: Date;
   createdAt: Date;
 };
-
-const selectClass =
-  "rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]";
 
 function initialOf(m: Member) {
   return (m.fullName ?? m.email).charAt(0).toUpperCase();
@@ -109,14 +107,14 @@ export function MembersManager({
               onChange={(e) => setInviteEmail(e.target.value)}
               className="max-w-xs"
             />
-            <select
+            <Select
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value as "ADMIN" | "MEMBER")}
-              className={selectClass}
+              className="w-auto"
             >
               <option value="MEMBER">Team member</option>
               <option value="ADMIN">Admin / project manager</option>
-            </select>
+            </Select>
             <Button type="submit" className="w-auto" disabled={invite.isPending}>
               {invite.isPending ? "Sending..." : "Send invite"}
             </Button>
@@ -177,7 +175,7 @@ export function MembersManager({
 
                 <div className="flex shrink-0 items-center gap-2">
                   {isAdmin ? (
-                    <select
+                    <Select
                       value={m.role}
                       onChange={(e) =>
                         updateRole.mutate({
@@ -186,11 +184,11 @@ export function MembersManager({
                           role: e.target.value as "ADMIN" | "MEMBER",
                         })
                       }
-                      className={selectClass}
+                      className="w-auto"
                     >
                       <option value="MEMBER">Team member</option>
                       <option value="ADMIN">Admin / PM</option>
-                    </select>
+                    </Select>
                   ) : (
                     <span className="flex items-center gap-1 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
                       {m.role === "ADMIN" && <Shield className="h-3 w-3" />}

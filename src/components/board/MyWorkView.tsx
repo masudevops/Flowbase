@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SlidersHorizontal, ArrowUpDown, Ban, Calendar, Kanban } from "lucide-react";
 import { trpc } from "@/trpc/client";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PRIORITY_META } from "./types";
 
 type MyWorkCard = {
@@ -108,10 +110,10 @@ export function MyWorkView({
         <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
 
         {boards.length > 1 && (
-          <select
+          <Select
             value={boardFilter}
             onChange={(e) => setBoardFilter(e.target.value)}
-            className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            className="w-auto"
           >
             <option value="">All boards</option>
             {boards.map(([id, name]) => (
@@ -119,38 +121,30 @@ export function MyWorkView({
                 {name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
 
         <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
-          <input
-            type="checkbox"
-            checked={blockedOnly}
-            onChange={(e) => setBlockedOnly(e.target.checked)}
-          />
+          <Checkbox checked={blockedOnly} onChange={(e) => setBlockedOnly(e.target.checked)} />
           Blocked only
         </label>
 
         <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
-          <input
-            type="checkbox"
-            checked={showCompleted}
-            onChange={(e) => setShowCompleted(e.target.checked)}
-          />
+          <Checkbox checked={showCompleted} onChange={(e) => setShowCompleted(e.target.checked)} />
           Show completed
         </label>
 
         <div className="ml-auto flex items-center gap-1.5">
           <ArrowUpDown className="h-4 w-4 text-[#5E6C84] dark:text-[#8C9BAB]" />
-          <select
+          <Select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            className="w-auto"
           >
             <option value="dueDate">Sort: Due date</option>
             <option value="priority">Sort: Priority</option>
             <option value="board">Sort: Board</option>
-          </select>
+          </Select>
         </div>
       </div>
 

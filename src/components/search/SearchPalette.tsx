@@ -54,6 +54,9 @@ export function SearchPalette({
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search"
         className="w-full max-w-lg rounded-lg border border-[#DFE1E6] bg-white shadow-xl dark:border-[#2A3547] dark:bg-[#161D2E]"
         onClick={(e) => e.stopPropagation()}
       >

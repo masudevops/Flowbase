@@ -5,6 +5,8 @@ import { Zap, Trash2, Plus } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Automation = {
   id: string;
@@ -80,8 +82,7 @@ export function AutomationsManager({
               {isAdmin && (
                 <>
                   <label className="flex items-center gap-1.5 text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={a.enabled}
                       onChange={(e) =>
                         updateAutomation.mutate({ automationId: a.id, enabled: e.target.checked })
@@ -127,17 +128,17 @@ export function AutomationsManager({
             className="max-w-[200px]"
           />
           <span className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">When moved to</span>
-          <select
+          <Select
             value={triggerColumnId}
             onChange={(e) => setTriggerColumnId(e.target.value)}
-            className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            className="w-auto"
           >
             {columns.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
-          </select>
+          </Select>
           <span className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">notify assignee</span>
           <Button
             type="submit"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle, Paperclip } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -162,6 +162,17 @@ export function CardDetailPanel({
     setEditingCommentId(null);
   }
 
+  // Escape closes the panel, same convention as the search palette —
+  // but a nested Escape handler (e.g. cancelling a comment edit) calls
+  // stopPropagation so it doesn't also close the whole panel.
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!card) {
     return (
       <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={onClose}>
@@ -176,6 +187,9 @@ export function CardDetailPanel({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${card.title} details`}
         className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#DFE1E6] bg-white dark:border-[#2A3547] dark:bg-[#161D2E]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -560,6 +574,7 @@ export function CardDetailPanel({
                 value={checklistDraft}
                 onChange={(e) => setChecklistDraft(e.target.value)}
                 placeholder="Add checklist item"
+                aria-label="Add checklist item"
               />
             </form>
           </div>
@@ -629,7 +644,10 @@ export function CardDetailPanel({
                           onChange={(e) => setEditingCommentBody(e.target.value)}
                           autoFocus
                           onKeyDown={(e) => {
-                            if (e.key === "Escape") setEditingCommentId(null);
+                            if (e.key === "Escape") {
+                              e.stopPropagation();
+                              setEditingCommentId(null);
+                            }
                           }}
                           className="bg-white dark:bg-[#161D2E]"
                         />
@@ -662,6 +680,7 @@ export function CardDetailPanel({
                 value={commentDraft}
                 onChange={(e) => setCommentDraft(e.target.value)}
                 placeholder="Write a comment"
+                aria-label="Write a comment"
               />
             </form>
           </div>

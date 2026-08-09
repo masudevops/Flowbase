@@ -15,7 +15,9 @@ export default async function OnboardingPage() {
       <span className="font-[family-name:var(--font-plex-mono)] text-sm font-semibold tracking-[0.15em] text-[#0B5CFF] uppercase dark:text-[#4C9AFF]">
         Kelbara
       </span>
-      <CreateOrgForm />
+      <div className="w-full max-w-sm rounded-lg border border-[#DFE1E6] bg-white p-6 shadow-sm dark:border-[#2A3547] dark:bg-[#161D2E]">
+        <CreateOrgForm />
+      </div>
     </div>
   );
 }

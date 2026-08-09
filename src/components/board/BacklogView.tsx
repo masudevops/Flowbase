@@ -5,6 +5,9 @@ import { SlidersHorizontal, ArrowUpDown, Ban } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { CardDetailPanel } from "@/components/card-detail/CardDetailPanel";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { PRIORITY_META } from "./types";
 import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "./types";
 
@@ -71,10 +74,10 @@ export function BacklogView({
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <SlidersHorizontal className="h-4 w-4 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
-        <select
+        <Select
           value={assigneeFilter}
           onChange={(e) => setAssigneeFilter(e.target.value)}
-          className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+          className="w-auto"
         >
           <option value="">All assignees</option>
           {members.map((m) => (
@@ -82,12 +85,12 @@ export function BacklogView({
               {m.fullName ?? m.email}
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
+        <Select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value)}
-          className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+          className="w-auto"
         >
           <option value="">All priorities</option>
           {Object.entries(PRIORITY_META).map(([key, meta]) => (
@@ -95,46 +98,38 @@ export function BacklogView({
               {meta.label}
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          value={labelFilter}
-          onChange={(e) => setLabelFilter(e.target.value)}
-          className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-        >
+        <Select value={labelFilter} onChange={(e) => setLabelFilter(e.target.value)} className="w-auto">
           <option value="">All labels</option>
           {labels.map((l) => (
             <option key={l.id} value={l.id}>
               {l.name}
             </option>
           ))}
-        </select>
+        </Select>
 
         <label className="flex items-center gap-1.5 text-sm text-[#172B4D] dark:text-[#E4E7EC]">
-          <input
-            type="checkbox"
-            checked={blockedOnly}
-            onChange={(e) => setBlockedOnly(e.target.checked)}
-          />
+          <Checkbox checked={blockedOnly} onChange={(e) => setBlockedOnly(e.target.checked)} />
           Blocked only
         </label>
 
         <div className="ml-auto flex items-center gap-1.5">
           <ArrowUpDown className="h-4 w-4 text-[#5E6C84] dark:text-[#8C9BAB]" />
-          <select
+          <Select
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
+            className="w-auto"
           >
             <option value="priority">Sort: Priority</option>
             <option value="dueDate">Sort: Due date</option>
             <option value="title">Sort: Title</option>
-          </select>
+          </Select>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
-        <table className="w-full text-sm">
+      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#DFE1E6] dark:border-[#2A3547]">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-[#DFE1E6] bg-[#F4F6FA] text-left text-xs text-[#5E6C84] dark:border-[#2A3547] dark:bg-[#0E1624] dark:text-[#8C9BAB]">
               <th className="px-3 py-2 font-medium">Title</th>
@@ -155,14 +150,23 @@ export function BacklogView({
                 <td className="px-3 py-2 font-medium text-[#172B4D] dark:text-[#E4E7EC]">
                   {card.title}
                 </td>
-                <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
-                  {card.cardType?.name ?? "—"}
+                <td className="px-3 py-2">
+                  {card.cardType ? (
+                    <span className="flex items-center gap-1.5 text-[#5E6C84] dark:text-[#8C9BAB]">
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: card.cardType.color }}
+                      />
+                      {card.cardType.name}
+                    </span>
+                  ) : (
+                    <span className="text-[#5E6C84] dark:text-[#8C9BAB]">—</span>
+                  )}
                 </td>
-                <td
-                  className="px-3 py-2 font-medium"
-                  style={{ color: PRIORITY_META[card.priority].color }}
-                >
-                  {PRIORITY_META[card.priority].label}
+                <td className="px-3 py-2">
+                  <Badge color={PRIORITY_META[card.priority].color}>
+                    {PRIORITY_META[card.priority].label}
+                  </Badge>
                 </td>
                 <td className="px-3 py-2 text-[#5E6C84] dark:text-[#8C9BAB]">
                   {card.assignee
@@ -176,10 +180,10 @@ export function BacklogView({
                 </td>
                 <td className="px-3 py-2">
                   {card.isBlocked && (
-                    <span className="flex w-fit items-center gap-1 rounded bg-[#DE350B]/10 px-1.5 py-0.5 text-xs text-[#DE350B] dark:bg-[#FF5630]/15 dark:text-[#FF5630]">
+                    <Badge tone="red">
                       <Ban className="h-3 w-3" />
                       Blocked
-                    </span>
+                    </Badge>
                   )}
                 </td>
               </tr>

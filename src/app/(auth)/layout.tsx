@@ -20,7 +20,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       >
         Kelbara
       </Link>
-      {children}
+      <div className="w-full max-w-sm rounded-lg border border-[#DFE1E6] bg-white p-6 shadow-sm dark:border-[#2A3547] dark:bg-[#161D2E]">
+        {children}
+      </div>
     </div>
   );
 }
