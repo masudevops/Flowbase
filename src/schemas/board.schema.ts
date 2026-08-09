@@ -4,7 +4,7 @@ export const createBoardSchema = z.object({
   organizationId: z.string(),
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
   description: z.string().trim().max(500).optional(),
-  templateKey: z.enum(["IT_DEV", "CONSTRUCTION"]).optional(),
+  templateId: z.string().optional(),
 });
 
 export const listBoardsSchema = z.object({

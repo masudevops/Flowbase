@@ -3,6 +3,7 @@ import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { ColumnsManager } from "./ColumnsManager";
 import { CardTypesManager } from "@/components/board/CardTypesManager";
 import { AutomationsManager } from "@/components/board/AutomationsManager";
+import { SaveAsTemplateButton } from "@/components/board/SaveAsTemplateButton";
 import { DeleteBoardButton } from "@/components/board/DeleteBoardButton";
 
 export default async function BoardSettingsPage({
@@ -26,12 +27,17 @@ export default async function BoardSettingsPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
-      <h1 className="mb-1 text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
-        {board.name} — Columns
-      </h1>
-      <p className="mb-6 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
-        Rename, reorder, add, or delete columns.
-      </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="mb-1 text-xl font-semibold text-[#172B4D] dark:text-[#E4E7EC]">
+            {board.name} — Columns
+          </h1>
+          <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">
+            Rename, reorder, add, or delete columns.
+          </p>
+        </div>
+        <SaveAsTemplateButton organizationId={organization.id} boardId={boardId} boardName={board.name} />
+      </div>
       <ColumnsManager boardId={boardId} initialColumns={board.columns} />
 
       <div className="mt-10">

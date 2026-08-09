@@ -36,7 +36,7 @@ export const boardRouter = router({
       actorId: ctx.userId,
       name: input.name,
       description: input.description,
-      templateKey: input.templateKey,
+      templateId: input.templateId,
     }),
   ),
 

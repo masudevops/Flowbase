@@ -1,6 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import { BOARD_TEMPLATES, type TemplateKey } from "../templates";
-import { applyTemplate } from "./template.service";
+import { applyWorkflowTemplate } from "./workflowTemplate.service";
 import { writeAuditLog } from "./audit.service";
 
 export async function createBoard(
@@ -10,7 +9,7 @@ export async function createBoard(
     actorId: string;
     name: string;
     description?: string;
-    templateKey?: TemplateKey;
+    templateId?: string;
   },
 ) {
   const board = await db.board.create({
@@ -18,15 +17,15 @@ export async function createBoard(
       organizationId: params.organizationId,
       name: params.name,
       description: params.description,
-      templateKey: params.templateKey,
+      sourceTemplateId: params.templateId,
     },
   });
 
-  if (params.templateKey) {
-    await applyTemplate(db, {
+  if (params.templateId) {
+    await applyWorkflowTemplate(db, {
       organizationId: params.organizationId,
       boardId: board.id,
-      template: BOARD_TEMPLATES[params.templateKey],
+      templateId: params.templateId,
     });
   }
 

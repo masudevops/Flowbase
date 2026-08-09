@@ -97,6 +97,7 @@ model Organization {
   attachments    Attachment[]
   notifications  Notification[]
   automations    Automation[]
+  workflowTemplates WorkflowTemplate[]
 
   @@map("organizations")
 }
@@ -119,6 +120,7 @@ model User {
   attachments        Attachment[]
   notifications      Notification[] @relation("NotificationRecipient")
   actedNotifications Notification[] @relation("NotificationActor")
+  workflowTemplates  WorkflowTemplate[]
 
   @@map("users")
 }
@@ -210,20 +212,29 @@ model Board {
   organizationId String    @map("organization_id")
   name           String
   description    String?
-  /// Informational only — which starter template was used (IT_DEV |
-  /// CONSTRUCTION | BLANK). Not a FK; templates are code, not rows.
-  templateKey    String?   @map("template_key")
+  /// Legacy/historical label only (IT_DEV | CONSTRUCTION | BLANK, or
+  /// null) — kept for boards created before templates became real rows.
+  /// New boards set sourceTemplateId instead; this column isn't written
+  /// to anymore going forward.
+  templateKey      String? @map("template_key")
+  /// Which WorkflowTemplate this board was created from, if any.
+  /// Nullable and SetNull-on-delete: a board must never disappear or
+  /// break just because someone later deletes the template that seeded
+  /// it — this is provenance, not a live dependency.
+  sourceTemplateId String? @map("source_template_id")
   archivedAt     DateTime? @map("archived_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  columns      Column[]
-  cards        Card[]
-  automations  Automation[]
-  cardTypes    CardType[]
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sourceTemplate WorkflowTemplate? @relation(fields: [sourceTemplateId], references: [id], onDelete: SetNull)
+  columns        Column[]
+  cards          Card[]
+  automations    Automation[]
+  cardTypes      CardType[]
 
   @@index([organizationId])
+  @@index([sourceTemplateId])
   @@map("boards")
 }
 
@@ -276,6 +287,73 @@ model CardType {
   @@unique([boardId, name])
   @@index([organizationId])
   @@map("card_types")
+}
+
+/// A reusable "starter kit" for a new board: a name/description plus a
+/// set of columns and card types, applied together when a board is
+/// created from it. Org-scoped (not global) so RLS stays the same
+/// single-pattern check as every other table — every org gets its own
+/// copies of the three built-ins (isBuiltIn: true) seeded at org
+/// creation (see organization.service.ts), and can save any board's
+/// current setup as a new custom template (isBuiltIn: false) on top of
+/// that. Deliberately no versioning, no sharing across orgs, no public
+/// marketplace — V1 is "configure once, reuse within your own org."
+model WorkflowTemplate {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  /// Stable identifier for the three seeded built-ins (IT_DEV |
+  /// CONSTRUCTION | GENERAL_PM), null for a user's custom template.
+  /// Purely informational — nothing re-reads it to decide behavior.
+  key            String?
+  name           String
+  description    String?
+  isBuiltIn      Boolean  @default(false) @map("is_built_in")
+  createdById    String?  @map("created_by_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?                      @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  columns      WorkflowTemplateColumn[]
+  cardTypes    WorkflowTemplateCardType[]
+  boards       Board[]
+
+  @@index([organizationId])
+  @@map("workflow_templates")
+}
+
+model WorkflowTemplateColumn {
+  id              String  @id @default(cuid())
+  organizationId  String  @map("organization_id")
+  templateId      String  @map("template_id")
+  name            String
+  /// Plain integer order — unlike Column.position (fractional-index,
+  /// drag-reordered live), a template's column order is only ever set
+  /// at save time, so there's no reorder-without-resequencing need.
+  position        Int
+  isDoneColumn    Boolean @default(false) @map("is_done_column")
+  isBlockedColumn Boolean @default(false) @map("is_blocked_column")
+
+  template WorkflowTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([templateId])
+  @@map("workflow_template_columns")
+}
+
+model WorkflowTemplateCardType {
+  id             String  @id @default(cuid())
+  organizationId String  @map("organization_id")
+  templateId     String  @map("template_id")
+  name           String
+  color          String  @default("#6B7280")
+  isDefault      Boolean @default(false) @map("is_default")
+  position       Int
+
+  template WorkflowTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([templateId])
+  @@map("workflow_template_card_types")
 }
 
 /// Per-organization label palette (free-form, color-coded tags).

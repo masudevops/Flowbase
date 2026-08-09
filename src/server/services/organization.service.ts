@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Prisma } from "@prisma/client";
+import { seedBuiltInTemplates } from "./workflowTemplate.service";
 
 function slugify(name: string): string {
   const slug = name
@@ -54,6 +55,12 @@ export async function createOrganization(
     insert into memberships (id, organization_id, user_id, role, status, created_at)
     values (${randomUUID()}, ${organizationId}, ${params.userId}, 'ADMIN', 'ACTIVE', now())
   `;
+
+  // Safe to use normal Prisma .create() (RETURNING and all) from here on
+  // — the membership row inserted just above is already visible to
+  // current_org_ids() within this same transaction, so this org's own
+  // SELECT policy is satisfied for every statement that follows.
+  await seedBuiltInTemplates(db, organizationId);
 
   return db.organization.findUniqueOrThrow({ where: { id: organizationId } });
 }
