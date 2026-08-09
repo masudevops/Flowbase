@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle } from "lucide-react";
+import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle, Paperclip } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { trpc } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/field";
 import { PRIORITY_META } from "@/components/board/types";
 import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "@/components/board/types";
 import { AttachmentsSection } from "./AttachmentsSection";
@@ -54,6 +59,18 @@ const markdownComponents: Components = {
     />
   ),
 };
+
+/// Small uppercase mono divider label — the same "section eyebrow"
+/// convention used throughout the rest of the product (column headers,
+/// card-type tags) — used here to separate the panel's three tiers
+/// (primary content / metadata / collaboration) without adding boxes.
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.1em] text-[#5E6C84] uppercase dark:text-[#8C9BAB]">
+      {children}
+    </p>
+  );
+}
 
 export function CardDetailPanel({
   cardId,
@@ -159,268 +176,47 @@ export function CardDetailPanel({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={onClose}>
       <div
-        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#DFE1E6] bg-white p-6 dark:border-[#2A3547] dark:bg-[#161D2E]"
+        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-[#DFE1E6] bg-white dark:border-[#2A3547] dark:bg-[#161D2E]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-start justify-between gap-2">
-          <textarea
-            value={titleDraft}
-            onChange={(e) => setTitleDraft(e.target.value)}
-            onBlur={() => {
-              if (titleDraft.trim() && titleDraft !== card.title) {
-                updateCard.mutate({ cardId, title: titleDraft.trim() });
-              }
-            }}
-            rows={2}
-            className="w-full resize-none bg-transparent text-lg font-semibold text-[#172B4D] outline-none dark:text-[#E4E7EC]"
-          />
-          <button
-            onClick={onClose}
-            className="shrink-0 rounded p-1 text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Field grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Tag className="h-3.5 w-3.5" />
-              Type
-            </label>
-            <select
-              value={card.cardTypeId ?? ""}
-              onChange={(e) =>
-                updateCard.mutate({ cardId, cardTypeId: e.target.value || null })
-              }
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            >
-              <option value="">None</option>
-              {cardTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Flag className="h-3.5 w-3.5" />
-              Priority
-            </label>
-            <select
-              value={card.priority}
-              onChange={(e) =>
-                updateCard.mutate({
-                  cardId,
-                  priority: e.target.value as (typeof PRIORITIES)[number],
-                })
-              }
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-              style={{ color: PRIORITY_META[card.priority].color }}
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {PRIORITY_META[p].label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <User className="h-3.5 w-3.5" />
-              Assignee
-            </label>
-            <select
-              value={
-                card.assigneeId
-                  ? `user:${card.assigneeId}`
-                  : card.assigneeContactId
-                    ? `contact:${card.assigneeContactId}`
-                    : ""
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                if (!value) {
-                  updateCard.mutate({ cardId, assigneeId: null });
-                } else if (value.startsWith("user:")) {
-                  updateCard.mutate({ cardId, assigneeId: value.slice(5) });
-                } else {
-                  updateCard.mutate({ cardId, assigneeContactId: value.slice(8) });
-                }
-              }}
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            >
-              <option value="">Unassigned</option>
-              <optgroup label="Team">
-                {members.map((m) => (
-                  <option key={m.userId} value={`user:${m.userId}`}>
-                    {memberLabel(m)}
-                  </option>
-                ))}
-              </optgroup>
-              {contacts.length > 0 && (
-                <optgroup label="Contacts">
-                  {contacts.map((c) => (
-                    <option key={c.id} value={`contact:${c.id}`}>
-                      {c.name}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Calendar className="h-3.5 w-3.5" />
-              Due date
-            </label>
-            <input
-              type="date"
-              value={formatDateInput(card.dueDate)}
-              onChange={(e) =>
-                updateCard.mutate({
-                  cardId,
-                  dueDate: e.target.value ? new Date(e.target.value).toISOString() : null,
-                })
-              }
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            />
-          </div>
-
-          <div className="col-span-2">
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <MapPin className="h-3.5 w-3.5" />
-              Location / zone
-            </label>
-            <input
-              value={locationDraft}
-              onChange={(e) => setLocationDraft(e.target.value)}
-              onBlur={() => {
-                if (locationDraft !== (card.location ?? "")) {
-                  updateCard.mutate({ cardId, location: locationDraft || null });
-                }
-              }}
-              placeholder="e.g. Building A / Floor 3"
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            />
-          </div>
-
-          <div className="col-span-2">
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Layers className="h-3.5 w-3.5" />
-              Parent
-            </label>
-            <select
-              value={card.parentCardId ?? ""}
-              onChange={(e) => updateCard.mutate({ cardId, parentCardId: e.target.value || null })}
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            >
-              <option value="">No parent</option>
-              {boardCards
-                ?.filter((c) => c.id !== cardId && !card.children.some((child) => child.id === c.id))
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-            </select>
-            {card.parent && onOpenCard && (
-              <button
-                type="button"
-                onClick={() => onOpenCard(card.parent!.id)}
-                className="mt-1 text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
-              >
-                Open &quot;{card.parent.title}&quot;
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Blocked */}
-        <div className="mt-4 rounded-md border border-[#DFE1E6] p-3 dark:border-[#2A3547]">
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input
-              type="checkbox"
-              checked={card.isBlocked}
-              onChange={(e) =>
-                toggleBlocked.mutate({
-                  cardId,
-                  isBlocked: e.target.checked,
-                  blockedReason: e.target.checked ? blockedReasonDraft : null,
-                })
-              }
-            />
-            <Ban className="h-3.5 w-3.5 text-[#DE350B] dark:text-[#FF5630]" />
-            Blocked
-          </label>
-          {card.isBlocked && (
-            <input
-              value={blockedReasonDraft}
-              onChange={(e) => setBlockedReasonDraft(e.target.value)}
-              onBlur={() => {
-                if (blockedReasonDraft !== (card.blockedReason ?? "")) {
-                  toggleBlocked.mutate({
-                    cardId,
-                    isBlocked: true,
-                    blockedReason: blockedReasonDraft || null,
-                  });
-                }
-              }}
-              placeholder="Why is this blocked?"
-              className="mt-2 w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            />
-          )}
-        </div>
-
-        {/* Labels */}
-        <div className="mt-4">
-          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-            <Tag className="h-3.5 w-3.5" />
-            Labels
-          </label>
-          <div className="flex flex-wrap gap-1.5">
-            {labels.map((label) => {
-              const selected = selectedLabelIds.has(label.id);
-              return (
-                <button
-                  key={label.id}
-                  type="button"
-                  onClick={() => {
-                    const next = selected
-                      ? [...selectedLabelIds].filter((id) => id !== label.id)
-                      : [...selectedLabelIds, label.id];
-                    setLabels.mutate({ cardId, labelIds: next });
-                  }}
-                  className="rounded px-2 py-1 text-xs font-medium transition-opacity"
-                  style={{
-                    backgroundColor: label.color,
-                    color: "white",
-                    opacity: selected ? 1 : 0.35,
-                  }}
-                >
-                  {label.name}
-                </button>
-              );
-            })}
-            {labels.length === 0 && (
-              <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No labels yet.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="mt-4">
-          <label className="mb-1 block text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-            Description
-          </label>
-          {editingDescription ? (
+        {/* ---------- Primary content ---------- */}
+        <div className="px-6 pt-6">
+          <div className="mb-2 flex items-start justify-between gap-2">
             <textarea
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={() => {
+                if (titleDraft.trim() && titleDraft !== card.title) {
+                  updateCard.mutate({ cardId, title: titleDraft.trim() });
+                }
+              }}
+              rows={2}
+              className="w-full resize-none bg-transparent text-lg font-semibold text-[#172B4D] outline-none dark:text-[#E4E7EC]"
+            />
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                onClick={() => {
+                  if (confirm("Delete this card?")) {
+                    deleteCard.mutate({ cardId });
+                  }
+                }}
+                className="rounded p-1.5 text-[#5E6C84] hover:bg-[#DE350B]/10 hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:bg-[#FF5630]/10 dark:hover:text-[#FF5630]"
+                aria-label="Delete card"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={onClose}
+                className="rounded p-1.5 text-[#5E6C84] hover:bg-[#DFE1E6]/50 dark:text-[#8C9BAB] dark:hover:bg-[#2A3547]/50"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {editingDescription ? (
+            <Textarea
               value={descDraft}
               onChange={(e) => setDescDraft(e.target.value)}
               onBlur={() => {
@@ -432,12 +228,11 @@ export function CardDetailPanel({
               placeholder="Markdown supported"
               rows={4}
               autoFocus
-              className="w-full resize-none rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
             />
           ) : (
             <div
               onClick={() => setEditingDescription(true)}
-              className="min-h-[2.5rem] cursor-text rounded-md border border-transparent px-2 py-1.5 hover:border-[#DFE1E6] dark:hover:border-[#2A3547]"
+              className="min-h-[2.5rem] cursor-text rounded-md border border-transparent px-0.5 py-1 hover:border-[#DFE1E6] dark:hover:border-[#2A3547]"
             >
               {card.description ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
@@ -452,201 +247,424 @@ export function CardDetailPanel({
           )}
         </div>
 
-        <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />
+        {/* ---------- Metadata ---------- */}
+        <div className="mt-5 space-y-4 border-t border-[#DFE1E6] px-6 pt-4 dark:border-[#2A3547]">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <Tag className="h-3.5 w-3.5" />
+                Type
+              </Label>
+              <Select
+                value={card.cardTypeId ?? ""}
+                onChange={(e) => updateCard.mutate({ cardId, cardTypeId: e.target.value || null })}
+              >
+                <option value="">None</option>
+                {cardTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
 
-        {/* Sub-tasks (children) */}
-        {card.children.length > 0 && (
-          <div className="mt-4">
-            <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-              <Layers className="h-3.5 w-3.5" />
-              Sub-tasks ({card.children.filter((c) => c.column.isDoneColumn).length}/
-              {card.children.length} done)
-            </label>
-            <div className="space-y-1">
-              {card.children.map((child) => (
-                <button
-                  key={child.id}
-                  type="button"
-                  onClick={() => onOpenCard?.(child.id)}
-                  disabled={!onOpenCard}
-                  className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-[#172B4D] hover:bg-[#F4F6FA] disabled:cursor-default disabled:hover:bg-transparent dark:text-[#E4E7EC] dark:hover:bg-[#0E1624]"
-                >
-                  {child.column.isDoneColumn ? (
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#00875A] dark:text-[#36B37E]" />
-                  ) : (
-                    <Circle className="h-3.5 w-3.5 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
-                  )}
-                  <span className={child.column.isDoneColumn ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : ""}>
-                    {child.title}
-                  </span>
-                  {child.isBlocked && <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />}
-                </button>
-              ))}
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <Flag className="h-3.5 w-3.5" />
+                Priority
+              </Label>
+              <Select
+                value={card.priority}
+                onChange={(e) =>
+                  updateCard.mutate({
+                    cardId,
+                    priority: e.target.value as (typeof PRIORITIES)[number],
+                  })
+                }
+                style={{ color: PRIORITY_META[card.priority].color }}
+              >
+                {PRIORITIES.map((p) => (
+                  <option key={p} value={p}>
+                    {PRIORITY_META[p].label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5" />
+                Assignee
+              </Label>
+              <Select
+                value={
+                  card.assigneeId
+                    ? `user:${card.assigneeId}`
+                    : card.assigneeContactId
+                      ? `contact:${card.assigneeContactId}`
+                      : ""
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!value) {
+                    updateCard.mutate({ cardId, assigneeId: null });
+                  } else if (value.startsWith("user:")) {
+                    updateCard.mutate({ cardId, assigneeId: value.slice(5) });
+                  } else {
+                    updateCard.mutate({ cardId, assigneeContactId: value.slice(8) });
+                  }
+                }}
+              >
+                <option value="">Unassigned</option>
+                <optgroup label="Team">
+                  {members.map((m) => (
+                    <option key={m.userId} value={`user:${m.userId}`}>
+                      {memberLabel(m)}
+                    </option>
+                  ))}
+                </optgroup>
+                {contacts.length > 0 && (
+                  <optgroup label="Contacts">
+                    {contacts.map((c) => (
+                      <option key={c.id} value={`contact:${c.id}`}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </Select>
+            </div>
+
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                Due date
+              </Label>
+              <Input
+                type="date"
+                value={formatDateInput(card.dueDate)}
+                onChange={(e) =>
+                  updateCard.mutate({
+                    cardId,
+                    dueDate: e.target.value ? new Date(e.target.value).toISOString() : null,
+                  })
+                }
+              />
             </div>
           </div>
-        )}
 
-        {/* Checklist */}
-        <div className="mt-4">
-          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-            <ListChecks className="h-3.5 w-3.5" />
-            Checklist
-          </label>
-          <div className="space-y-1">
-            {card.checklistItems.map((item) => (
-              <div key={item.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={item.isDone}
-                  onChange={(e) =>
-                    toggleChecklistItem.mutate({ itemId: item.id, isDone: e.target.checked })
+          {/* Blocked */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+              <Checkbox
+                checked={card.isBlocked}
+                onChange={(e) =>
+                  toggleBlocked.mutate({
+                    cardId,
+                    isBlocked: e.target.checked,
+                    blockedReason: e.target.checked ? blockedReasonDraft : null,
+                  })
+                }
+              />
+              <Ban className="h-3.5 w-3.5 text-[#DE350B] dark:text-[#FF5630]" />
+              Blocked
+            </label>
+            {card.isBlocked && (
+              <Input
+                value={blockedReasonDraft}
+                onChange={(e) => setBlockedReasonDraft(e.target.value)}
+                onBlur={() => {
+                  if (blockedReasonDraft !== (card.blockedReason ?? "")) {
+                    toggleBlocked.mutate({
+                      cardId,
+                      isBlocked: true,
+                      blockedReason: blockedReasonDraft || null,
+                    });
                   }
-                />
-                <span
-                  className={`flex-1 text-sm ${item.isDone ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : ""}`}
-                >
-                  {item.text}
-                </span>
+                }}
+                placeholder="Why is this blocked?"
+                className="mt-2"
+              />
+            )}
+          </div>
+
+          {/* Labels */}
+          <div>
+            <Label className="flex items-center gap-1.5">
+              <Tag className="h-3.5 w-3.5" />
+              Labels
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {labels.map((label) => {
+                const selected = selectedLabelIds.has(label.id);
+                return (
+                  <button
+                    key={label.id}
+                    type="button"
+                    onClick={() => {
+                      const next = selected
+                        ? [...selectedLabelIds].filter((id) => id !== label.id)
+                        : [...selectedLabelIds, label.id];
+                      setLabels.mutate({ cardId, labelIds: next });
+                    }}
+                    className="rounded px-2 py-1 text-xs font-medium transition-opacity"
+                    style={{
+                      backgroundColor: label.color,
+                      color: "white",
+                      opacity: selected ? 1 : 0.35,
+                    }}
+                  >
+                    {label.name}
+                  </button>
+                );
+              })}
+              {labels.length === 0 && (
+                <p className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">No labels yet.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="col-span-2">
+              <Label className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                Location / zone
+              </Label>
+              <Input
+                value={locationDraft}
+                onChange={(e) => setLocationDraft(e.target.value)}
+                onBlur={() => {
+                  if (locationDraft !== (card.location ?? "")) {
+                    updateCard.mutate({ cardId, location: locationDraft || null });
+                  }
+                }}
+                placeholder="e.g. Building A / Floor 3"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Label className="flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5" />
+                Parent
+              </Label>
+              <Select
+                value={card.parentCardId ?? ""}
+                onChange={(e) => updateCard.mutate({ cardId, parentCardId: e.target.value || null })}
+              >
+                <option value="">No parent</option>
+                {boardCards
+                  ?.filter((c) => c.id !== cardId && !card.children.some((child) => child.id === c.id))
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+              </Select>
+              {card.parent && onOpenCard && (
                 <button
-                  onClick={() => deleteChecklistItem.mutate({ itemId: item.id })}
-                  aria-label="Delete checklist item"
-                  className="text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                  type="button"
+                  onClick={() => onOpenCard(card.parent!.id)}
+                  className="mt-1 text-xs font-medium text-[#0B5CFF] hover:underline dark:text-[#4C9AFF]"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  Open &quot;{card.parent.title}&quot;
                 </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ---------- Collaboration ---------- */}
+        <div className="mt-5 space-y-5 border-t border-[#DFE1E6] px-6 py-5 dark:border-[#2A3547]">
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <Paperclip className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+              <SectionLabel>Attachments</SectionLabel>
+            </div>
+            <AttachmentsSection cardId={cardId} organizationId={card.organizationId} />
+          </div>
+
+          {/* Sub-tasks (children) */}
+          {card.children.length > 0 && (
+            <div>
+              <div className="mb-2 flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+                <SectionLabel>
+                  Sub-tasks ({card.children.filter((c) => c.column.isDoneColumn).length}/
+                  {card.children.length} done)
+                </SectionLabel>
               </div>
-            ))}
-          </div>
-          <form
-            className="mt-2 flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!checklistDraft.trim()) return;
-              createChecklistItem.mutate({ cardId, text: checklistDraft.trim() });
-              setChecklistDraft("");
-            }}
-          >
-            <input
-              value={checklistDraft}
-              onChange={(e) => setChecklistDraft(e.target.value)}
-              placeholder="Add checklist item"
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            />
-          </form>
-        </div>
-
-        {/* Comments */}
-        <div className="mt-4">
-          <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-            <MessageSquare className="h-3.5 w-3.5" />
-            Comments
-          </label>
-          <div className="space-y-3">
-            {comments?.map((comment) => {
-              const isOwn = comment.authorId === me?.id;
-              const canDelete = isOwn || isAdmin;
-              const isEditing = editingCommentId === comment.id;
-
-              return (
-                <div key={comment.id} className="rounded-md bg-[#F4F6FA] p-2 dark:bg-[#0E1624]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-[#172B4D] dark:text-[#E4E7EC]">
-                      {comment.author.fullName ?? comment.author.email}
+              <div className="space-y-1">
+                {card.children.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => onOpenCard?.(child.id)}
+                    disabled={!onOpenCard}
+                    className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm text-[#172B4D] hover:bg-[#F4F6FA] disabled:cursor-default disabled:hover:bg-transparent dark:text-[#E4E7EC] dark:hover:bg-[#0E1624]"
+                  >
+                    {child.column.isDoneColumn ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#00875A] dark:text-[#36B37E]" />
+                    ) : (
+                      <Circle className="h-3.5 w-3.5 shrink-0 text-[#5E6C84] dark:text-[#8C9BAB]" />
+                    )}
+                    <span className={child.column.isDoneColumn ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : ""}>
+                      {child.title}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
-                        {new Date(comment.createdAt).toLocaleString()}
-                        {comment.editedAt && " (edited)"}
-                      </span>
-                      {isOwn && !isEditing && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingCommentId(comment.id);
-                            setEditingCommentBody(comment.body);
-                          }}
-                          className="text-[10px] font-medium text-[#5E6C84] hover:text-[#172B4D] dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      {canDelete && !isEditing && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm("Delete this comment?")) {
-                              deleteComment.mutate({ commentId: comment.id });
-                            }
-                          }}
-                          className="text-[10px] font-medium text-[#5E6C84] hover:text-[#DE350B] dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                    {child.isBlocked && <Ban className="h-3 w-3 shrink-0 text-[#DE350B] dark:text-[#FF5630]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-                  {isEditing ? (
-                    <form
-                      className="mt-1 flex gap-2"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!editingCommentBody.trim()) return;
-                        updateComment.mutate({ commentId: comment.id, body: editingCommentBody.trim() });
-                      }}
-                    >
-                      <input
-                        value={editingCommentBody}
-                        onChange={(e) => setEditingCommentBody(e.target.value)}
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === "Escape") setEditingCommentId(null);
-                        }}
-                        className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1 text-sm dark:border-[#2A3547] dark:bg-[#161D2E]"
-                      />
-                      <Button type="submit" className="w-auto shrink-0" disabled={updateComment.isPending}>
-                        Save
-                      </Button>
-                    </form>
-                  ) : (
-                    <p className="mt-1 text-sm whitespace-pre-wrap text-[#172B4D] dark:text-[#E4E7EC]">
-                      {comment.body}
-                    </p>
-                  )}
+          {/* Checklist */}
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <ListChecks className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+              <SectionLabel>Checklist</SectionLabel>
+            </div>
+            <div className="space-y-1">
+              {card.checklistItems.map((item) => (
+                <div key={item.id} className="group flex items-center gap-2">
+                  <Checkbox
+                    checked={item.isDone}
+                    onChange={(e) =>
+                      toggleChecklistItem.mutate({ itemId: item.id, isDone: e.target.checked })
+                    }
+                  />
+                  <span
+                    className={`flex-1 text-sm ${item.isDone ? "text-[#5E6C84] line-through dark:text-[#8C9BAB]" : "text-[#172B4D] dark:text-[#E4E7EC]"}`}
+                  >
+                    {item.text}
+                  </span>
+                  <button
+                    onClick={() => deleteChecklistItem.mutate({ itemId: item.id })}
+                    aria-label="Delete checklist item"
+                    className="text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#DE350B] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+            <form
+              className="mt-2 flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!checklistDraft.trim()) return;
+                createChecklistItem.mutate({ cardId, text: checklistDraft.trim() });
+                setChecklistDraft("");
+              }}
+            >
+              <Input
+                value={checklistDraft}
+                onChange={(e) => setChecklistDraft(e.target.value)}
+                placeholder="Add checklist item"
+              />
+            </form>
           </div>
-          <form
-            className="mt-2 flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!commentDraft.trim()) return;
-              createComment.mutate({ cardId, body: commentDraft.trim() });
-              setCommentDraft("");
-            }}
-          >
-            <input
-              value={commentDraft}
-              onChange={(e) => setCommentDraft(e.target.value)}
-              placeholder="Write a comment"
-              className="w-full rounded-md border border-[#DFE1E6] bg-white px-2 py-1.5 text-sm dark:border-[#2A3547] dark:bg-[#0E1624]"
-            />
-          </form>
-        </div>
 
-        <div className="mt-6 border-t border-[#DFE1E6] pt-4 dark:border-[#2A3547]">
-          <button
-            onClick={() => {
-              if (confirm("Delete this card?")) {
-                deleteCard.mutate({ cardId });
-              }
-            }}
-            className="flex items-center gap-1.5 text-sm text-[#DE350B] hover:underline dark:text-[#FF5630]"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete card
-          </button>
+          {/* Comments */}
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+              <SectionLabel>Comments</SectionLabel>
+            </div>
+            <div className="space-y-3">
+              {comments?.map((comment) => {
+                const isOwn = comment.authorId === me?.id;
+                const canDelete = isOwn || isAdmin;
+                const isEditing = editingCommentId === comment.id;
+
+                return (
+                  <div key={comment.id} className="group rounded-md bg-[#F4F6FA] p-2 dark:bg-[#0E1624]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-[#172B4D] dark:text-[#E4E7EC]">
+                        {comment.author.fullName ?? comment.author.email}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-[#5E6C84] dark:text-[#8C9BAB]">
+                          {new Date(comment.createdAt).toLocaleString()}
+                          {comment.editedAt && " (edited)"}
+                        </span>
+                        {isOwn && !isEditing && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCommentId(comment.id);
+                              setEditingCommentBody(comment.body);
+                            }}
+                            className="text-[10px] font-medium text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#172B4D] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#E4E7EC]"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && !isEditing && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm("Delete this comment?")) {
+                                deleteComment.mutate({ commentId: comment.id });
+                              }
+                            }}
+                            className="text-[10px] font-medium text-[#5E6C84] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-[#DE350B] focus-visible:opacity-100 dark:text-[#8C9BAB] dark:hover:text-[#FF5630]"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {isEditing ? (
+                      <form
+                        className="mt-1 flex gap-2"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!editingCommentBody.trim()) return;
+                          updateComment.mutate({ commentId: comment.id, body: editingCommentBody.trim() });
+                        }}
+                      >
+                        <Input
+                          value={editingCommentBody}
+                          onChange={(e) => setEditingCommentBody(e.target.value)}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") setEditingCommentId(null);
+                          }}
+                          className="bg-white dark:bg-[#161D2E]"
+                        />
+                        <Button type="submit" size="sm" className="shrink-0" disabled={updateComment.isPending}>
+                          Save
+                        </Button>
+                      </form>
+                    ) : (
+                      <p className="mt-1 text-sm whitespace-pre-wrap text-[#172B4D] dark:text-[#E4E7EC]">
+                        {comment.body}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+              {comments?.length === 0 && (
+                <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No comments yet.</p>
+              )}
+            </div>
+            <form
+              className="mt-2 flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!commentDraft.trim()) return;
+                createComment.mutate({ cardId, body: commentDraft.trim() });
+                setCommentDraft("");
+              }}
+            >
+              <Input
+                value={commentDraft}
+                onChange={(e) => setCommentDraft(e.target.value)}
+                placeholder="Write a comment"
+              />
+            </form>
+          </div>
         </div>
       </div>
     </div>

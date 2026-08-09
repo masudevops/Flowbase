@@ -161,7 +161,7 @@ export function Board({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
+        <div className="thin-scrollbar flex flex-1 gap-4 overflow-x-auto pb-4">
           {columns.map((column) => (
             <Column
               key={column.id}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Paperclip, File, X, Upload } from "lucide-react";
+import { File, X, Upload } from "lucide-react";
 import { trpc } from "@/trpc/client";
 import { createClient } from "@/lib/supabase/client";
 
@@ -99,12 +99,10 @@ export function AttachmentsSection({
   }
 
   return (
-    <div className="mt-4">
-      <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#5E6C84] dark:text-[#8C9BAB]">
-        <Paperclip className="h-3.5 w-3.5" />
-        Attachments
-      </label>
-
+    <div>
+      {attachments?.length === 0 && (
+        <p className="mb-2 text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No attachments yet.</p>
+      )}
       <div className="space-y-2">
         {attachments?.map((attachment) => {
           const url = signedUrls[attachment.id];

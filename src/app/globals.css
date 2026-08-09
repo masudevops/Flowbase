@@ -20,3 +20,27 @@
 body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #dfe1e6 transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #dfe1e6;
+  border-radius: 9999px;
+}
+@media (prefers-color-scheme: dark) {
+  .thin-scrollbar {
+    scrollbar-color: #2a3547 transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #2a3547;
+  }
+}
