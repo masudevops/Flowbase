@@ -390,6 +390,9 @@ model Card {
   title       String
   description String? // markdown
   priority    Priority  @default(MEDIUM)
+  /// Nullable — a card with only a dueDate still shows as a single-day
+  /// marker on the timeline view, no forced data entry.
+  startDate   DateTime? @map("start_date")
   dueDate     DateTime? @map("due_date")
 
   /// Legacy single-assignee columns — no longer written to as of the

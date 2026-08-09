@@ -60,6 +60,23 @@ describe("card mutations", () => {
     expect(moved.columnId).toBe(doneColumnId);
   });
 
+  it("sets and clears a card's start date independently of its due date", async () => {
+    const caller = callerAs(adminId);
+    const card = await caller.card.create({ boardId, columnId, title: "Timeline test" });
+
+    const withDates = await caller.card.update({
+      cardId: card.id,
+      startDate: "2026-01-05T00:00:00.000Z",
+      dueDate: "2026-01-10T00:00:00.000Z",
+    });
+    expect(withDates.startDate?.toISOString()).toBe("2026-01-05T00:00:00.000Z");
+    expect(withDates.dueDate?.toISOString()).toBe("2026-01-10T00:00:00.000Z");
+
+    const clearedStart = await caller.card.update({ cardId: card.id, startDate: null });
+    expect(clearedStart.startDate).toBeNull();
+    expect(clearedStart.dueDate?.toISOString()).toBe("2026-01-10T00:00:00.000Z");
+  });
+
   it("a card can be assigned to both a member and a contact at once", async () => {
     const caller = callerAs(adminId);
     const contact = await caller.contact.create({ organizationId: org.id, name: "Subcontractor" });

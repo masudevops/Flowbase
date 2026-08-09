@@ -11,6 +11,7 @@ export type BoardCard = {
   // them); the tRPC client hydrates the same field as a Date too, via
   // superjson — never actually a plain string, despite some Prisma
   // return-type printouts suggesting otherwise.
+  startDate: Date | null;
   dueDate: Date | null;
   position: string;
   description: string | null;

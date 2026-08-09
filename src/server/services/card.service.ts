@@ -56,6 +56,7 @@ export async function updateCard(
     title?: string;
     description?: string | null;
     priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    startDate?: string | null;
     dueDate?: string | null;
     cardTypeId?: string | null;
     location?: string | null;
@@ -83,6 +84,8 @@ export async function updateCard(
       title: fields.title,
       description: fields.description,
       priority: fields.priority,
+      startDate:
+        fields.startDate === undefined ? undefined : fields.startDate ? new Date(fields.startDate) : null,
       dueDate: fields.dueDate === undefined ? undefined : fields.dueDate ? new Date(fields.dueDate) : null,
       cardTypeId: fields.cardTypeId,
       location: fields.location,

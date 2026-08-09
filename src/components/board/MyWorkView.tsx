@@ -18,6 +18,7 @@ type MyWorkCard = {
   title: string;
   description: string | null;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  startDate: Date | null;
   dueDate: Date | null;
   assigneeId: string | null;
   assigneeContactId: string | null;

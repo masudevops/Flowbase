@@ -323,7 +323,24 @@ export function CardDetailPanel({
               </Select>
             </div>
 
-            <div className="col-span-2">
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                Start date
+              </Label>
+              <Input
+                type="date"
+                value={formatDateInput(card.startDate)}
+                onChange={(e) =>
+                  updateCard.mutate({
+                    cardId,
+                    startDate: e.target.value ? new Date(e.target.value).toISOString() : null,
+                  })
+                }
+              />
+            </div>
+
+            <div>
               <Label className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
                 Due date

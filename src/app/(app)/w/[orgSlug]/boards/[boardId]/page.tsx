@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ListTodo, CalendarDays, Settings2 } from "lucide-react";
+import { ListTodo, CalendarDays, GanttChartSquare, Settings2 } from "lucide-react";
 import { requireServerCaller, getOrgBySlugOrNotFound, callOrNotFound } from "@/server/caller";
 import { Board } from "@/components/board/Board";
 import { PageHeader } from "@/components/ui/page-header";
@@ -55,6 +55,13 @@ export default async function BoardPage({
             >
               <CalendarDays className="h-4 w-4" />
               Calendar
+            </Link>
+            <Link
+              href={`/w/${orgSlug}/boards/${boardId}/timeline`}
+              className="flex items-center gap-1.5 rounded-md border border-[#DFE1E6] px-3 py-2 text-sm font-medium text-[#172B4D] dark:border-[#2A3547] dark:text-[#E4E7EC]"
+            >
+              <GanttChartSquare className="h-4 w-4" />
+              Timeline
             </Link>
             <Link
               href={`/w/${orgSlug}/boards/${boardId}/settings`}
