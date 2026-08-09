@@ -26,6 +26,7 @@ describe("tenant isolation", () => {
   let userB: TestUser;
   let boardBId: string;
   let cardTypeBId: string;
+  let cardBId: string;
 
   beforeAll(async () => {
     await db.connect();
@@ -53,6 +54,7 @@ describe("tenant isolation", () => {
     const column = await callerB.column.create({ boardId: boardBId, name: "To Do" });
     const card = await callerB.card.create({ boardId: boardBId, columnId: column.id, title: "Org B's own card" });
     await callerB.card.update({ cardId: card.id, assigneeId: userB.id });
+    cardBId = card.id;
   });
 
   afterAll(async () => {
@@ -94,6 +96,11 @@ describe("tenant isolation", () => {
   it("cannot see another org's assigned work via My Work, even by supplying its real organizationId", async () => {
     const myWork = await callerAs(userA.id).card.listAssignedToMe({ organizationId: orgB.id });
     expect(myWork).toEqual([]);
+  });
+
+  it("cannot see another org's card activity log via its real card id", async () => {
+    const entries = await callerAs(userA.id).auditLog.listByCard({ cardId: cardBId });
+    expect(entries).toEqual([]);
   });
 
   it("cannot update another org's card type by its real id", async () => {

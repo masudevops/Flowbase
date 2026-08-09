@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle, Paperclip } from "lucide-react";
+import { X, Tag, Flag, User, Calendar, MapPin, Ban, ListChecks, MessageSquare, Trash2, Layers, CheckCircle2, Circle, Paperclip, History } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
@@ -11,9 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/field";
 import { PRIORITY_META } from "@/components/board/types";
 import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "@/components/board/types";
+import { describeAuditLog } from "@/lib/auditLog";
+import { timeAgo } from "@/lib/time";
 import { AttachmentsSection } from "./AttachmentsSection";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
@@ -98,6 +101,7 @@ export function CardDetailPanel({
   const utils = trpc.useUtils();
   const { data: card } = trpc.card.byId.useQuery({ cardId });
   const { data: comments } = trpc.comment.list.useQuery({ cardId });
+  const { data: auditLog } = trpc.auditLog.listByCard.useQuery({ cardId });
   const { data: me } = trpc.user.me.useQuery();
   const { data: boardCards } = trpc.card.listByBoard.useQuery(
     { boardId: card?.boardId ?? "" },
@@ -106,6 +110,7 @@ export function CardDetailPanel({
 
   const invalidateCard = () => {
     utils.card.byId.invalidate({ cardId });
+    utils.auditLog.listByCard.invalidate({ cardId });
     onChanged();
   };
 
@@ -683,6 +688,39 @@ export function CardDetailPanel({
                 aria-label="Write a comment"
               />
             </form>
+          </div>
+
+          {/* Activity */}
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <History className="h-3.5 w-3.5 text-[#5E6C84] dark:text-[#8C9BAB]" />
+              <SectionLabel>Activity</SectionLabel>
+            </div>
+            {auditLog ? (
+              <div className="space-y-2">
+                {auditLog.map((entry) => (
+                  <p key={entry.id} className="text-sm text-[#172B4D] dark:text-[#E4E7EC]">
+                    <span className="font-medium">
+                      {entry.actor?.fullName ?? entry.actor?.email ?? "Someone"}
+                    </span>{" "}
+                    <span className="text-[#5E6C84] dark:text-[#8C9BAB]">
+                      {describeAuditLog(entry)}
+                    </span>{" "}
+                    <span className="text-xs text-[#5E6C84] dark:text-[#8C9BAB]">
+                      · {timeAgo(new Date(entry.createdAt))}
+                    </span>
+                  </p>
+                ))}
+                {auditLog.length === 0 && (
+                  <p className="text-sm text-[#5E6C84] dark:text-[#8C9BAB]">No activity yet.</p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            )}
           </div>
         </div>
       </div>

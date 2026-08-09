@@ -16,6 +16,7 @@ import { searchRouter } from "./search";
 import { notificationRouter } from "./notification";
 import { automationRouter } from "./automation";
 import { workflowTemplateRouter } from "./workflowTemplate";
+import { auditLogRouter } from "./auditLog";
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({
@@ -39,6 +40,7 @@ export const appRouter = router({
   notification: notificationRouter,
   automation: automationRouter,
   workflowTemplate: workflowTemplateRouter,
+  auditLog: auditLogRouter,
 });
 
 export type AppRouter = typeof appRouter;
