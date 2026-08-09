@@ -129,7 +129,8 @@ export function BacklogView({
         </div>
       </div>
 
-      <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#D3DBD8] dark:border-[#23414F]">
+      <div className="relative">
+        <div className="thin-scrollbar overflow-x-auto rounded-md border border-[#D3DBD8] dark:border-[#23414F]">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-[#D3DBD8] bg-[#EEF2F0] text-left text-xs text-[#55707D] dark:border-[#23414F] dark:bg-[#0B1F2E] dark:text-[#8FA8B3]">
@@ -196,6 +197,12 @@ export function BacklogView({
             )}
           </tbody>
         </table>
+        </div>
+        {/* Hints that Assignee/Due/Blocked scroll into view on narrow
+            screens, where the table's min-width forces horizontal
+            scroll but the columns just end abruptly with no other
+            affordance that there's more off-screen. */}
+        <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-md bg-gradient-to-l from-[#F5F7F4] to-transparent sm:hidden dark:from-[#0B1F2E]" />
       </div>
 
       {openCardId && (

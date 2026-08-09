@@ -78,7 +78,7 @@ export function CardPreview({
       )}
 
       {card.isBlocked && (
-        <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/15">
+        <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/22">
           <Ban className="h-3 w-3 shrink-0 text-[#C1440E] dark:text-[#E8703A]" />
           <span className="truncate text-[9px] leading-tight text-[#C1440E] dark:text-[#E8703A]">
             {card.blockedByCard ? `Blocked by "${card.blockedByCard.title}"` : card.blockedReason || "Blocked"}

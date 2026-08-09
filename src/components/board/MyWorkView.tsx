@@ -204,7 +204,7 @@ export function MyWorkView({
                     </span>
                   )}
                   {card.isBlocked && (
-                    <span className="flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-0.5 text-[#C1440E] dark:bg-[#E8703A]/15 dark:text-[#E8703A]">
+                    <span className="flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-0.5 text-[#C1440E] dark:bg-[#E8703A]/22 dark:text-[#E8703A]">
                       <Ban className="h-3 w-3" />
                       Blocked
                     </span>

@@ -137,7 +137,7 @@ export function BoardDemo() {
                       </span>
                     )}
                     {card.blocked && (
-                      <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/15">
+                      <div className="mt-1.5 flex items-center gap-1 rounded bg-[#C1440E]/10 px-1.5 py-1 dark:bg-[#E8703A]/22">
                         <span className="h-1 w-1 shrink-0 rounded-full bg-[#C1440E] dark:bg-[#E8703A]" />
                         <span className="text-[9px] leading-tight text-[#C1440E] dark:text-[#E8703A]">
                           {card.blocked}

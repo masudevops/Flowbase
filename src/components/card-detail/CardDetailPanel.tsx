@@ -382,7 +382,7 @@ export function CardDetailPanel({
                     className={cn(
                       "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                       selected
-                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]"
+                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/22 dark:text-[#5FB4E0]"
                         : "border-[#D3DBD8] text-[#55707D] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:text-[#8FA8B3] dark:hover:border-[#5FB4E0]/50",
                     )}
                   >
@@ -406,7 +406,7 @@ export function CardDetailPanel({
                     className={cn(
                       "rounded-full border border-dashed px-2.5 py-1 text-xs font-medium transition-colors",
                       selected
-                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]"
+                        ? "border-[#1D5C8A] bg-[#1D5C8A]/10 text-[#1D5C8A] dark:border-[#5FB4E0] dark:bg-[#5FB4E0]/22 dark:text-[#5FB4E0]"
                         : "border-[#D3DBD8] text-[#55707D] hover:border-[#1D5C8A]/50 dark:border-[#23414F] dark:text-[#8FA8B3] dark:hover:border-[#5FB4E0]/50",
                     )}
                   >

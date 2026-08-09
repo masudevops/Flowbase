@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ListTodo, CalendarDays, GanttChartSquare, Settings2 } from "lucide-react";
+import { ListTodo, CalendarDays, GanttChartSquare, Settings2, Columns3 } from "lucide-react";
 import { requireServerCaller, getOrgBySlugOrNotFound, callOrNotFound } from "@/server/caller";
 import { Board } from "@/components/board/Board";
 import { PageHeader } from "@/components/ui/page-header";
+import { Panel } from "@/components/ui/panel";
 
 export default async function BoardPage({
   params,
@@ -75,16 +76,21 @@ export default async function BoardPage({
       />
 
       {columns.length === 0 ? (
-        <p className="text-sm text-[#55707D] dark:text-[#8FA8B3]">
-          No columns yet.{" "}
+        <Panel className="flex flex-col items-center gap-3 border-dashed px-6 py-14 text-center">
+          <Columns3 className="h-8 w-8 text-[#55707D] dark:text-[#8FA8B3]" />
+          <div>
+            <p className="text-sm font-medium text-[#14242E] dark:text-[#E7EEF0]">No columns yet</p>
+            <p className="mt-1 text-sm text-[#55707D] dark:text-[#8FA8B3]">
+              Add a column to start moving work through this board.
+            </p>
+          </div>
           <Link
             href={`/w/${orgSlug}/boards/${boardId}/settings`}
-            className="font-medium underline"
+            className="rounded-md bg-[#1D5C8A] px-3 py-2 text-sm font-medium text-white dark:bg-[#5FB4E0] dark:text-[#0B1F2E]"
           >
-            Add one
+            Add your first column
           </Link>
-          .
-        </p>
+        </Panel>
       ) : (
         <Board
           boardId={boardId}

@@ -57,12 +57,12 @@ export function Column({
             {String(column.cards.length).padStart(2, "0")}
           </span>
           {column.isBlockedColumn && (
-            <span className="rounded bg-[#C1440E]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#C1440E] dark:bg-[#E8703A]/15 dark:text-[#E8703A]">
+            <span className="rounded bg-[#C1440E]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#C1440E] dark:bg-[#E8703A]/22 dark:text-[#E8703A]">
               blocked
             </span>
           )}
           {column.isDoneColumn && (
-            <span className="rounded bg-[#0F7A5C]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#0F7A5C] dark:bg-[#3FBF95]/15 dark:text-[#3FBF95]">
+            <span className="rounded bg-[#0F7A5C]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#0F7A5C] dark:bg-[#3FBF95]/22 dark:text-[#3FBF95]">
               done
             </span>
           )}

@@ -142,7 +142,7 @@ export function LandingPage() {
               <p className="mt-1 text-[13px] text-[#14242E]/60 dark:text-[#E7EEF0]/60">
                 Assignee: Unassigned
               </p>
-              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#C1440E]/10 px-2 py-1.5 dark:bg-[#E8703A]/15">
+              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#C1440E]/10 px-2 py-1.5 dark:bg-[#E8703A]/22">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C1440E] dark:bg-[#E8703A]" />
                 <span className="text-xs text-[#C1440E] dark:text-[#E8703A]">
                   Blocked — waiting on design review
@@ -164,7 +164,7 @@ export function LandingPage() {
               <p className="mt-1 text-[13px] text-[#14242E]/60 dark:text-[#E7EEF0]/60">
                 Assignee: Unassigned
               </p>
-              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#C1440E]/10 px-2 py-1.5 dark:bg-[#E8703A]/15">
+              <div className="mt-3 flex w-fit items-center gap-1.5 rounded bg-[#C1440E]/10 px-2 py-1.5 dark:bg-[#E8703A]/22">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C1440E] dark:bg-[#E8703A]" />
                 <span className="text-xs text-[#C1440E] dark:text-[#E8703A]">
                   Blocked — waiting on inspector

@@ -49,7 +49,7 @@ export default async function BoardsPage({
               href={`/w/${orgSlug}/boards/${board.id}`}
               className="flex items-start gap-3 rounded-lg border border-[#D3DBD8] bg-white p-4 transition-shadow hover:shadow-md dark:border-[#23414F] dark:bg-[#0F2A3D]"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/22 dark:text-[#5FB4E0]">
                 <Kanban className="h-5 w-5" />
               </span>
               <div className="min-w-0">

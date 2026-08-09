@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 type BadgeTone = "neutral" | "blue" | "red" | "orange" | "green" | "purple";
 
 const TONES: Record<BadgeTone, string> = {
-  neutral: "bg-[#55707D]/10 text-[#55707D] dark:bg-[#8FA8B3]/15 dark:text-[#8FA8B3]",
-  blue: "bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/15 dark:text-[#5FB4E0]",
-  red: "bg-[#C1440E]/10 text-[#C1440E] dark:bg-[#E8703A]/15 dark:text-[#E8703A]",
-  orange: "bg-[#D98324]/10 text-[#9C5A1A] dark:bg-[#D98324]/15 dark:text-[#D98324]",
-  green: "bg-[#0F7A5C]/10 text-[#0F7A5C] dark:bg-[#3FBF95]/15 dark:text-[#3FBF95]",
-  purple: "bg-[#6554C0]/10 text-[#6554C0] dark:bg-[#8777D9]/15 dark:text-[#8777D9]",
+  neutral: "bg-[#55707D]/10 text-[#55707D] dark:bg-[#8FA8B3]/22 dark:text-[#8FA8B3]",
+  blue: "bg-[#1D5C8A]/10 text-[#1D5C8A] dark:bg-[#5FB4E0]/22 dark:text-[#5FB4E0]",
+  red: "bg-[#C1440E]/10 text-[#C1440E] dark:bg-[#E8703A]/22 dark:text-[#E8703A]",
+  orange: "bg-[#D98324]/10 text-[#9C5A1A] dark:bg-[#D98324]/22 dark:text-[#D98324]",
+  green: "bg-[#0F7A5C]/10 text-[#0F7A5C] dark:bg-[#3FBF95]/22 dark:text-[#3FBF95]",
+  purple: "bg-[#6554C0]/10 text-[#6554C0] dark:bg-[#8777D9]/22 dark:text-[#8777D9]",
 };
 
 /// Converts a #rrggbb hex string to an rgba() string at the given alpha —
