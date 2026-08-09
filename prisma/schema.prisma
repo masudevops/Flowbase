@@ -36,6 +36,12 @@ enum ModuleKey {
   CALENDAR
 }
 
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  SELECT
+}
+
 enum AuditAction {
   CARD_CREATED
   CARD_UPDATED
@@ -99,6 +105,8 @@ model Organization {
   automations    Automation[]
   workflowTemplates WorkflowTemplate[]
   cardAssignees  CardAssignee[]
+  customFieldDefinitions CustomFieldDefinition[]
+  customFieldValues      CustomFieldValue[]
 
   @@map("organizations")
 }
@@ -291,10 +299,58 @@ model CardType {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
   cards        Card[]
+  customFieldDefinitions CustomFieldDefinition[]
 
   @@unique([boardId, name])
   @@index([organizationId])
   @@map("card_types")
+}
+
+/// A user-definable field, scoped to one CardType (not the whole board)
+/// — a "Bug" type and a "Feature" type on the same board can have
+/// different custom fields. v1 field types only: TEXT, NUMBER, SELECT.
+model CustomFieldDefinition {
+  id             String          @id @default(cuid())
+  organizationId String          @map("organization_id")
+  cardTypeId     String          @map("card_type_id")
+  name           String
+  fieldType      CustomFieldType @map("field_type")
+  /// Only meaningful for SELECT — a string array of the admin-defined
+  /// options. Left null for TEXT/NUMBER.
+  options        Json?
+  /// Fractional-index string — fields render in this order, append-only
+  /// for v1 (no drag-to-reorder UI yet).
+  position       String
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  cardType     CardType           @relation(fields: [cardTypeId], references: [id], onDelete: Cascade)
+  values       CustomFieldValue[]
+
+  @@index([cardTypeId])
+  @@index([organizationId])
+  @@map("custom_field_definitions")
+}
+
+/// One card's value for one custom field. Stored as a string regardless
+/// of fieldType and parsed/formatted at the UI layer — keeps this table
+/// simple instead of a polymorphic-column mess for 3 field types.
+model CustomFieldValue {
+  id                String   @id @default(cuid())
+  organizationId    String   @map("organization_id")
+  cardId            String   @map("card_id")
+  fieldDefinitionId String   @map("field_definition_id")
+  value             String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  organization    Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  card            Card                   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  fieldDefinition CustomFieldDefinition  @relation(fields: [fieldDefinitionId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, fieldDefinitionId])
+  @@index([organizationId])
+  @@map("custom_field_values")
 }
 
 /// A reusable "starter kit" for a new board: a name/description plus a
@@ -451,6 +507,7 @@ model Card {
   attachments    Attachment[]
   notifications  Notification[]
   assignees      CardAssignee[]
+  customFieldValues CustomFieldValue[]
 
   @@index([organizationId])
   @@index([boardId])

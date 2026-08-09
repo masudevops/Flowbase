@@ -19,6 +19,7 @@ import type { CardTypeOption, MemberOption, LabelOption, ContactOption } from "@
 import { describeAuditLog } from "@/lib/auditLog";
 import { timeAgo } from "@/lib/time";
 import { AttachmentsSection } from "./AttachmentsSection";
+import { CustomFieldsSection } from "./CustomFieldsSection";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
@@ -570,6 +571,8 @@ export function CardDetailPanel({
               )}
             </div>
           </div>
+
+          <CustomFieldsSection cardId={cardId} cardTypeId={card.cardTypeId} />
         </div>
 
         {/* ---------- Collaboration ---------- */}

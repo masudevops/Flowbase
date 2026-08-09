@@ -4,6 +4,7 @@ import { organizationRouter } from "./organization";
 import { boardRouter } from "./board";
 import { columnRouter } from "./column";
 import { cardTypeRouter } from "./cardType";
+import { customFieldRouter } from "./customField";
 import { cardRouter } from "./card";
 import { commentRouter } from "./comment";
 import { checklistRouter } from "./checklist";
@@ -28,6 +29,7 @@ export const appRouter = router({
   board: boardRouter,
   column: columnRouter,
   cardType: cardTypeRouter,
+  customField: customFieldRouter,
   card: cardRouter,
   comment: commentRouter,
   checklist: checklistRouter,

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireServerCaller, callOrNotFound } from "@/server/caller";
 import { ColumnsManager } from "./ColumnsManager";
 import { CardTypesManager } from "@/components/board/CardTypesManager";
+import { CustomFieldsManager } from "@/components/board/CustomFieldsManager";
 import { AutomationsManager } from "@/components/board/AutomationsManager";
 import { SaveAsTemplateButton } from "@/components/board/SaveAsTemplateButton";
 import { DeleteBoardButton } from "@/components/board/DeleteBoardButton";
@@ -43,6 +44,10 @@ export default async function BoardSettingsPage({
           boardId={boardId}
           initialCardTypes={cardTypes}
         />
+      </div>
+
+      <div className="mt-10">
+        <CustomFieldsManager organizationId={organization.id} boardId={boardId} initialCardTypes={cardTypes} />
       </div>
 
       <div className="mt-10">
