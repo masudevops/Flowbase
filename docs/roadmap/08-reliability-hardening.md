@@ -1,6 +1,6 @@
 # Epic 8: Reliability & security hardening
 
-**Status:** Not started
+**Status:** In progress — 8.1 done, 8.2/8.3 blocked on account creation, 8.4 not started
 **Schema change:** No
 **Risk:** Low (8.1), Medium (8.2/8.3 — new external services), Low (8.4 — docs only)
 
@@ -45,19 +45,32 @@ below, don't sign up for or wire in either without checking first.
 
 ## Stories
 
-### 8.1 — Fix the Labels toggle race condition
-- [ ] `CardDetailPanel.tsx`: the Labels section (`selectedLabelIds`,
-      currently derived fresh from `card.labels` on every render) has
-      the exact bug the Assignees toggle had before Epic 5's fix —
-      rapid clicks can silently drop an earlier click because `next` is
-      computed from stale pre-refetch server state. Apply the identical
-      fix already proven there: a local `labelsDraft` state
-      (`Set<string>` or `string[]`), synced from `card.labels` only on
-      genuine card-switch (the established "adjust state during render"
-      pattern, not `useEffect`), updated synchronously on every toggle
-      click before firing `setLabels.mutate`.
-- [ ] No schema/router changes — this is a client-side state bug only,
-      `setLabels` itself is already correct (replaces the full set).
+### 8.1 — Fix the Labels toggle race condition — DONE
+- [x] `CardDetailPanel.tsx`: the Labels section (`selectedLabelIds`,
+      derived fresh from `card.labels` on every render) had the exact
+      client-side bug the Assignees toggle had before Epic 5's fix —
+      rapid clicks could silently drop an earlier click because `next`
+      was computed from stale pre-refetch server state. Fixed with the
+      same `labelsDraft` local-state pattern already proven there.
+- [x] **Turned out deeper than scoped**: fixing the client-side draft
+      surfaced a second, server-side bug underneath it. Both
+      `setCardLabels` and `setCardAssignees` in `card.service.ts`
+      read the current rows, diff against the desired set, then write —
+      with no locking, two overlapping requests for the *same card* can
+      interleave their transactions and the one that happens to commit
+      last wins, regardless of which the client issued last. Confirmed
+      live: 3 rapid label clicks landed only 1 label in Postgres despite
+      the client sending the correct cumulative payload each time.
+      Fixed with a `select id from cards where id = $1 for update` row
+      lock at the top of both functions, forcing overlapping
+      transactions for the same card to serialize. This means the
+      Assignees flow (Epic 5) had this exposure too, not just Labels —
+      just hadn't been caught by a concurrent (not just rapid-sequential)
+      request pattern before.
+- [x] Added `tests/card-mutations.test.ts` regression coverage:
+      `Promise.all`-fired concurrent `setLabels`/`setAssignees` calls for
+      the same card, asserting the final state always matches exactly
+      one full payload — never a merged/corrupted mix.
 
 ### 8.2 — Rate limiting (needs an Upstash account first)
 - [ ] **Before writing code**: confirm with the user whether to create a
@@ -106,9 +119,10 @@ below, don't sign up for or wire in either without checking first.
 
 ## Acceptance criteria
 
-- Rapid sequential label toggles (mirroring the Epic 5 assignee
-  verification methodology — Playwright script + direct DB query) result
-  in all intended labels persisting, not just the last click.
+- [x] Rapid sequential label toggles (Playwright script + direct DB
+      query, mirroring the Epic 5 assignee verification methodology)
+      result in all intended labels persisting, not just the last click
+      — confirmed live, plus an automated concurrency regression test.
 - Once 8.2 lands: hammering `comment.create` or `membership.invite` in a
   tight loop gets rate-limited with a readable error, not silently
   accepted forever.

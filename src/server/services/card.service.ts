@@ -223,6 +223,13 @@ export async function setCardLabels(
   db: Prisma.TransactionClient,
   params: { organizationId: string; actorId: string; cardId: string; labelIds: string[] },
 ) {
+  // Row lock so two overlapping setLabels calls for the same card (rapid
+  // toggle clicks each firing their own request) serialize instead of
+  // racing — without this, a "delete all, recreate desired set" pattern
+  // lets whichever transaction happens to commit last win, regardless of
+  // which one the client issued last (Epic 8.1).
+  await db.$queryRaw`select id from cards where id = ${params.cardId} for update`;
+
   await db.cardLabel.deleteMany({ where: { cardId: params.cardId } });
   if (params.labelIds.length > 0) {
     await db.cardLabel.createMany({
@@ -258,6 +265,12 @@ export async function setCardAssignees(
     assignees: { userId?: string; contactId?: string }[];
   },
 ) {
+  // Same row-lock reasoning as setCardLabels above — this reads
+  // "current" assignees then writes a diff against it, which two
+  // overlapping requests for the same card could otherwise race (Epic
+  // 8.1's finding turned out to affect assignees too, not just labels).
+  await db.$queryRaw`select id from cards where id = ${params.cardId} for update`;
+
   const current = await db.cardAssignee.findMany({ where: { cardId: params.cardId } });
 
   const desiredUserIds = new Set(params.assignees.map((a) => a.userId).filter((v): v is string => !!v));

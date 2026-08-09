@@ -155,6 +155,11 @@ export function CardDetailPanel({
   // mutation's own refetch hadn't landed yet, silently dropping the
   // first click's change.
   const [assigneesDraft, setAssigneesDraft] = useState<{ userId?: string; contactId?: string }[]>([]);
+  // Same race as assigneesDraft above — Labels had the identical bug
+  // (Epic 8.1): deriving `next` straight from `card.labels` on each
+  // click lets a second rapid click compute its "next" set from
+  // pre-first-click server state, silently dropping the first click.
+  const [labelsDraft, setLabelsDraft] = useState<string[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentBody, setEditingCommentBody] = useState("");
@@ -177,6 +182,7 @@ export function CardDetailPanel({
     setBlockedReasonDraft(card.blockedReason ?? "");
     setBlockedByCardIdDraft(card.blockedByCardId ?? "");
     setAssigneesDraft(card.assignees.map((a) => (a.user ? { userId: a.user.id } : { contactId: a.contact!.id })));
+    setLabelsDraft(card.labels.map((l) => l.label.id));
     setEditingDescription(false);
     setEditingCommentId(null);
   }
@@ -200,7 +206,6 @@ export function CardDetailPanel({
     );
   }
 
-  const selectedLabelIds = new Set(card.labels.map((l) => l.label.id));
   const isAdmin = members.find((m) => m.userId === me?.id)?.role === "ADMIN";
 
   return (
@@ -496,15 +501,16 @@ export function CardDetailPanel({
             </Label>
             <div className="flex flex-wrap gap-1.5">
               {labels.map((label) => {
-                const selected = selectedLabelIds.has(label.id);
+                const selected = labelsDraft.includes(label.id);
                 return (
                   <button
                     key={label.id}
                     type="button"
                     onClick={() => {
                       const next = selected
-                        ? [...selectedLabelIds].filter((id) => id !== label.id)
-                        : [...selectedLabelIds, label.id];
+                        ? labelsDraft.filter((id) => id !== label.id)
+                        : [...labelsDraft, label.id];
+                      setLabelsDraft(next);
                       setLabels.mutate({ cardId, labelIds: next });
                     }}
                     className="rounded px-2 py-1 text-xs font-medium transition-opacity"

@@ -113,6 +113,49 @@ describe("card mutations", () => {
     expect(fetched.assignees).toHaveLength(0);
   });
 
+  it("concurrent setAssignees calls for the same card don't corrupt into a merged/lost-update state (Epic 8.1)", async () => {
+    const caller = callerAs(adminId);
+    const contact = await caller.contact.create({ organizationId: org.id, name: "Race Contact" });
+    const card = await caller.card.create({ boardId, columnId, title: "Assignee race test" });
+
+    // Three overlapping requests for the same card, fired concurrently —
+    // without the row lock in setCardAssignees, a "read current, diff,
+    // write" pattern lets two transactions interleave and produce a
+    // state that matches neither payload. The fix guarantees the final
+    // state always matches exactly one of these three, never a mix.
+    const payloads = [
+      [{ userId: adminId }],
+      [{ userId: memberId }],
+      [{ contactId: contact.id }],
+    ];
+    await Promise.all(payloads.map((assignees) => caller.card.setAssignees({ cardId: card.id, assignees })));
+
+    const fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.assignees).toHaveLength(1);
+    const matchesOnePayload = payloads.some(
+      (p) =>
+        (p[0].userId && fetched.assignees[0].user?.id === p[0].userId) ||
+        (p[0].contactId && fetched.assignees[0].contact?.id === p[0].contactId),
+    );
+    expect(matchesOnePayload).toBe(true);
+  });
+
+  it("concurrent setLabels calls for the same card don't corrupt into a merged/lost-update state (Epic 8.1)", async () => {
+    const caller = callerAs(adminId);
+    const labelA = await caller.label.create({ organizationId: org.id, name: "Race Label A" });
+    const labelB = await caller.label.create({ organizationId: org.id, name: "Race Label B" });
+    const labelC = await caller.label.create({ organizationId: org.id, name: "Race Label C" });
+    const card = await caller.card.create({ boardId, columnId, title: "Label race test" });
+
+    const payloads = [[labelA.id], [labelB.id], [labelC.id]];
+    await Promise.all(payloads.map((labelIds) => caller.card.setLabels({ cardId: card.id, labelIds })));
+
+    const fetched = await caller.card.byId({ cardId: card.id });
+    expect(fetched.labels).toHaveLength(1);
+    const matchesOnePayload = payloads.some((p) => fetched.labels[0].label.id === p[0]);
+    expect(matchesOnePayload).toBe(true);
+  });
+
   it("a card assigned to a member shows up in that member's My Work for every assignee, not just one", async () => {
     const caller = callerAs(adminId);
     const card = await caller.card.create({ boardId, columnId, title: "Shared assignment test" });
