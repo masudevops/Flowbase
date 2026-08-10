@@ -5,8 +5,9 @@ import { trpc } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/field";
+import { Sigma } from "lucide-react";
 
-type FieldType = "TEXT" | "NUMBER" | "SELECT";
+type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA";
 
 function FieldInput({
   cardId,
@@ -67,6 +68,19 @@ function FieldInput({
   );
 }
 
+// Formula/rollup fields have nothing to type into — their value is
+// computed server-side on every read (see customField.ts's listValues)
+// — so this renders visibly read-only instead of reusing FieldInput,
+// which would otherwise look like a broken/unresponsive text box.
+function ComputedFieldDisplay({ value }: { value: string | null }) {
+  return (
+    <div className="flex items-center gap-1.5 rounded-md border border-dashed border-[#D3DBD8] bg-[#EEF2F0] px-3 py-2 text-sm text-[#14242E] dark:border-[#23414F] dark:bg-[#0B1F2E] dark:text-[#E7EEF0]">
+      <Sigma className="h-3.5 w-3.5 shrink-0 text-[#55707D] dark:text-[#8FA8B3]" />
+      {value ?? "—"}
+    </div>
+  );
+}
+
 export function CustomFieldsSection({ cardId, cardTypeId }: { cardId: string; cardTypeId: string | null }) {
   const utils = trpc.useUtils();
   const { data: definitions } = trpc.customField.listDefinitions.useQuery(
@@ -91,14 +105,18 @@ export function CustomFieldsSection({ cardId, cardTypeId }: { cardId: string; ca
       {definitions.map((def) => (
         <div key={def.id} className={def.fieldType === "SELECT" ? "" : "col-span-2"}>
           <Label>{def.name}</Label>
-          <FieldInput
-            cardId={cardId}
-            fieldDefinitionId={def.id}
-            fieldType={def.fieldType as FieldType}
-            options={Array.isArray(def.options) ? (def.options as string[]) : []}
-            savedValue={valueByDefinitionId.get(def.id) ?? null}
-            onSave={(value) => setValue.mutate({ cardId, fieldDefinitionId: def.id, value })}
-          />
+          {def.fieldType === "FORMULA" ? (
+            <ComputedFieldDisplay value={valueByDefinitionId.get(def.id) ?? null} />
+          ) : (
+            <FieldInput
+              cardId={cardId}
+              fieldDefinitionId={def.id}
+              fieldType={def.fieldType as FieldType}
+              options={Array.isArray(def.options) ? (def.options as string[]) : []}
+              savedValue={valueByDefinitionId.get(def.id) ?? null}
+              onSave={(value) => setValue.mutate({ cardId, fieldDefinitionId: def.id, value })}
+            />
+          )}
         </div>
       ))}
     </div>

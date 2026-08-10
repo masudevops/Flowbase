@@ -17,27 +17,45 @@ type CardTypeOption = {
   isDefault: boolean;
   createdAt: Date;
 };
-type FieldType = "TEXT" | "NUMBER" | "SELECT";
+type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA";
+type NumberFieldOption = { id: string; name: string };
+type FormulaOperator = "+" | "-" | "*" | "/";
 
 const FIELD_TYPE_LABEL: Record<FieldType, string> = {
   TEXT: "Text",
   NUMBER: "Number",
   SELECT: "Select",
+  FORMULA: "Formula (calculated)",
+};
+
+const OPERATOR_LABEL: Record<FormulaOperator, string> = {
+  "+": "+",
+  "-": "−",
+  "*": "×",
+  "/": "÷",
 };
 
 function NewFieldForm({
   organizationId,
   cardTypeId,
+  numberFields,
   onCreated,
 }: {
   organizationId: string;
   cardTypeId: string;
+  numberFields: NumberFieldOption[];
   onCreated: () => void;
 }) {
   const createDefinition = trpc.customField.createDefinition.useMutation({
     onSuccess: () => {
       setName("");
       setOptionsText("");
+      setType("TEXT");
+      setLeftFieldId("");
+      setOperator("*");
+      setRightMode("field");
+      setRightFieldId("");
+      setRightConstant("");
       onCreated();
     },
   });
@@ -45,6 +63,15 @@ function NewFieldForm({
   const [name, setName] = useState("");
   const [type, setType] = useState<FieldType>("TEXT");
   const [optionsText, setOptionsText] = useState("");
+  const [leftFieldId, setLeftFieldId] = useState("");
+  const [operator, setOperator] = useState<FormulaOperator>("*");
+  const [rightMode, setRightMode] = useState<"field" | "constant">("field");
+  const [rightFieldId, setRightFieldId] = useState("");
+  const [rightConstant, setRightConstant] = useState("");
+
+  const canSubmitFormula =
+    type !== "FORMULA" ||
+    (leftFieldId && (rightMode === "field" ? !!rightFieldId : rightConstant.trim() !== ""));
 
   return (
     <form
@@ -52,15 +79,37 @@ function NewFieldForm({
       onSubmit={(e) => {
         e.preventDefault();
         if (!name.trim()) return;
-        const options =
-          type === "SELECT"
-            ? optionsText
-                .split(",")
-                .map((o) => o.trim())
-                .filter(Boolean)
-            : undefined;
-        if (type === "SELECT" && (!options || options.length === 0)) return;
-        createDefinition.mutate({ organizationId, cardTypeId, name: name.trim(), fieldType: type, options });
+
+        if (type === "SELECT") {
+          const options = optionsText
+            .split(",")
+            .map((o) => o.trim())
+            .filter(Boolean);
+          if (options.length === 0) return;
+          createDefinition.mutate({ organizationId, cardTypeId, name: name.trim(), fieldType: type, options });
+          return;
+        }
+
+        if (type === "FORMULA") {
+          if (!canSubmitFormula) return;
+          createDefinition.mutate({
+            organizationId,
+            cardTypeId,
+            name: name.trim(),
+            fieldType: type,
+            formula: {
+              leftFieldId,
+              operator,
+              right:
+                rightMode === "field"
+                  ? { type: "field", fieldId: rightFieldId }
+                  : { type: "constant", value: Number(rightConstant) },
+            },
+          });
+          return;
+        }
+
+        createDefinition.mutate({ organizationId, cardTypeId, name: name.trim(), fieldType: type });
       }}
     >
       <Input
@@ -71,8 +120,9 @@ function NewFieldForm({
       />
       <Select value={type} onChange={(e) => setType(e.target.value as FieldType)} className="w-auto">
         {(Object.keys(FIELD_TYPE_LABEL) as FieldType[]).map((t) => (
-          <option key={t} value={t}>
+          <option key={t} value={t} disabled={t === "FORMULA" && numberFields.length === 0}>
             {FIELD_TYPE_LABEL[t]}
+            {t === "FORMULA" && numberFields.length === 0 ? " (add a Number field first)" : ""}
           </option>
         ))}
       </Select>
@@ -84,7 +134,63 @@ function NewFieldForm({
           className="w-56"
         />
       )}
-      <Button type="submit" className="flex w-auto items-center gap-1.5" disabled={createDefinition.isPending}>
+      {type === "FORMULA" && (
+        <>
+          <Select value={leftFieldId} onChange={(e) => setLeftFieldId(e.target.value)} className="w-auto">
+            <option value="">Field...</option>
+            {numberFields.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={operator}
+            onChange={(e) => setOperator(e.target.value as FormulaOperator)}
+            className="w-auto"
+          >
+            {(Object.keys(OPERATOR_LABEL) as FormulaOperator[]).map((op) => (
+              <option key={op} value={op}>
+                {OPERATOR_LABEL[op]}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={rightMode === "field" ? rightFieldId : "__constant__"}
+            onChange={(e) => {
+              if (e.target.value === "__constant__") {
+                setRightMode("constant");
+              } else {
+                setRightMode("field");
+                setRightFieldId(e.target.value);
+              }
+            }}
+            className="w-auto"
+          >
+            <option value="">Field...</option>
+            {numberFields.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+            <option value="__constant__">Custom number...</option>
+          </Select>
+          {rightMode === "constant" && (
+            <Input
+              type="number"
+              value={rightConstant}
+              onChange={(e) => setRightConstant(e.target.value)}
+              placeholder="Number"
+              className="w-24"
+            />
+          )}
+        </>
+      )}
+      <Button
+        type="submit"
+        className="flex w-auto items-center gap-1.5"
+        disabled={createDefinition.isPending || !canSubmitFormula}
+      >
         <Plus className="h-4 w-4" />
         Add field
       </Button>
@@ -95,9 +201,22 @@ function NewFieldForm({
   );
 }
 
+type FormulaShape = {
+  leftFieldId: string;
+  operator: FormulaOperator;
+  right: { type: "field"; fieldId: string } | { type: "constant"; value: number };
+};
+
+function describeFormula(formula: FormulaShape, definitions: { id: string; name: string }[]): string {
+  const nameOf = (id: string) => definitions.find((d) => d.id === id)?.name ?? "?";
+  const right = formula.right.type === "field" ? nameOf(formula.right.fieldId) : String(formula.right.value);
+  return `${nameOf(formula.leftFieldId)} ${OPERATOR_LABEL[formula.operator]} ${right}`;
+}
+
 function CardTypeFields({ organizationId, cardType }: { organizationId: string; cardType: CardTypeOption }) {
   const utils = trpc.useUtils();
   const { data: definitions } = trpc.customField.listDefinitions.useQuery({ cardTypeId: cardType.id });
+  const numberFields = (definitions ?? []).filter((d) => d.fieldType === "NUMBER");
 
   const deleteDefinition = trpc.customField.deleteDefinition.useMutation({
     onSuccess: () => utils.customField.listDefinitions.invalidate({ cardTypeId: cardType.id }),
@@ -120,6 +239,9 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
                 {def.fieldType === "SELECT" &&
                   Array.isArray(def.options) &&
                   ` (${(def.options as string[]).join(", ")})`}
+                {def.fieldType === "FORMULA" &&
+                  def.formula &&
+                  ` (${describeFormula(def.formula as unknown as FormulaShape, definitions)})`}
               </span>
               <button
                 type="button"
@@ -144,6 +266,7 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
       <NewFieldForm
         organizationId={organizationId}
         cardTypeId={cardType.id}
+        numberFields={numberFields.map((f) => ({ id: f.id, name: f.name }))}
         onCreated={() => utils.customField.listDefinitions.invalidate({ cardTypeId: cardType.id })}
       />
     </div>

@@ -1,6 +1,6 @@
 # Epic 9: Formula custom field
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** Additive — one new column + one new enum value on the
 existing `CustomFieldDefinition`/`CustomFieldType`
 **Risk:** Low–medium — no new tables, but the evaluator is
@@ -53,35 +53,35 @@ subsystem.
 ## Stories
 
 ### 9.1 — Schema
-- [ ] `enum CustomFieldType { TEXT NUMBER SELECT FORMULA }`.
-- [ ] `CustomFieldDefinition.formula Json?` — shape:
+- [x] `enum CustomFieldType { TEXT NUMBER SELECT FORMULA }`.
+- [x] `CustomFieldDefinition.formula Json?` — shape:
       `{ leftFieldId: string, operator: "+" | "-" | "*" | "/", right:
       { type: "field", fieldId: string } | { type: "constant", value:
       number } }`. Null for TEXT/NUMBER/SELECT, required for FORMULA
       (validate in the zod schema, not just at the DB layer).
-- [ ] Purely additive — `prisma migrate dev` should apply cleanly.
+- [x] Purely additive — `prisma migrate dev` should apply cleanly.
 
 ### 9.2 — Evaluator + router
-- [ ] `src/lib/formula.ts`: `evaluateFormula(formula, valuesByFieldId):
+- [x] `src/lib/formula.ts`: `evaluateFormula(formula, valuesByFieldId):
       number | null` — returns `null` (not a crash, not zero) if a
       referenced field's value is missing or non-numeric, so an
       incomplete card just shows "—" instead of a misleading `0`.
       Divide-by-zero returns `null` too, not `Infinity`/`NaN`.
-- [ ] `customField.createDefinition`: when `fieldType === "FORMULA"`,
+- [x] `customField.createDefinition`: when `fieldType === "FORMULA"`,
       validate both referenced fields exist, belong to the same
       `cardTypeId`, and are `NUMBER` type — reject otherwise with a
       clear `BAD_REQUEST`.
-- [ ] `customField.listValues` (or a new `computedValues` alongside it):
+- [x] `customField.listValues` (or a new `computedValues` alongside it):
       for each FORMULA definition on the card's type, compute and
       return its value using the card's current NUMBER-field values —
       don't make the client re-implement the evaluator.
 
 ### 9.3 — UI
-- [ ] `CustomFieldsManager.tsx`: Formula option in the field-type
+- [x] `CustomFieldsManager.tsx`: Formula option in the field-type
       dropdown; when selected, two `Select`s scoped to this card type's
       existing NUMBER fields (right side can toggle to a plain number
       input for a constant) + an operator `Select`.
-- [ ] `CustomFieldsSection.tsx`: a FORMULA definition renders its
+- [x] `CustomFieldsSection.tsx`: a FORMULA definition renders its
       computed value in a disabled-looking `Input` (or plain text) —
       visibly read-only, with a small icon/label ("Calculated") so it
       doesn't read as a broken editable field.

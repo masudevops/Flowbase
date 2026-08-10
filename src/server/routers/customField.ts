@@ -1,5 +1,7 @@
 import { generateKeyBetween } from "fractional-indexing";
 import { TRPCError } from "@trpc/server";
+import type { Prisma } from "@prisma/client";
+import type { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import {
   listCustomFieldDefinitionsSchema,
@@ -8,7 +10,33 @@ import {
   deleteCustomFieldDefinitionSchema,
   setCustomFieldValueSchema,
   listCustomFieldValuesSchema,
+  type formulaSchema,
 } from "@/schemas/customField.schema";
+import { evaluateFormula, type Formula } from "@/lib/formula";
+
+async function assertValidFormula(
+  db: Prisma.TransactionClient,
+  cardTypeId: string,
+  formula: z.infer<typeof formulaSchema>,
+) {
+  const referencedIds = [formula.leftFieldId, ...(formula.right.type === "field" ? [formula.right.fieldId] : [])];
+  const referenced = await db.customFieldDefinition.findMany({ where: { id: { in: referencedIds } } });
+
+  if (referenced.length !== referencedIds.length) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "A formula referenced a field that doesn't exist." });
+  }
+  for (const field of referenced) {
+    if (field.cardTypeId !== cardTypeId) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "A formula can only reference fields on the same card type.",
+      });
+    }
+    if (field.fieldType !== "NUMBER") {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "A formula can only reference Number fields." });
+    }
+  }
+}
 
 export const customFieldRouter = router({
   listDefinitions: protectedProcedure
@@ -23,6 +51,10 @@ export const customFieldRouter = router({
   createDefinition: protectedProcedure
     .input(createCustomFieldDefinitionSchema)
     .mutation(async ({ ctx, input }) => {
+      if (input.fieldType === "FORMULA" && input.formula) {
+        await assertValidFormula(ctx.db, input.cardTypeId, input.formula);
+      }
+
       const last = await ctx.db.customFieldDefinition.findFirst({
         where: { cardTypeId: input.cardTypeId },
         orderBy: { position: "desc" },
@@ -35,6 +67,7 @@ export const customFieldRouter = router({
           name: input.name,
           fieldType: input.fieldType,
           options: input.fieldType === "SELECT" ? input.options : undefined,
+          formula: input.fieldType === "FORMULA" ? input.formula : undefined,
           position: generateKeyBetween(last?.position ?? null, null),
         },
       });
@@ -71,11 +104,33 @@ export const customFieldRouter = router({
       return { ok: true };
     }),
 
-  listValues: protectedProcedure.input(listCustomFieldValuesSchema).query(({ ctx, input }) =>
-    ctx.db.customFieldValue.findMany({
-      where: { cardId: input.cardId },
-    }),
-  ),
+  // Returns both real stored values AND computed FORMULA values in the
+  // same { fieldDefinitionId, value } shape — a formula field has no row
+  // in CustomFieldValue (nothing to store, see Formula's doc comment in
+  // schema.prisma), so its value only exists as a query-time computation
+  // here, merged in alongside the real ones.
+  listValues: protectedProcedure.input(listCustomFieldValuesSchema).query(async ({ ctx, input }) => {
+    const [card, storedValues] = await Promise.all([
+      ctx.db.card.findUnique({ where: { id: input.cardId }, select: { cardTypeId: true } }),
+      ctx.db.customFieldValue.findMany({ where: { cardId: input.cardId } }),
+    ]);
+
+    const result = storedValues.map((v) => ({ fieldDefinitionId: v.fieldDefinitionId, value: v.value }));
+    if (!card?.cardTypeId) return result;
+
+    const definitions = await ctx.db.customFieldDefinition.findMany({
+      where: { cardTypeId: card.cardTypeId, fieldType: "FORMULA" },
+    });
+    if (definitions.length === 0) return result;
+
+    const valuesByFieldId = new Map(storedValues.map((v) => [v.fieldDefinitionId, v.value]));
+    for (const def of definitions) {
+      if (!def.formula) continue;
+      const computed = evaluateFormula(def.formula as unknown as Formula, valuesByFieldId);
+      result.push({ fieldDefinitionId: def.id, value: computed === null ? null : String(computed) });
+    }
+    return result;
+  }),
 
   setValue: protectedProcedure.input(setCustomFieldValueSchema).mutation(async ({ ctx, input }) => {
     const card = await ctx.db.card.findUnique({ where: { id: input.cardId } });
@@ -87,6 +142,9 @@ export const customFieldRouter = router({
     });
     if (!definition) {
       throw new TRPCError({ code: "NOT_FOUND" });
+    }
+    if (definition.fieldType === "FORMULA") {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "A formula field's value is computed, not set." });
     }
 
     if (input.value === null || input.value === "") {
