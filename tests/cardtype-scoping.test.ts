@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Proves Build #1's fix: CardType is board-scoped, not org-scoped. Two
 /// boards in the same org must not see each other's card types, even
@@ -11,6 +18,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("card type board scoping", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let adminId: string;
@@ -24,6 +32,7 @@ describe("card type board scoping", () => {
 
     const admin = await createTestUser(db);
     adminId = admin.id;
+    userIds.push(adminId);
     await addMember(db, org.id, adminId, "ADMIN");
 
     const caller = callerAs(adminId);
@@ -35,6 +44,7 @@ describe("card type board scoping", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

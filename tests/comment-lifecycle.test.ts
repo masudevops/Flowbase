@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Comment edit/delete authorization (Build #4): author-only edit,
 /// author-or-admin delete — see the comment in
@@ -10,6 +17,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("comment lifecycle", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let adminId: string;
@@ -28,6 +36,7 @@ describe("comment lifecycle", () => {
     adminId = admin.id;
     authorId = author.id;
     otherMemberId = other.id;
+    userIds.push(adminId, authorId, otherMemberId);
     await addMember(db, org.id, adminId, "ADMIN");
     await addMember(db, org.id, authorId, "MEMBER");
     await addMember(db, org.id, otherMemberId, "MEMBER");
@@ -41,6 +50,7 @@ describe("comment lifecycle", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 
@@ -49,6 +59,7 @@ describe("comment lifecycle", () => {
     // userId in src/lib/ratelimit.ts) starts fresh regardless of what
     // other tests/runs have done — the 30/10min budget is per-user.
     const spammer = await createTestUser(db);
+    userIds.push(spammer.id);
     await addMember(db, org.id, spammer.id, "MEMBER");
     const caller = callerAs(spammer.id);
 

@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Proves Build #5's data-driven template architecture: templates are
 /// per-org rows (not globals), custom "save as template" produces an
@@ -11,6 +18,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("workflow templates", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let orgA: TestOrg;
   let orgB: TestOrg;
@@ -25,15 +33,18 @@ describe("workflow templates", () => {
 
     const adminA = await createTestUser(db);
     adminAId = adminA.id;
+    userIds.push(adminAId);
     await addMember(db, orgA.id, adminAId, "ADMIN");
 
     const adminB = await createTestUser(db);
     adminBId = adminB.id;
+    userIds.push(adminBId);
     await addMember(db, orgB.id, adminBId, "ADMIN");
   });
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

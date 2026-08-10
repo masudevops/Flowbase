@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Covers Epic 10 (rollup custom fields): summing a NUMBER field across
 /// a card's direct children, same-card-type scoping, and the
@@ -11,6 +18,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("rollup custom fields", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let adminId: string;
@@ -27,6 +35,7 @@ describe("rollup custom fields", () => {
 
     const admin = await createTestUser(db);
     adminId = admin.id;
+    userIds.push(adminId);
     await addMember(db, org.id, adminId, "ADMIN");
 
     const caller = callerAs(adminId);
@@ -60,6 +69,7 @@ describe("rollup custom fields", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

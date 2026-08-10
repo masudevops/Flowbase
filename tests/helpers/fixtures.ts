@@ -45,8 +45,18 @@ export async function addMember(
 
 /// Deletes each org row — cascades to every child table (memberships,
 /// boards, columns, cards, card_types, etc.) via the schema's onDelete:
-/// Cascade relations, so this is the whole cleanup story.
+/// Cascade relations. Doesn't touch `users` rows: a user has no FK to
+/// the org it's a member of, so it outlives its membership row here —
+/// call deleteTestUsers separately for those.
 export async function deleteTestOrgs(db: Client, orgIds: string[]): Promise<void> {
   if (orgIds.length === 0) return;
   await db.query(`delete from organizations where id = any($1)`, [orgIds]);
+}
+
+/// Deletes test users created via createTestUser. Call this alongside
+/// deleteTestOrgs in every suite's afterAll — org cleanup alone leaves
+/// these rows behind indefinitely since nothing else references them.
+export async function deleteTestUsers(db: Client, userIds: string[]): Promise<void> {
+  if (userIds.length === 0) return;
+  await db.query(`delete from users where id = any($1)`, [userIds]);
 }

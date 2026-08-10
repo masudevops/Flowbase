@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Sanity coverage for the core card lifecycle, plus the
 /// assignee/assigneeContact mutual-exclusivity rule
@@ -11,6 +18,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("card mutations", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let adminId: string;
@@ -28,6 +36,7 @@ describe("card mutations", () => {
     const member = await createTestUser(db);
     adminId = admin.id;
     memberId = member.id;
+    userIds.push(adminId, memberId);
     await addMember(db, org.id, adminId, "ADMIN");
     await addMember(db, org.id, memberId, "MEMBER");
 
@@ -43,6 +52,7 @@ describe("card mutations", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

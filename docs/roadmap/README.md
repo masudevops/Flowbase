@@ -33,6 +33,7 @@ status as stories land; don't let this drift out of sync with reality.
 | 9 | [Formula custom field](./09-formula-fields.md) | Additive (1 column + 1 enum value) | Low–medium |
 | 10 | [Rollup custom field](./10-rollup-fields.md) | Additive (reuses Epic 9's column) | Low–medium |
 | 11 | [Progress bars & board-progress chart](./11-progress-and-charts.md) | No | Very low |
+| 12 | [Auth & invite flow audit](./12-auth-invite-flow-audit.md) | No | Low |
 
 Ordered by risk/value, not strict priority — 1 and 2 are safe enough to do
 back-to-back before checking in; 5–7 each touch enough surface area that
@@ -49,6 +50,14 @@ Epic 10 depends on Epic 9 (reuses its evaluator and computed-field UI
 conventions) — don't start 10 before 9 lands. Epic 11 has no dependency
 on 9/10 and is the cheapest of the three — reasonable to build first if
 sequencing by effort rather than by this list's order.
+
+Epic 12 is a different category again — not feature work like 1–7/9–11,
+not operational hardening like 8. It's a correctness audit of the
+signup/login/invite/join pipeline, prompted by a real bug (invite-email
+links resolving to the Vercel deployment domain instead of
+`kelbara.com`). Its first story is root-caused already; the fix needs a
+Vercel dashboard change outside this repo before the rest of the epic's
+live-verification stories can close.
 
 ## Ground rules (carried over from the rest of this project)
 

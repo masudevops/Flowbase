@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Covers Epic 7 (custom fields): per-card-type scoping, tenant
 /// isolation for both new tables, and basic value set/read — same shape
@@ -9,6 +16,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("custom fields", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let orgA: TestOrg;
   let orgB: TestOrg;
@@ -28,6 +36,7 @@ describe("custom fields", () => {
     const memberB = await createTestUser(db);
     adminA = memberA.id;
     adminB = memberB.id;
+    userIds.push(adminA, adminB);
     await addMember(db, orgA.id, adminA, "ADMIN");
     await addMember(db, orgB.id, adminB, "ADMIN");
 
@@ -52,6 +61,7 @@ describe("custom fields", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

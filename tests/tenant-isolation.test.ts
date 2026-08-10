@@ -7,6 +7,7 @@ import {
   createTestUser,
   addMember,
   deleteTestOrgs,
+  deleteTestUsers,
   type TestOrg,
   type TestUser,
 } from "./helpers/fixtures";
@@ -19,6 +20,7 @@ import {
 describe("tenant isolation", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let orgA: TestOrg;
   let orgB: TestOrg;
@@ -36,6 +38,7 @@ describe("tenant isolation", () => {
 
     userA = await createTestUser(db);
     userB = await createTestUser(db);
+    userIds.push(userA.id, userB.id);
     await addMember(db, orgA.id, userA.id, "ADMIN");
     await addMember(db, orgB.id, userB.id, "ADMIN");
 
@@ -59,6 +62,7 @@ describe("tenant isolation", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

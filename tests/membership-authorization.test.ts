@@ -6,6 +6,7 @@ import {
   createTestUser,
   addMember,
   deleteTestOrgs,
+  deleteTestUsers,
   type TestOrg,
   type TestUser,
 } from "./helpers/fixtures";
@@ -15,6 +16,7 @@ import {
 describe("membership authorization", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let admin: TestUser;
@@ -29,6 +31,7 @@ describe("membership authorization", () => {
 
     admin = await createTestUser(db);
     member = await createTestUser(db);
+    userIds.push(admin.id, member.id);
     await addMember(db, org.id, admin.id, "ADMIN");
     await addMember(db, org.id, member.id, "MEMBER");
 
@@ -39,6 +42,7 @@ describe("membership authorization", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 

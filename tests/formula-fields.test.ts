@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "pg";
 import { callerAs } from "./helpers/caller";
-import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg } from "./helpers/fixtures";
+import {
+  createTestOrg,
+  createTestUser,
+  addMember,
+  deleteTestOrgs,
+  deleteTestUsers,
+  type TestOrg,
+} from "./helpers/fixtures";
 
 /// Covers Epic 9 (formula custom fields): correct computation, null
 /// propagation for missing/divide-by-zero inputs, and the server-side
@@ -11,6 +18,7 @@ import { createTestOrg, createTestUser, addMember, deleteTestOrgs, type TestOrg 
 describe("formula custom fields", () => {
   const db = new Client({ connectionString: process.env.DIRECT_URL });
   const orgIds: string[] = [];
+  const userIds: string[] = [];
 
   let org: TestOrg;
   let adminId: string;
@@ -28,6 +36,7 @@ describe("formula custom fields", () => {
 
     const admin = await createTestUser(db);
     adminId = admin.id;
+    userIds.push(adminId);
     await addMember(db, org.id, adminId, "ADMIN");
 
     const caller = callerAs(adminId);
@@ -73,6 +82,7 @@ describe("formula custom fields", () => {
 
   afterAll(async () => {
     await deleteTestOrgs(db, orgIds);
+    await deleteTestUsers(db, userIds);
     await db.end();
   });
 
