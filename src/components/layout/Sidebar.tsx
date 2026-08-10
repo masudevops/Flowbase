@@ -29,6 +29,7 @@ export function Sidebar({
     { href: `/w/${orgSlug}/my-work`, label: "My Work", icon: UserCheck, exact: false },
     { href: `/w/${orgSlug}/boards`, label: "Boards", icon: Kanban, exact: false },
     { href: `/w/${orgSlug}/members`, label: "Team", icon: Users, exact: false },
+    { href: `/w/${orgSlug}/settings`, label: "Settings", icon: Settings, exact: false },
   ];
 
   const content = (

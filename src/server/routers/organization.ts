@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
-import { createOrganizationSchema } from "@/schemas/organization.schema";
+import { createOrganizationSchema, updateOrganizationSchema } from "@/schemas/organization.schema";
 import { createOrganization } from "../services/organization.service";
+import { assertAdmin } from "../permissions";
 
 export const organizationRouter = router({
   listMine: protectedProcedure.query(async ({ ctx }) => {
@@ -38,4 +39,12 @@ export const organizationRouter = router({
     .mutation(({ ctx, input }) =>
       createOrganization(ctx.db, { name: input.name, userId: ctx.userId }),
     ),
+
+  update: protectedProcedure.input(updateOrganizationSchema).mutation(async ({ ctx, input }) => {
+    await assertAdmin(ctx.db, input.organizationId, ctx.userId);
+    return ctx.db.organization.update({
+      where: { id: input.organizationId },
+      data: { name: input.name },
+    });
+  }),
 });

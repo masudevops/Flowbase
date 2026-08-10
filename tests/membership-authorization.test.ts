@@ -61,6 +61,20 @@ describe("membership authorization", () => {
     expect(invite.email).toBe("invitee2@example.test");
   });
 
+  it("a member cannot rename the workspace", async () => {
+    await expect(
+      callerAs(member.id).organization.update({ organizationId: org.id, name: "Hijacked Name" }),
+    ).rejects.toThrow();
+  });
+
+  it("an admin can rename the workspace", async () => {
+    const updated = await callerAs(admin.id).organization.update({
+      organizationId: org.id,
+      name: "Renamed By Admin",
+    });
+    expect(updated.name).toBe("Renamed By Admin");
+  });
+
   it("a member cannot change another member's role", async () => {
     await expect(
       callerAs(member.id).membership.updateRole({

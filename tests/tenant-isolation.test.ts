@@ -119,6 +119,12 @@ describe("tenant isolation", () => {
     ).rejects.toThrow();
   });
 
+  it("cannot rename another org's workspace by its real id, even as an admin of your own org", async () => {
+    await expect(
+      callerAs(userA.id).organization.update({ organizationId: orgB.id, name: "Hijacked Workspace" }),
+    ).rejects.toThrow();
+  });
+
   it("an unauthenticated caller is rejected outright", async () => {
     try {
       await callerAs(null).board.list({ organizationId: orgA.id });

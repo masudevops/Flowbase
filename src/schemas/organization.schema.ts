@@ -5,3 +5,8 @@ export const createOrganizationSchema = z.object({
 });
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
+
+export const updateOrganizationSchema = z.object({
+  organizationId: z.string(),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
+});
