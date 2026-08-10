@@ -1,6 +1,6 @@
 # Epic 3: Blocked-by linked card
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** Additive — one nullable self-relation FK on `Card`
 **Risk:** Low
 

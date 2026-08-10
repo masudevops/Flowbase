@@ -1,6 +1,6 @@
 # Epic 6: Timeline / roadmap view
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** Additive — one nullable `startDate` on `Card`
 **Risk:** Medium (new view, non-trivial layout math; no data risk)
 

@@ -1,6 +1,6 @@
 # Epic 7: Custom fields
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** New tables
 **Risk:** Medium–high — biggest epic in this roadmap, touches the card
 detail panel, board settings, Backlog table, and card creation.

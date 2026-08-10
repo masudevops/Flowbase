@@ -1,6 +1,6 @@
 # Epic 5: Multiple assignees
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** Migration — new join table, existing `assigneeId`/
 `assigneeContactId` columns become derived/legacy
 **Risk:** Medium — touches card front, detail panel, My Work, Backlog,

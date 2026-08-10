@@ -1,6 +1,6 @@
 # Epic 4: Swimlanes
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** None
 **Risk:** Low–medium (mostly UI layout complexity, not data risk)
 

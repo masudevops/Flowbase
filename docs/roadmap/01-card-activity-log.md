@@ -1,6 +1,6 @@
 # Epic 1: Card activity log
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** None
 **Risk:** Very low
 

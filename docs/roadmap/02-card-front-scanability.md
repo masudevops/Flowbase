@@ -1,6 +1,6 @@
 # Epic 2: Card front & live board scanability
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** None
 **Risk:** Low
 

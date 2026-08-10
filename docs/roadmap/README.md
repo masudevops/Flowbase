@@ -7,6 +7,13 @@ Jira-specific depth (sprints, configurable workflow-transition rules,
 burndown/velocity dashboards) were deliberately left out; see "Explicitly
 excluded" below.
 
+Epics 9–11 (2026-08-09) come from a second comparison pass against
+monday.com, specifically for the Construction/general-project-category
+templates (the Software template's gap was already closed by 1–7's
+Jira-informed work) — same filtering discipline: monday.com's Formula
+Column and rollups are on-brand and cheap; their Dashboards feature is
+explicitly not adopted here (see "Explicitly excluded").
+
 Work through these in order. Each epic file has its own stories, schema
 changes (if any), and acceptance criteria. Update an epic's checkboxes and
 status as stories land; don't let this drift out of sync with reality.
@@ -23,6 +30,9 @@ status as stories land; don't let this drift out of sync with reality.
 | 6 | [Timeline / roadmap view](./06-timeline-view.md) | Additive (1 field) | Medium |
 | 7 | [Custom fields](./07-custom-fields.md) | New tables | Medium–high |
 | 8 | [Reliability & security hardening](./08-reliability-hardening.md) | No | Low–medium |
+| 9 | [Formula custom field](./09-formula-fields.md) | Additive (1 column + 1 enum value) | Low–medium |
+| 10 | [Rollup custom field](./10-rollup-fields.md) | Additive (reuses Epic 9's column) | Low–medium |
+| 11 | [Progress bars & board-progress chart](./11-progress-and-charts.md) | No | Very low |
 
 Ordered by risk/value, not strict priority — 1 and 2 are safe enough to do
 back-to-back before checking in; 5–7 each touch enough surface area that
@@ -34,6 +44,11 @@ limiting, no error monitoring, undocumented backup posture) raised during
 a reliability review. Two of its four stories need a new free-tier
 external account before they can be built — see that epic's stories for
 what to confirm first.
+
+Epic 10 depends on Epic 9 (reuses its evaluator and computed-field UI
+conventions) — don't start 10 before 9 lands. Epic 11 has no dependency
+on 9/10 and is the cheapest of the three — reasonable to build first if
+sequencing by effort rather than by this list's order.
 
 ## Ground rules (carried over from the rest of this project)
 
@@ -59,6 +74,9 @@ what to confirm first.
   until checklist is complete") — real Jira depth, real complexity, thin
   audience fit today.
 - **Dashboards/reports** (burndown, cumulative flow, velocity) — same
-  reasoning; revisit once there's a concrete team asking for it.
+  reasoning; revisit once there's a concrete team asking for it. Still
+  excluded as of Epic 11 (2026-08-09) — Epic 11's board-progress bar is
+  a current-state snapshot with no time-series data, deliberately not a
+  reversal of this call; see that epic's "Why" for the distinction.
 - Illustrated empty states, board backgrounds, JQL-style query language —
   cut against Kelbara's restrained, simple direction on purpose.
