@@ -17,10 +17,28 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
+const description =
+  "Flexible work management for projects, tasks, and workflows — built to adapt to how your team works.";
+
 export const metadata: Metadata = {
-  title: "Kelbara",
-  description:
-    "Flexible work management for projects, tasks, and workflows — built to adapt to how your team works.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://kelbara.com"),
+  title: {
+    default: "Kelbara",
+    template: "%s · Kelbara",
+  },
+  description,
+  openGraph: {
+    title: "Kelbara",
+    description,
+    url: "/",
+    siteName: "Kelbara",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kelbara",
+    description,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
