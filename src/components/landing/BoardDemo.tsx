@@ -98,7 +98,7 @@ export function BoardDemo() {
                 : "text-[#55707D] hover:text-[#14242E] dark:text-[#8FA8B3] dark:hover:text-[#E7EEF0]",
             )}
           >
-            {option === "IT_DEV" ? "IT / Dev" : "Construction"}
+            {option === "IT_DEV" ? "Software" : "Construction"}
           </button>
         ))}
       </div>

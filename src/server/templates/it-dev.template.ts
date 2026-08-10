@@ -2,7 +2,7 @@ import type { BoardTemplate } from "./types";
 
 export const itDevTemplate: BoardTemplate = {
   key: "IT_DEV",
-  label: "IT / Dev",
+  label: "Software",
   description: "Sprints, bugs, features, and code-review states.",
   columns: [
     { name: "Backlog" },

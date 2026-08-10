@@ -7,7 +7,7 @@ import { BUILT_IN_TEMPLATES } from "../templates";
 /// templates at org-creation time (see organization.service.ts), and
 /// once via prisma/backfill-workflow-templates.ts for orgs that already
 /// existed when this shipped. Each org's copy is fully independent —
-/// editing or deleting one org's "IT / Dev" template never touches
+/// editing or deleting one org's "Software" template never touches
 /// another org's. Idempotent (skips a key that's already seeded) so the
 /// backfill script is safe to re-run.
 export async function seedBuiltInTemplates(db: Prisma.TransactionClient, organizationId: string) {

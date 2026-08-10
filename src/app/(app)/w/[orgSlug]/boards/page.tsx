@@ -4,7 +4,7 @@ import { requireServerCaller, getOrgBySlugOrNotFound } from "@/server/caller";
 import { PageHeader } from "@/components/ui/page-header";
 
 const TEMPLATE_LABELS: Record<string, string> = {
-  IT_DEV: "IT / Dev",
+  IT_DEV: "Software",
   CONSTRUCTION: "Construction",
 };
 

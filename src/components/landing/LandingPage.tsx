@@ -7,7 +7,7 @@ const BOARD_FEATURES = [
     eyebrow: "Templates",
     color: "#1D5C8A",
     title: "Start from how your team already works",
-    body: "IT/Dev, Construction, General Project Management, or blank. Rename, reorder, add, or delete columns any time — or save your own setup as a template for next time.",
+    body: "Software, Construction, General Project Management, or blank. Rename, reorder, add, or delete columns any time — or save your own setup as a template for next time.",
   },
   {
     eyebrow: "Blocked",
@@ -130,7 +130,7 @@ export function LandingPage() {
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             <div className="rounded-lg border border-[#D3DBD8] bg-white p-5 dark:border-[#23414F] dark:bg-[#0F2A3D]">
               <span className="font-[family-name:var(--font-plex-mono)] text-[10px] font-medium tracking-[0.15em] text-[#1D5C8A] uppercase dark:text-[#5FB4E0]">
-                IT / Dev
+                Software
               </span>
               <div className="mt-3 flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-[#C1440E]" />
