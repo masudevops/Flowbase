@@ -15,12 +15,16 @@ export function Column({
   bands,
   onOpenCard,
   onAddCard,
+  highlighted,
 }: {
   column: BoardColumn;
   groupBy: GroupBy;
   bands: Band[];
   onOpenCard: (cardId: string) => void;
   onAddCard: (columnId: string, title: string) => void;
+  /// Briefly true right after a click on BoardProgressBar.tsx's segment
+  /// for this column — a flash to draw the eye, not a persistent state.
+  highlighted?: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const [adding, setAdding] = useState(false);
@@ -42,7 +46,13 @@ export function Column({
   const orderedCards = groupCardsByBand(column.cards, bands, groupBy);
 
   return (
-    <div className="flex w-72 shrink-0 flex-col">
+    <div
+      id={`board-column-${column.id}`}
+      className={cn(
+        "flex w-72 shrink-0 flex-col rounded-md transition-colors duration-500",
+        highlighted && "bg-[#1D5C8A]/5 dark:bg-[#5FB4E0]/10",
+      )}
+    >
       {/* "Title block" header — the drafting-plate corner tick and
           baseline rule are the board's signature detail, standing in
           for the generic plain-text column label used everywhere else

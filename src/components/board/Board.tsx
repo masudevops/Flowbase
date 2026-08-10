@@ -20,6 +20,7 @@ import { trpc } from "@/trpc/client";
 import { useRealtimeBoard } from "@/hooks/useRealtimeBoard";
 import { Column } from "./Column";
 import { CardPreview } from "./CardPreview";
+import { BoardProgressBar } from "./BoardProgressBar";
 import { BoardFilterBar, EMPTY_BOARD_FILTERS, hasActiveFilters, type BoardFilters } from "./BoardFilterBar";
 import {
   computeBands,
@@ -55,6 +56,7 @@ export function Board({
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_BOARD_FILTERS);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [highlightedColumnId, setHighlightedColumnId] = useState<string | null>(null);
   const groupBy = useSyncExternalStore(
     subscribeToGroupBy,
     () => getStoredGroupBy(boardId),
@@ -213,6 +215,15 @@ export function Board({
     );
   }
 
+  // Cards already visually group by column, and "filter by column" isn't
+  // a concept BoardFilters has — so a progress-bar segment click scrolls
+  // to and briefly highlights that column instead of filtering to it.
+  function handleProgressSegmentClick(columnId: string) {
+    document.getElementById(`board-column-${columnId}`)?.scrollIntoView({ behavior: "smooth", inline: "center" });
+    setHighlightedColumnId(columnId);
+    setTimeout(() => setHighlightedColumnId((current) => (current === columnId ? null : current)), 1200);
+  }
+
   // Named for screen readers using a card's title and column name instead
   // of dnd-kit's default "draggable item" wording — the only part of
   // keyboard drag-and-drop a sighted mouse user never has to think about.
@@ -318,6 +329,8 @@ export function Board({
         </div>
       )}
 
+      <BoardProgressBar columns={filteredColumns} onSegmentClick={handleProgressSegmentClick} />
+
       <DndContext
         id={`board-${boardId}`}
         sensors={sensors}
@@ -335,6 +348,7 @@ export function Board({
               bands={bands}
               onOpenCard={setOpenCardId}
               onAddCard={handleAddCard}
+              highlighted={highlightedColumnId === column.id}
             />
           ))}
         </div>

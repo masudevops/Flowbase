@@ -12,6 +12,18 @@ import { PRIORITY_META } from "./types";
 const DATE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
 const MAX_VISIBLE_ASSIGNEES = 3;
 
+function ProgressBar({ done, total }: { done: number; total: number }) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  return (
+    <span className="block h-[3px] w-10 overflow-hidden rounded-full bg-[#D3DBD8] dark:bg-[#23414F]">
+      <span
+        className="block h-full rounded-full bg-[#1D5C8A] dark:bg-[#5FB4E0]"
+        style={{ width: `${pct}%` }}
+      />
+    </span>
+  );
+}
+
 export function CardPreview({
   card,
   isDoneColumn,
@@ -107,15 +119,21 @@ export function CardPreview({
             </span>
           )}
           {checklistTotal > 0 && (
-            <span className="flex items-center gap-1">
-              <ListChecks className="h-3 w-3" />
-              {checklistDone}/{checklistTotal}
+            <span className="flex flex-col gap-0.5">
+              <span className="flex items-center gap-1">
+                <ListChecks className="h-3 w-3" />
+                {checklistDone}/{checklistTotal}
+              </span>
+              <ProgressBar done={checklistDone} total={checklistTotal} />
             </span>
           )}
           {childrenTotal > 0 && (
-            <span className="flex items-center gap-1">
-              <Layers className="h-3 w-3" />
-              {childrenDone}/{childrenTotal}
+            <span className="flex flex-col gap-0.5">
+              <span className="flex items-center gap-1">
+                <Layers className="h-3 w-3" />
+                {childrenDone}/{childrenTotal}
+              </span>
+              <ProgressBar done={childrenDone} total={childrenTotal} />
             </span>
           )}
           {card._count.comments > 0 && (

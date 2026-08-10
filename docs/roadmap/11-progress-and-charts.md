@@ -1,6 +1,6 @@
 # Epic 11: Progress bars & a simple board-progress chart
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** No
 **Risk:** Very low — pure rendering on top of data every surface already
 fetches; no new queries, no new tables
@@ -45,33 +45,33 @@ quietly re-opening that earlier decision.
 ## Stories
 
 ### 11.1 — Task-level progress bar
-- [ ] `CardPreview.tsx`: replace (or augment) the `{checklistDone}/{checklistTotal}`
+- [x] `CardPreview.tsx`: replace (or augment) the `{checklistDone}/{checklistTotal}`
       text with a 2-3px-tall bar (`width: ${done/total * 100}%`) in the
       existing blueprint-blue accent, same treatment for the sub-tasks
       count. Keep the text too — a bar alone doesn't convey the exact
       numbers, and the existing card-front information density
       guidelines (Epic 2) favor scannable exact counts over ambiguous
       visuals alone.
-- [ ] Verify it doesn't regress the card-front layout at the narrow end
+- [x] Verify it doesn't regress the card-front layout at the narrow end
       of the existing card width — check with a card that has both a
       checklist AND sub-tasks AND is in a grouped swimlane band (the
       most visually crowded case that already exists).
 
 ### 11.2 — Board-level progress chart
-- [ ] New small component, `BoardProgressBar.tsx`, rendered in `Board.tsx`
+- [x] New small component, `BoardProgressBar.tsx`, rendered in `Board.tsx`
       above the columns (below the existing filter row) — a single
       horizontal stacked bar segmented by column, each segment's width
       proportional to that column's card count, colored consistently
       with existing column/priority conventions (done columns in the
       established green, blocked-flagged cards' proportion called out
       separately if easy, skip if it complicates the v1 data shape).
-- [ ] Clicking a segment sets the board's existing type/priority/assignee
+- [x] Clicking a segment sets the board's existing type/priority/assignee
       filter state to isolate that column's cards — actually, simplest
       correct behavior: clicking scrolls to / highlights that column
       rather than filtering (filtering by column isn't a concept the
       existing `BoardFilters` type has, and cards already visually group
       by column — don't invent a new filter dimension just for this).
-- [ ] Respects the board's current filter state — if filters are active,
+- [x] Respects the board's current filter state — if filters are active,
       the chart reflects the filtered count, not the whole board's, so
       it never contradicts what's visible below it.
 
