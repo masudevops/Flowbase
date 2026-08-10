@@ -17,7 +17,7 @@ type CardTypeOption = {
   isDefault: boolean;
   createdAt: Date;
 };
-type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA";
+type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA" | "ROLLUP";
 type NumberFieldOption = { id: string; name: string };
 type FormulaOperator = "+" | "-" | "*" | "/";
 
@@ -26,6 +26,7 @@ const FIELD_TYPE_LABEL: Record<FieldType, string> = {
   NUMBER: "Number",
   SELECT: "Select",
   FORMULA: "Formula (calculated)",
+  ROLLUP: "Rollup (sum of sub-tasks)",
 };
 
 const OPERATOR_LABEL: Record<FormulaOperator, string> = {
@@ -56,6 +57,7 @@ function NewFieldForm({
       setRightMode("field");
       setRightFieldId("");
       setRightConstant("");
+      setRollupSourceFieldId("");
       onCreated();
     },
   });
@@ -68,10 +70,12 @@ function NewFieldForm({
   const [rightMode, setRightMode] = useState<"field" | "constant">("field");
   const [rightFieldId, setRightFieldId] = useState("");
   const [rightConstant, setRightConstant] = useState("");
+  const [rollupSourceFieldId, setRollupSourceFieldId] = useState("");
 
   const canSubmitFormula =
     type !== "FORMULA" ||
     (leftFieldId && (rightMode === "field" ? !!rightFieldId : rightConstant.trim() !== ""));
+  const canSubmitRollup = type !== "ROLLUP" || !!rollupSourceFieldId;
 
   return (
     <form
@@ -109,6 +113,18 @@ function NewFieldForm({
           return;
         }
 
+        if (type === "ROLLUP") {
+          if (!canSubmitRollup) return;
+          createDefinition.mutate({
+            organizationId,
+            cardTypeId,
+            name: name.trim(),
+            fieldType: type,
+            rollup: { sourceFieldId: rollupSourceFieldId, aggregate: "SUM" },
+          });
+          return;
+        }
+
         createDefinition.mutate({ organizationId, cardTypeId, name: name.trim(), fieldType: type });
       }}
     >
@@ -120,9 +136,13 @@ function NewFieldForm({
       />
       <Select value={type} onChange={(e) => setType(e.target.value as FieldType)} className="w-auto">
         {(Object.keys(FIELD_TYPE_LABEL) as FieldType[]).map((t) => (
-          <option key={t} value={t} disabled={t === "FORMULA" && numberFields.length === 0}>
+          <option
+            key={t}
+            value={t}
+            disabled={(t === "FORMULA" || t === "ROLLUP") && numberFields.length === 0}
+          >
             {FIELD_TYPE_LABEL[t]}
-            {t === "FORMULA" && numberFields.length === 0 ? " (add a Number field first)" : ""}
+            {(t === "FORMULA" || t === "ROLLUP") && numberFields.length === 0 ? " (add a Number field first)" : ""}
           </option>
         ))}
       </Select>
@@ -186,10 +206,28 @@ function NewFieldForm({
           )}
         </>
       )}
+      {type === "ROLLUP" && (
+        <>
+          <span className="text-sm text-[#55707D] dark:text-[#8FA8B3]">Sum of</span>
+          <Select
+            value={rollupSourceFieldId}
+            onChange={(e) => setRollupSourceFieldId(e.target.value)}
+            className="w-auto"
+          >
+            <option value="">Field...</option>
+            {numberFields.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+          </Select>
+          <span className="text-sm text-[#55707D] dark:text-[#8FA8B3]">across sub-tasks</span>
+        </>
+      )}
       <Button
         type="submit"
         className="flex w-auto items-center gap-1.5"
-        disabled={createDefinition.isPending || !canSubmitFormula}
+        disabled={createDefinition.isPending || !canSubmitFormula || !canSubmitRollup}
       >
         <Plus className="h-4 w-4" />
         Add field
@@ -211,6 +249,13 @@ function describeFormula(formula: FormulaShape, definitions: { id: string; name:
   const nameOf = (id: string) => definitions.find((d) => d.id === id)?.name ?? "?";
   const right = formula.right.type === "field" ? nameOf(formula.right.fieldId) : String(formula.right.value);
   return `${nameOf(formula.leftFieldId)} ${OPERATOR_LABEL[formula.operator]} ${right}`;
+}
+
+type RollupShape = { sourceFieldId: string; aggregate: "SUM" };
+
+function describeRollup(rollup: RollupShape, definitions: { id: string; name: string }[]): string {
+  const nameOf = (id: string) => definitions.find((d) => d.id === id)?.name ?? "?";
+  return `sum of ${nameOf(rollup.sourceFieldId)}`;
 }
 
 function CardTypeFields({ organizationId, cardType }: { organizationId: string; cardType: CardTypeOption }) {
@@ -242,6 +287,9 @@ function CardTypeFields({ organizationId, cardType }: { organizationId: string; 
                 {def.fieldType === "FORMULA" &&
                   def.formula &&
                   ` (${describeFormula(def.formula as unknown as FormulaShape, definitions)})`}
+                {def.fieldType === "ROLLUP" &&
+                  def.formula &&
+                  ` (${describeRollup(def.formula as unknown as RollupShape, definitions)})`}
               </span>
               <button
                 type="button"

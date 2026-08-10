@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/field";
 import { Sigma } from "lucide-react";
 
-type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA";
+type FieldType = "TEXT" | "NUMBER" | "SELECT" | "FORMULA" | "ROLLUP";
 
 function FieldInput({
   cardId,
@@ -105,7 +105,7 @@ export function CustomFieldsSection({ cardId, cardTypeId }: { cardId: string; ca
       {definitions.map((def) => (
         <div key={def.id} className={def.fieldType === "SELECT" ? "" : "col-span-2"}>
           <Label>{def.name}</Label>
-          {def.fieldType === "FORMULA" ? (
+          {def.fieldType === "FORMULA" || def.fieldType === "ROLLUP" ? (
             <ComputedFieldDisplay value={valueByDefinitionId.get(def.id) ?? null} />
           ) : (
             <FieldInput

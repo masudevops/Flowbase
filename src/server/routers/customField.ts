@@ -11,8 +11,9 @@ import {
   setCustomFieldValueSchema,
   listCustomFieldValuesSchema,
   type formulaSchema,
+  type rollupSchema,
 } from "@/schemas/customField.schema";
-import { evaluateFormula, type Formula } from "@/lib/formula";
+import { evaluateFormula, evaluateRollup, type Formula, type Rollup } from "@/lib/formula";
 
 async function assertValidFormula(
   db: Prisma.TransactionClient,
@@ -38,6 +39,22 @@ async function assertValidFormula(
   }
 }
 
+async function assertValidRollup(db: Prisma.TransactionClient, cardTypeId: string, rollup: z.infer<typeof rollupSchema>) {
+  const source = await db.customFieldDefinition.findUnique({ where: { id: rollup.sourceFieldId } });
+  if (!source) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "A rollup referenced a field that doesn't exist." });
+  }
+  if (source.cardTypeId !== cardTypeId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "A rollup can only sum a field on the same card type as the rollup itself.",
+    });
+  }
+  if (source.fieldType !== "NUMBER") {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "A rollup can only sum a Number field." });
+  }
+}
+
 export const customFieldRouter = router({
   listDefinitions: protectedProcedure
     .input(listCustomFieldDefinitionsSchema)
@@ -54,6 +71,9 @@ export const customFieldRouter = router({
       if (input.fieldType === "FORMULA" && input.formula) {
         await assertValidFormula(ctx.db, input.cardTypeId, input.formula);
       }
+      if (input.fieldType === "ROLLUP" && input.rollup) {
+        await assertValidRollup(ctx.db, input.cardTypeId, input.rollup);
+      }
 
       const last = await ctx.db.customFieldDefinition.findFirst({
         where: { cardTypeId: input.cardTypeId },
@@ -67,7 +87,8 @@ export const customFieldRouter = router({
           name: input.name,
           fieldType: input.fieldType,
           options: input.fieldType === "SELECT" ? input.options : undefined,
-          formula: input.fieldType === "FORMULA" ? input.formula : undefined,
+          formula:
+            input.fieldType === "FORMULA" ? input.formula : input.fieldType === "ROLLUP" ? input.rollup : undefined,
           position: generateKeyBetween(last?.position ?? null, null),
         },
       });
@@ -104,11 +125,12 @@ export const customFieldRouter = router({
       return { ok: true };
     }),
 
-  // Returns both real stored values AND computed FORMULA values in the
-  // same { fieldDefinitionId, value } shape — a formula field has no row
-  // in CustomFieldValue (nothing to store, see Formula's doc comment in
-  // schema.prisma), so its value only exists as a query-time computation
-  // here, merged in alongside the real ones.
+  // Returns both real stored values AND computed FORMULA/ROLLUP values in
+  // the same { fieldDefinitionId, value } shape — neither has a row in
+  // CustomFieldValue (nothing to store, see the doc comment on
+  // CustomFieldDefinition.formula in schema.prisma), so their values only
+  // exist as query-time computations here, merged in alongside the real
+  // ones.
   listValues: protectedProcedure.input(listCustomFieldValuesSchema).query(async ({ ctx, input }) => {
     const [card, storedValues] = await Promise.all([
       ctx.db.card.findUnique({ where: { id: input.cardId }, select: { cardTypeId: true } }),
@@ -119,14 +141,31 @@ export const customFieldRouter = router({
     if (!card?.cardTypeId) return result;
 
     const definitions = await ctx.db.customFieldDefinition.findMany({
-      where: { cardTypeId: card.cardTypeId, fieldType: "FORMULA" },
+      where: { cardTypeId: card.cardTypeId, fieldType: { in: ["FORMULA", "ROLLUP"] } },
     });
     if (definitions.length === 0) return result;
 
     const valuesByFieldId = new Map(storedValues.map((v) => [v.fieldDefinitionId, v.value]));
+
+    // Only fetched when actually needed — a card whose type has no
+    // ROLLUP field never pays for this extra query.
+    let childValueMaps: Map<string, string | null>[] | null = null;
+    if (definitions.some((d) => d.fieldType === "ROLLUP")) {
+      const children = await ctx.db.card.findMany({
+        where: { parentCardId: input.cardId, cardTypeId: card.cardTypeId },
+        select: { customFieldValues: { select: { fieldDefinitionId: true, value: true } } },
+      });
+      childValueMaps = children.map(
+        (child) => new Map(child.customFieldValues.map((v) => [v.fieldDefinitionId, v.value])),
+      );
+    }
+
     for (const def of definitions) {
       if (!def.formula) continue;
-      const computed = evaluateFormula(def.formula as unknown as Formula, valuesByFieldId);
+      const computed =
+        def.fieldType === "FORMULA"
+          ? evaluateFormula(def.formula as unknown as Formula, valuesByFieldId)
+          : evaluateRollup(def.formula as unknown as Rollup, childValueMaps ?? []);
       result.push({ fieldDefinitionId: def.id, value: computed === null ? null : String(computed) });
     }
     return result;
@@ -143,8 +182,8 @@ export const customFieldRouter = router({
     if (!definition) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-    if (definition.fieldType === "FORMULA") {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "A formula field's value is computed, not set." });
+    if (definition.fieldType === "FORMULA" || definition.fieldType === "ROLLUP") {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "A computed field's value can't be set directly." });
     }
 
     if (input.value === null || input.value === "") {

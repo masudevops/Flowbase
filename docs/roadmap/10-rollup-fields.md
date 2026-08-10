@@ -1,6 +1,6 @@
 # Epic 10: Rollup custom field (sum of children)
 
-**Status:** Not started
+**Status:** Done — shipped and verified live
 **Schema change:** Additive — one more `CustomFieldType` value, reusing
 Epic 9's `formula` JSON column with a different shape
 **Risk:** Low–medium — depends on Epic 9 landing first (shares the
@@ -49,16 +49,16 @@ evaluator/UI conventions rather than inventing a second pattern.
 ## Stories
 
 ### 10.1 — Schema
-- [ ] `CustomFieldDefinition.formula` (added in Epic 9) gains a second
+- [x] `CustomFieldDefinition.formula` (added in Epic 9) gains a second
       valid shape for `ROLLUP`: `{ sourceFieldId: string, aggregate:
       "SUM" }` — same column, discriminated by `fieldType`, not a
       separate column (keeps the "one JSON column, shape depends on
       fieldType" pattern Epic 9 already established instead of adding
       per-type columns).
-- [ ] Purely additive, no migration risk.
+- [x] Purely additive, no migration risk.
 
 ### 10.2 — Evaluator + router
-- [ ] `src/lib/formula.ts` (from Epic 9) gains `evaluateRollup(sourceFieldId,
+- [x] `src/lib/formula.ts` (from Epic 9) gains `evaluateRollup(sourceFieldId,
       children, valuesByCardIdAndFieldId): number` — sums, treating a
       missing/non-numeric value on any given child as `0` for that child
       (not `null` for the whole rollup — a rollup with 3 of 5 children
@@ -66,19 +66,19 @@ evaluator/UI conventions rather than inventing a second pattern.
       deliberate difference from Formula's null-propagation, since an
       incomplete rollup is still meaningful, an incomplete formula
       usually isn't).
-- [ ] `customField.createDefinition`: validate the referenced
+- [x] `customField.createDefinition`: validate the referenced
       `sourceFieldId` is a NUMBER field on the *same* `cardTypeId` as the
       rollup definition being created.
-- [ ] Extend whatever Epic 9 built for returning computed values to also
+- [x] Extend whatever Epic 9 built for returning computed values to also
       fetch the card's children (with their custom field values) when
       the card's type has a ROLLUP field defined — only do this extra
       query when actually needed, not on every card read.
 
 ### 10.3 — UI
-- [ ] `CustomFieldsManager.tsx`: "Rollup (sum of sub-tasks)" as a field
+- [x] `CustomFieldsManager.tsx`: "Rollup (sum of sub-tasks)" as a field
       type option, revealing a single field-picker scoped to this card
       type's NUMBER fields.
-- [ ] `CustomFieldsSection.tsx`: renders like a Formula field (read-only,
+- [x] `CustomFieldsSection.tsx`: renders like a Formula field (read-only,
       "Calculated" styling) — reuse the same component, don't fork it.
 
 ## Acceptance criteria

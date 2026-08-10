@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const fieldType = z.enum(["TEXT", "NUMBER", "SELECT", "FORMULA"]);
+const fieldType = z.enum(["TEXT", "NUMBER", "SELECT", "FORMULA", "ROLLUP"]);
 
 const formulaOperand = z.discriminatedUnion("type", [
   z.object({ type: z.literal("field"), fieldId: z.string() }),
@@ -11,6 +11,11 @@ export const formulaSchema = z.object({
   leftFieldId: z.string(),
   operator: z.enum(["+", "-", "*", "/"]),
   right: formulaOperand,
+});
+
+export const rollupSchema = z.object({
+  sourceFieldId: z.string(),
+  aggregate: z.literal("SUM"),
 });
 
 export const listCustomFieldDefinitionsSchema = z.object({
@@ -25,6 +30,7 @@ export const createCustomFieldDefinitionSchema = z
     fieldType,
     options: z.array(z.string().trim().min(1)).max(50).optional(),
     formula: formulaSchema.optional(),
+    rollup: rollupSchema.optional(),
   })
   .refine((f) => f.fieldType !== "SELECT" || (f.options && f.options.length > 0), {
     message: "A select field needs at least one option.",
@@ -33,6 +39,10 @@ export const createCustomFieldDefinitionSchema = z
   .refine((f) => f.fieldType !== "FORMULA" || !!f.formula, {
     message: "A formula field needs a formula.",
     path: ["formula"],
+  })
+  .refine((f) => f.fieldType !== "ROLLUP" || !!f.rollup, {
+    message: "A rollup field needs a source field.",
+    path: ["rollup"],
   });
 
 export const updateCustomFieldDefinitionSchema = z.object({

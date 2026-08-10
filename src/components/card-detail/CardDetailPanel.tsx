@@ -113,6 +113,16 @@ export function CardDetailPanel({
   const invalidateCard = () => {
     utils.card.byId.invalidate({ cardId });
     utils.auditLog.listByCard.invalidate({ cardId });
+    // Changing the card's type changes which FORMULA/ROLLUP definitions
+    // apply to it. Neither invalidate() nor refetch() is enough on its
+    // own: when the panel has just opened, CustomFieldsSection's very
+    // first listValues fetch (queried before this mutation committed)
+    // can still be in flight, and React Query's fetch() only cancels an
+    // in-flight request when it already has prior data to fall back on —
+    // on a first-ever fetch it just hands back the same stale in-flight
+    // promise. cancel() first forces refetch() to actually issue a new
+    // request instead of reusing that stale one.
+    utils.customField.listValues.cancel({ cardId }).then(() => utils.customField.listValues.refetch({ cardId }));
     onChanged();
   };
 

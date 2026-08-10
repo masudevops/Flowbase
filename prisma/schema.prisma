@@ -41,6 +41,7 @@ enum CustomFieldType {
   NUMBER
   SELECT
   FORMULA
+  ROLLUP
 }
 
 enum AuditAction {
@@ -309,7 +310,8 @@ model CardType {
 
 /// A user-definable field, scoped to one CardType (not the whole board)
 /// — a "Bug" type and a "Feature" type on the same board can have
-/// different custom fields. Field types: TEXT, NUMBER, SELECT, FORMULA.
+/// different custom fields. Field types: TEXT, NUMBER, SELECT, FORMULA,
+/// ROLLUP.
 model CustomFieldDefinition {
   id             String          @id @default(cuid())
   organizationId String          @map("organization_id")
@@ -317,15 +319,17 @@ model CustomFieldDefinition {
   name           String
   fieldType      CustomFieldType @map("field_type")
   /// Only meaningful for SELECT — a string array of the admin-defined
-  /// options. Left null for TEXT/NUMBER/FORMULA.
+  /// options. Left null for TEXT/NUMBER/FORMULA/ROLLUP.
   options        Json?
-  /// Only meaningful for FORMULA — shape:
-  /// { leftFieldId: string, operator: "+" | "-" | "*" | "/",
-  ///   right: { type: "field", fieldId: string } | { type: "constant", value: number } }.
-  /// Computed at read time (src/lib/formula.ts), never stored in
-  /// CustomFieldValue — always reflects the referenced fields' current
-  /// values instead of risking a stale cached number. Left null for
-  /// TEXT/NUMBER/SELECT.
+  /// Computed-field definition, shape depends on fieldType — never
+  /// stored in CustomFieldValue, computed at read time
+  /// (src/lib/formula.ts) so it can't go stale:
+  /// - FORMULA: { leftFieldId: string, operator: "+" | "-" | "*" | "/",
+  ///   right: { type: "field", fieldId: string } | { type: "constant", value: number } }
+  /// - ROLLUP: { sourceFieldId: string, aggregate: "SUM" } — sums
+  ///   sourceFieldId's value across this card's direct children whose
+  ///   cardTypeId matches (children of a different type are skipped).
+  /// Left null for TEXT/NUMBER/SELECT.
   formula        Json?
   /// Fractional-index string — fields render in this order, append-only
   /// for v1 (no drag-to-reorder UI yet).

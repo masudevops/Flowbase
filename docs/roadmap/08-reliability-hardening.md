@@ -94,14 +94,19 @@ below, don't sign up for or wire in either without checking first.
 - [x] Regression test in `tests/comment-lifecycle.test.ts`: 31 rapid
       `comment.create` calls from a dedicated test user, asserting the
       31st throws a "too many requests" error.
-- **Known local-dev quirk**: `next dev` has no reverse proxy setting
-  `x-forwarded-for`, so `getClientIp()` falls back to a fixed
-  `"local-dev"` string — every local signup/login shares one budget
-  across all local testing. Not fixed with an environment-based bypass
-  on purpose (a bypass in rate-limiting code is exactly the kind of
-  thing that risks accidentally shipping to production); if a developer
-  hits the local wall while iterating, clear it directly:
-  `redis-cli -u $REDIS_URL DEL rl:signup:local-dev`.
+- **Known local-dev quirk**: locally, `x-forwarded-for` is actually
+  present (Next.js dev sets it to the loopback address, `::1` —
+  confirmed live, not the `"local-dev"` fallback originally assumed
+  here), so every local signup/login shares one budget keyed by that
+  same address across all local testing — hit this for real during
+  Epic 10's live verification (6 signups against a 5/hour budget). Not
+  fixed with an environment-based bypass on purpose (a bypass in
+  rate-limiting code is exactly the kind of thing that risks
+  accidentally shipping to production); if a developer hits the local
+  wall while iterating, clear it directly:
+  `redis-cli -u $REDIS_URL DEL "rl:signup:::1"` (check the exact key
+  first with `redis-cli -u $REDIS_URL KEYS "rl:signup:*"` — the loopback
+  address's exact string form can vary).
 - [x] Returns a clear `TRPCError({ code: "TOO_MANY_REQUESTS" })` for the
       tRPC procedures and a readable `{ error }` state for the server
       actions, not a silent failure — unlike `sendEmail`, a rate-limit
