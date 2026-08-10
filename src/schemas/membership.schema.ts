@@ -35,3 +35,7 @@ export const removeMemberSchema = z.object({
 export const acceptInviteSchema = z.object({
   token: z.string(),
 });
+
+export const acceptInviteByIdSchema = z.object({
+  inviteId: z.string(),
+});

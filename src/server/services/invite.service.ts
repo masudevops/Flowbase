@@ -107,6 +107,16 @@ type InviteLookupRow = {
   expires_at: Date;
 };
 
+function mapInviteRow(row: InviteLookupRow) {
+  return {
+    id: row.id,
+    organizationId: row.organization_id,
+    email: row.email,
+    role: row.role,
+    organization: { name: row.organization_name, slug: row.organization_slug },
+  };
+}
+
 /// Someone redeeming an invite link isn't a member of the org yet (and
 /// may not even be logged in), so the normal RLS-scoped path can't SELECT
 /// the invite row. Calls the app.get_invite_by_token SECURITY DEFINER SQL
@@ -124,43 +134,66 @@ export async function getInviteByToken(token: string) {
     return null;
   }
 
-  return {
-    id: row.id,
-    organizationId: row.organization_id,
-    email: row.email,
-    role: row.role,
-    organization: { name: row.organization_name, slug: row.organization_slug },
-  };
+  return mapInviteRow(row);
 }
 
-/// Runs inside the caller's normal RLS-scoped transaction. Uses a raw
-/// INSERT (no RETURNING) for the membership row for the same reason
-/// createOrganization does in organization.service.ts: Postgres also
-/// enforces the table's SELECT policy against a RETURNING row, and this
-/// user isn't visible to that SELECT policy (current_org_ids()) until
-/// the row exists — Prisma's .create() always does RETURNING, so it hits
-/// that chicken-and-egg wall. Once the raw insert lands, current_org_ids()
-/// sees it within the same transaction, so the audit log write and the
-/// invite delete right after (both normal Prisma calls) go through fine.
-export async function acceptInvite(
-  db: Prisma.TransactionClient,
-  params: { token: string; userId: string; userEmail: string },
-) {
-  const invite = await getInviteByToken(params.token);
-  if (!invite) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "This invite is invalid or has expired." });
-  }
-  if (invite.email.toLowerCase() !== params.userEmail.toLowerCase()) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "This invite was sent to a different email address.",
-    });
+/// Same shape as getInviteByToken, but keyed by id instead of token —
+/// backs acceptInviteById, used from /onboarding's "Join {org}" list
+/// (see listPendingInvitesForEmail below), which surfaces invite ids
+/// rather than raw tokens to the client.
+async function getInviteById(id: string) {
+  const rows = await prisma.$queryRaw<InviteLookupRow[]>`
+    select * from app.get_invite_by_id(${id})
+  `;
+  const row = rows[0];
+
+  if (!row || row.status !== "INVITED" || row.expires_at < new Date()) {
+    return null;
   }
 
+  return mapInviteRow(row);
+}
+
+/// Powers /onboarding's fallback: a signed-in user with a pending invite
+/// sees "Join {org}" even if the invite token didn't survive the
+/// signup/login redirect chain (e.g. they navigated away from the
+/// emailed link and came back later). Only ever called with the caller's
+/// own verified email (see membership.listMyInvites), never
+/// user-suppliable input — this isn't a general invite-lookup-by-email
+/// endpoint.
+export async function listPendingInvitesForEmail(email: string) {
+  const rows = await prisma.$queryRaw<InviteLookupRow[]>`
+    select * from app.get_invites_by_email(${email})
+  `;
+  return rows.map((row) => ({
+    id: row.id,
+    organizationName: row.organization_name,
+    organizationSlug: row.organization_slug,
+    role: row.role,
+  }));
+}
+
+/// Shared by acceptInvite (by token) and acceptInviteById (by id, from
+/// /onboarding's "Join {org}" list) once each has resolved and validated
+/// its own invite lookup. Runs inside the caller's normal RLS-scoped
+/// transaction. Uses a raw INSERT (no RETURNING) for the membership row
+/// for the same reason createOrganization does in
+/// organization.service.ts: Postgres also enforces the table's SELECT
+/// policy against a RETURNING row, and this user isn't visible to that
+/// SELECT policy (current_org_ids()) until the row exists — Prisma's
+/// .create() always does RETURNING, so it hits that chicken-and-egg
+/// wall. Once the raw insert lands, current_org_ids() sees it within the
+/// same transaction, so the audit log write and the invite delete right
+/// after (both normal Prisma calls) go through fine.
+async function joinOrgFromInvite(
+  db: Prisma.TransactionClient,
+  invite: NonNullable<Awaited<ReturnType<typeof getInviteByToken>>>,
+  userId: string,
+) {
   try {
     await db.$executeRaw`
       insert into memberships (id, organization_id, user_id, role, status, created_at)
-      values (${randomUUID()}, ${invite.organizationId}, ${params.userId}, ${invite.role}::"MembershipRole", 'ACTIVE', now())
+      values (${randomUUID()}, ${invite.organizationId}, ${userId}, ${invite.role}::"MembershipRole", 'ACTIVE', now())
     `;
   } catch (err) {
     // Double-submit race (e.g. accept clicked twice): the unique
@@ -178,14 +211,53 @@ export async function acceptInvite(
 
   await writeAuditLog(db, {
     organizationId: invite.organizationId,
-    actorId: params.userId,
+    actorId: userId,
     action: "MEMBER_INVITED",
     entityType: "membership",
-    entityId: params.userId,
+    entityId: userId,
     metadata: { via: "invite" },
   });
 
   await db.invite.delete({ where: { id: invite.id } });
 
   return { organizationSlug: invite.organization.slug };
+}
+
+export async function acceptInvite(
+  db: Prisma.TransactionClient,
+  params: { token: string; userId: string; userEmail: string },
+) {
+  const invite = await getInviteByToken(params.token);
+  if (!invite) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "This invite is invalid or has expired." });
+  }
+  if (invite.email.toLowerCase() !== params.userEmail.toLowerCase()) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "This invite was sent to a different email address.",
+    });
+  }
+  return joinOrgFromInvite(db, invite, params.userId);
+}
+
+/// Backs /onboarding's "Join {org}" list (see listPendingInvitesForEmail
+/// above) — same acceptance logic as acceptInvite, just keyed by the
+/// invite id that endpoint returns instead of the raw token, since a
+/// list of a user's own pending invites has no reason to expose the
+/// bearer-credential token for each one.
+export async function acceptInviteById(
+  db: Prisma.TransactionClient,
+  params: { inviteId: string; userId: string; userEmail: string },
+) {
+  const invite = await getInviteById(params.inviteId);
+  if (!invite) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "This invite is invalid or has expired." });
+  }
+  if (invite.email.toLowerCase() !== params.userEmail.toLowerCase()) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "This invite was sent to a different email address.",
+    });
+  }
+  return joinOrgFromInvite(db, invite, params.userId);
 }

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureUserRecord } from "@/lib/auth";
 import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
 import { getClientIp } from "@/lib/request-ip";
+import { safeRedirectTarget } from "@/lib/safe-redirect";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -20,6 +21,7 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
 
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const next = safeRedirectTarget(formData.get("next")?.toString());
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -29,5 +31,5 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
   }
 
   await ensureUserRecord({ id: data.user.id, email: data.user.email! });
-  redirect("/onboarding");
+  redirect(next ?? "/onboarding");
 }

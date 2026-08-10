@@ -69,12 +69,12 @@ export default async function InvitePage({
                   open this link again to join.
                 </p>
                 <div className="flex gap-2">
-                  <Link href="/login" className="flex-1">
+                  <Link href={`/login?next=${encodeURIComponent(`/invite/${token}`)}`} className="flex-1">
                     <Button variant="secondary" className="w-full">
                       Log in
                     </Button>
                   </Link>
-                  <Link href="/signup" className="flex-1">
+                  <Link href={`/signup?next=${encodeURIComponent(`/invite/${token}`)}`} className="flex-1">
                     <Button className="w-full">Sign up</Button>
                   </Link>
                 </div>

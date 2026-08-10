@@ -8,9 +8,18 @@ import {
   updateMemberRoleSchema,
   removeMemberSchema,
   acceptInviteSchema,
+  acceptInviteByIdSchema,
 } from "@/schemas/membership.schema";
 import { updateMemberRole, removeMember } from "../services/membership.service";
-import { createInvite, listPendingInvites, cancelInvite, acceptInvite, getInviteByToken } from "../services/invite.service";
+import {
+  createInvite,
+  listPendingInvites,
+  cancelInvite,
+  acceptInvite,
+  acceptInviteById,
+  getInviteByToken,
+  listPendingInvitesForEmail,
+} from "../services/invite.service";
 import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
 
 export const membershipRouter = router({
@@ -90,6 +99,24 @@ export const membershipRouter = router({
       const supabaseUser = await ctx.db.user.findUniqueOrThrow({ where: { id: ctx.userId } });
       return acceptInvite(ctx.db, {
         token: input.token,
+        userId: ctx.userId,
+        userEmail: supabaseUser.email,
+      });
+    }),
+
+  /// Powers /onboarding's "Join {org}" fallback for a signed-in user
+  /// whose invite token didn't survive the signup/login redirect chain.
+  listMyInvites: protectedProcedure.query(async ({ ctx }) => {
+    const supabaseUser = await ctx.db.user.findUniqueOrThrow({ where: { id: ctx.userId } });
+    return listPendingInvitesForEmail(supabaseUser.email);
+  }),
+
+  acceptInviteById: protectedProcedure
+    .input(acceptInviteByIdSchema)
+    .mutation(async ({ ctx, input }) => {
+      const supabaseUser = await ctx.db.user.findUniqueOrThrow({ where: { id: ctx.userId } });
+      return acceptInviteById(ctx.db, {
+        inviteId: input.inviteId,
         userId: ctx.userId,
         userEmail: supabaseUser.email,
       });

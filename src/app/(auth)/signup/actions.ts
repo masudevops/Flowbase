@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureUserRecord } from "@/lib/auth";
 import { checkRateLimit, RateLimitExceededError } from "@/lib/ratelimit";
 import { getClientIp } from "@/lib/request-ip";
+import { safeRedirectTarget } from "@/lib/safe-redirect";
 
 export type SignupState = { error?: string; message?: string } | undefined;
 
@@ -21,13 +22,20 @@ export async function signup(_prevState: SignupState, formData: FormData): Promi
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "").trim();
+  // e.g. an invite link — /invite/[token] appends this so accepting an
+  // invite survives the signup -> (maybe email confirmation) -> onboarding
+  // hop instead of dumping the new user on the bare "create workspace"
+  // screen with no memory of what they were invited to.
+  const next = safeRedirectTarget(formData.get("next")?.toString());
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/callback`,
+      emailRedirectTo: next
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/callback?next=${encodeURIComponent(next)}`
+        : `${process.env.NEXT_PUBLIC_APP_URL}/callback`,
       data: { full_name: fullName },
     },
   });
@@ -42,10 +50,12 @@ export async function signup(_prevState: SignupState, formData: FormData): Promi
 
   if (!data.session) {
     // Email confirmation is enabled on this Supabase project — no session
-    // yet, the user needs to click the emailed link first.
+    // yet, the user needs to click the emailed link first. `next` (if
+    // any) is carried in emailRedirectTo above, so that link's own
+    // /callback visit still lands them where they meant to go.
     return { message: "Check your email to confirm your account, then log in." };
   }
 
   await ensureUserRecord({ id: data.user.id, email: data.user.email!, fullName });
-  redirect("/onboarding");
+  redirect(next ?? "/onboarding");
 }
