@@ -10,6 +10,12 @@ const limiters = {
   login: new RateLimiterRedis({ storeClient: redis, keyPrefix: "rl:login", points: 10, duration: 15 * 60 }),
   invite: new RateLimiterRedis({ storeClient: redis, keyPrefix: "rl:invite", points: 20, duration: 60 * 60 }),
   comment: new RateLimiterRedis({ storeClient: redis, keyPrefix: "rl:comment", points: 30, duration: 10 * 60 }),
+  forgotPassword: new RateLimiterRedis({
+    storeClient: redis,
+    keyPrefix: "rl:forgot-password",
+    points: 5,
+    duration: 60 * 60,
+  }),
 };
 
 export type RateLimitedAction = keyof typeof limiters;

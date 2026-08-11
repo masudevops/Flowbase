@@ -38,6 +38,11 @@ export default function LoginPage() {
           required
           autoComplete="current-password"
         />
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="font-medium text-[#1D5C8A] dark:text-[#5FB4E0]">
+            Forgot password?
+          </Link>
+        </p>
         {state?.error && (
           <p className="text-sm text-[#C1440E] dark:text-[#E8703A]">{state.error}</p>
         )}

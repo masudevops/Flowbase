@@ -42,6 +42,8 @@ export async function updateSession(request: NextRequest) {
     pathname === "/" ||
     pathname === "/login" ||
     pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password" ||
     pathname === "/callback" ||
     // tRPC procedures do their own auth check and return a JSON-RPC error
     // shape the client understands — redirecting here would hand the

@@ -2,8 +2,10 @@
 
 **Status:** In progress — 12.1's config fix applied (Supabase Site URL +
 Redirect URLs updated to kelbara.com), not yet verified with a live
-round-trip; 12.2–12.5 not started; 12.6 (forgot password) added and not
-started
+round-trip; 12.2–12.5 not started; 12.6 (forgot password) implemented,
+redesigned after two live `otp_expired` failures (see 12.6), and
+verified end-to-end against an admin-generated token — still needs one
+more real-email round-trip to close out
 **Schema change:** No
 **Risk:** Low — mostly configuration/verification, not new surface area
 
@@ -89,23 +91,62 @@ the concrete domain leak found along the way.
       is the one that exercises 12.1's fix, since it's the only one
       that round-trips through an email link after the initial click.
 
-### 12.6 — Add password recovery ("forgot password")
-- [ ] **Confirmed gap**: there is currently no account-recovery flow at
-      all — no "Forgot password?" link on `/login`, no reset page, no
+### 12.6 — Add password recovery ("forgot password") — DONE, verified end-to-end
+- [x] **Confirmed gap**: there was no account-recovery flow at all — no
+      "Forgot password?" link on `/login`, no reset page, no
       change-password option in settings. Since login is by email (not
-      a separate username), the only real gap is password recovery.
-- [ ] `/forgot-password`: email input, calls
-      `supabase.auth.resetPasswordForEmail(email, { redirectTo:
-      `${APP_URL}/callback?next=/reset-password` })`, rate-limited the
-      same way as login/signup (new `checkRateLimit` bucket).
-- [ ] `/reset-password`: new-password form, reached after the recovery
-      link round-trips through the existing `/callback` code-exchange
-      handler (same mechanism signup confirmation and invite emails
-      already use); calls `supabase.auth.updateUser({ password })`.
-- [ ] "Forgot password?" link added to `/login`, next to the password
-      field.
-- [ ] Depends on 12.1's fix being live-verified first — this reuses the
-      exact same Supabase redirect plumbing.
+      a separate username), the only real gap was password recovery.
+- [x] `src/app/(auth)/forgot-password/{page,actions}.tsx`: email input,
+      calls `supabase.auth.resetPasswordForEmail`. Always returns the
+      same generic "reset link is on its way" message regardless of
+      whether the account exists — Supabase itself doesn't distinguish
+      the two for this call, by design, so this form can't be used to
+      enumerate registered accounts. Rate-limited (new `forgotPassword`
+      bucket in `src/lib/ratelimit.ts`, 5/hour by IP, same pattern as
+      signup/login). "Forgot password?" link added to `/login`.
+- [x] **First implementation (superseded)**: reset-password originally
+      lived at `src/app/(app)/reset-password/`, reached via the same
+      `/callback` code-exchange route signup/invite use, verifying via
+      Supabase's default `{{ .ConfirmationURL }}` email link. This
+      consistently failed live with `otp_expired` — traced to the
+      link being consumed before the user's real click, most likely
+      Gmail's link-scanning being especially aggressive against
+      `kelbara.com` as a brand-new, no-reputation sending domain
+      (Resend's click-tracking was checked and confirmed off, ruling
+      that out as the cause).
+- [x] **Current implementation**: `src/app/reset-password/page.tsx`, a
+      top-level route (moved out of `(app)` — it must render for
+      logged-out visitors, since establishing the session *is* what
+      this page does). The Supabase "Reset Password" email template
+      (Authentication → Emails; required setting up SMTP via Resend on
+      the Free plan to unlock template editing) was changed to link
+      directly here with `?token_hash={{ .TokenHash }}&type=recovery`
+      instead of `{{ .ConfirmationURL }}`. Verification
+      (`supabase.auth.verifyOtp`) does **not** fire automatically on
+      page load — it's gated behind an explicit "Continue" button,
+      since verifyOtp consumes the token on first use and an
+      automatic on-load trigger is exactly what a JS-capable scanner
+      would still consume before a real click; a scanner doesn't
+      simulate a user click. `src/app/(auth)/forgot-password/actions.ts`
+      updated to point `redirectTo` at `/reset-password` directly (no
+      longer routes through `/callback` for this flow — `redirectTo`
+      isn't even used by the new template's link, but still populated
+      for any Supabase-side allowlist checks).
+- [x] `src/lib/supabase/middleware.ts`'s `isPublicPath` allowlist: added
+      `/forgot-password` (missing entirely — same class of bug as the
+      `/opengraph-image` redirect issue from the share-metadata work)
+      and `/reset-password` (now a public top-level route by design).
+- [x] **Verified end-to-end live** via Playwright against an
+      admin-API-generated recovery token (`auth.admin.generateLink`),
+      exercising the full pending → Continue → verifyOtp → password
+      form → `updateUser` → redirect-to-`/onboarding` path with no
+      email involved at all — isolates the app code from email
+      delivery/scanning, which is a variable outside this repo's
+      control. `tsc`/`lint`/`build` clean.
+- [ ] **Not yet re-verified with a real received email** since the
+      button-gate change — the pre-button-gate version failed live
+      twice with `otp_expired`; the button gate is the fix, but hasn't
+      had its own real-email round trip yet.
 
 ## Acceptance criteria
 
